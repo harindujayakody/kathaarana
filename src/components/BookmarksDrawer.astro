@@ -192,8 +192,10 @@
       if (totalSaved > 0) {
         headerBadge.textContent = totalSaved.toString();
         headerBadge.classList.remove('hidden');
+        headerBadge.classList.add('inline-flex');
       } else {
         headerBadge.classList.add('hidden');
+        headerBadge.classList.remove('inline-flex');
       }
     }
 

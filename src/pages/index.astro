@@ -47,60 +47,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
 >
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-16">
     
-    <!-- Platform Hero & Orientation -->
-    <section class="relative rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] p-6 sm:p-10 overflow-hidden shadow-sm">
-      <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-[var(--theme-accent)]/10 blur-3xl pointer-events-none"></div>
-
-      <div class="max-w-3xl space-y-4">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold accent-badge border border-[var(--theme-accent)]/20">
-          <span class="w-2 h-2 rounded-full accent-bg animate-pulse"></span>
-          <span>නොමිලේ සිංහල වෙබ් නවකතා එකතුව</span>
-        </div>
-
-        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[var(--reader-text)] leading-tight font-serif">
-          සිංහල නවකතාවල අසීමිත ලෝකය ඔබේ ඇඟිලි තුඩුවලට
-        </h1>
-
-        <p class="text-sm sm:text-base text-[var(--reader-muted)] leading-relaxed font-novel-sans">
-          ශ්‍රී ලාංකේය දක්ෂ ලේඛකයන්ගේ අබිරහස්, ත්‍රාසජනක, ආදර සහ ඓතිහාසික සිංහල නවකතා සහ කෙටිකතා කියවීමට නිර්මාණය කළ නිදහස් ඩිජිටල් අවකාශය. ජංගම දුරකථන සඳහා විශේෂිතව සකස් කළ 17px අකුරු මෝස්තරය.
-        </p>
-
-        <!-- Feature Pills -->
-        <div class="flex flex-wrap gap-2.5 pt-2 text-xs text-[var(--reader-muted)]">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
-            <span>📱</span> <span>ජංගම දුරකථන කියවීම</span>
-          </span>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
-            <span>⚡</span> <span>වේගවත් Edge SSG</span>
-          </span>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
-            <span>🌙</span> <span>අඳුරු / ආලෝක තේමා</span>
-          </span>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
-            <span>🔖</span> <span>ස්වයංක්‍රීය පිටුසන්</span>
-          </span>
-        </div>
-
-        <!-- Quick Action CTAs -->
-        <div class="flex flex-wrap items-center gap-3 pt-3">
-          <a
-            href="#novels-catalog"
-            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl accent-bg font-semibold text-xs shadow-xs active:scale-95 transition-all"
-          >
-            <span>නවකතා කියවීම අරඹන්න</span>
-            <span>↓</span>
-          </a>
-          <a
-            href="/bookmarks"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/50 text-xs font-semibold text-[var(--reader-text)] active:scale-95 transition-all"
-          >
-            <span>🔖 මගේ කියවීම් ලැයිස්තුව (Bookmarks)</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Featured Novel Spotlight -->
+    <!-- Featured Novel Spotlight (Immediate Hero) -->
     <section class="bg-[var(--reader-panel)] border border-[var(--reader-border)] rounded-3xl p-6 sm:p-8 shadow-sm transition-colors">
       <div class="flex flex-col md:flex-row gap-8 items-start">
         
@@ -202,35 +149,35 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
     <!-- Catchy & Professional Novel Grid Catalog -->
     <section id="novels-catalog" class="space-y-6">
       
-      <!-- Catalog Header & Filter Controls -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[var(--reader-border)]">
-        <div>
+      <!-- Sleek Integrated Toolbar -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[var(--reader-border)]">
+        <div class="flex items-center gap-3">
           <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--reader-text)] font-serif">
             සියලුම නවකතා
           </h2>
-          <p class="text-xs sm:text-sm text-[var(--reader-muted)] mt-1">
-            විවිධ කතුවරුන්ගේ සිංහල නවකතා නාමාවලිය
-          </p>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold accent-badge border border-[var(--theme-accent)]/20">
+            {novels.length}
+          </span>
         </div>
 
-        <!-- Filter Segment: Status (All / Ongoing / Completed) -->
         <div class="flex flex-wrap items-center gap-2">
-          <div class="flex p-1 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-xs font-medium">
+          <!-- Status Segmented Control -->
+          <div class="inline-flex p-1 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-xs font-medium">
             <button
               data-filter-status="all"
-              class="status-filter-btn px-3 py-1.5 rounded-lg accent-bg font-semibold shadow-xs transition-all"
+              class="status-filter-btn px-3 py-1.5 rounded-lg accent-bg font-semibold shadow-xs transition-all cursor-pointer"
             >
               සියලුම ({novels.length})
             </button>
             <button
               data-filter-status="Ongoing"
-              class="status-filter-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all"
+              class="status-filter-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all cursor-pointer"
             >
               ලියවෙමින් පවතින
             </button>
             <button
               data-filter-status="Completed"
-              class="status-filter-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all"
+              class="status-filter-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all cursor-pointer"
             >
               සම්පූර්ණ වූ
             </button>
@@ -238,29 +185,28 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
 
           <a
             href="/novels"
-            class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold accent-text hover:underline px-2.5 py-1.5 rounded-lg border border-[var(--reader-border)]"
+            class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold accent-text hover:underline px-3 py-1.5 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-panel)]"
           >
-            <span>සම්පූර්ණ නාමාවලිය</span>
+            <span>සම්පූර්ණ පිටුව</span>
             <span>→</span>
           </a>
         </div>
       </div>
 
-      <!-- Quick Genre Pills Filter -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-2 text-xs scrollbar-none">
-        <span class="text-[var(--reader-muted)] shrink-0 text-[11px] font-medium">වර්ගීකරණය:</span>
+      <!-- Quick Genre Carousel (No nested boxes) -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none">
         <button
           data-filter-genre="all"
-          class="genre-filter-btn px-3 py-1.5 rounded-xl accent-badge font-semibold shrink-0 transition-all border border-[var(--theme-accent)]/30"
+          class="genre-filter-btn px-3 py-1.5 rounded-xl accent-badge font-semibold shrink-0 transition-all border border-[var(--theme-accent)]/30 cursor-pointer"
         >
-          සියලු වර්ග
+          ✨ සියලු වර්ග
         </button>
         {allGenres.map(g => (
           <button
             data-filter-genre={g}
-            class="genre-filter-btn px-3 py-1.5 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-[var(--reader-muted)] hover:text-[var(--reader-text)] shrink-0 transition-all"
+            class="genre-filter-btn px-3 py-1.5 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:border-[var(--theme-accent)]/40 shrink-0 transition-all cursor-pointer"
           >
-            {g}
+            {GENRE_MAP[getGenreSlug(g)]?.icon || '•'} {g}
           </button>
         ))}
       </div>
