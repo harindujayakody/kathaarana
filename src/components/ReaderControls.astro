@@ -20,7 +20,7 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
 
 <!-- Reading Progress Bar (Top of Viewport) -->
 <div id="reading-progress-container" class="fixed top-0 left-0 right-0 h-1 z-50 pointer-events-none bg-transparent">
-  <div id="reading-progress-bar" class="h-full bg-emerald-600 dark:bg-emerald-400 transition-all duration-75 ease-out w-0"></div>
+  <div id="reading-progress-bar" class="h-full accent-bg transition-all duration-75 ease-out w-0"></div>
 </div>
 
 <!-- Floating Bottom Mobile & Desktop Reader Dock -->
@@ -52,10 +52,10 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
     <!-- Table of Contents / Settings Drawer Trigger -->
     <button
       id="btn-open-settings"
-      class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--reader-border)]/40 hover:bg-[var(--reader-border)]/80 transition-colors font-medium text-xs sm:text-sm"
+      class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--reader-border)]/40 hover:bg-[var(--reader-border)]/80 transition-colors font-medium text-xs sm:text-sm cursor-pointer"
       aria-label="පරිච්ඡේද සහ සැකසුම්"
     >
-      <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-4 h-4 accent-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
       </svg>
       <span>පරි. {currentChapterNum}</span>
@@ -64,8 +64,8 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
 
     <!-- Quick Font Resizer in Dock -->
     <div class="flex items-center gap-0.5 bg-[var(--reader-border)]/30 rounded-xl p-0.5">
-      <button id="btn-font-dec" class="px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-panel)] transition-colors text-xs font-semibold" title="කුඩා අකුරු">A-</button>
-      <button id="btn-font-inc" class="px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-panel)] transition-colors text-xs font-semibold" title="විශාල අකුරු">A+</button>
+      <button id="btn-font-dec" class="px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-panel)] transition-colors text-xs font-semibold cursor-pointer" title="කුඩා අකුරු">A-</button>
+      <button id="btn-font-inc" class="px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-panel)] transition-colors text-xs font-semibold cursor-pointer" title="විශාල අකුරු">A+</button>
     </div>
 
     <!-- Next Chapter Button -->
@@ -73,7 +73,7 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
       <a
         href={nextUrl}
         id="btn-next-chap"
-        class="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95 transition-all font-medium text-xs sm:text-sm"
+        class="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl accent-bg active:scale-95 transition-all font-medium text-xs sm:text-sm shadow-xs"
         title="ඊළඟ පරිච්ඡේදය (Right Arrow)"
       >
         <span class="hidden sm:inline">ඊළඟ</span>
@@ -160,13 +160,13 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
               href={ch.url}
               class={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-colors ${
                 ch.isCurrent
-                  ? 'bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-600/20'
+                  ? 'accent-badge font-semibold border border-[var(--theme-accent)]/30'
                   : 'hover:bg-[var(--reader-border)]/50 text-[var(--reader-text)] border border-transparent'
               }`}
             >
               <span class="truncate">පරිච්ඡේදය {ch.number}: {ch.title}</span>
               {ch.isCurrent && (
-                <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-600 text-white shrink-0 ml-2">කියවමින්</span>
+                <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded accent-bg shrink-0 ml-2">කියවමින්</span>
               )}
             </a>
           ))}
@@ -178,7 +178,7 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
     <!-- Modal Footer -->
     <div class="pt-3 border-t border-[var(--reader-border)] flex justify-between items-center text-xs text-[var(--reader-muted)]">
       <span>පිටු පෙරලීමට <kbd class="px-1 py-0.5 bg-[var(--reader-border)]/60 rounded">←</kbd> <kbd class="px-1 py-0.5 bg-[var(--reader-border)]/60 rounded">→</kbd></span>
-      <a href={`/novels/${novelSlug}`} class="text-emerald-600 dark:text-emerald-400 hover:underline">නවකතා තොරතුරු</a>
+      <a href={`/novels/${novelSlug}`} class="accent-text hover:underline">නවකතා තොරතුරු</a>
     </div>
 
   </div>
@@ -215,6 +215,7 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
   const applyTheme = (theme: string) => {
     root.setAttribute('data-theme', theme);
     localStorage.setItem('katha_theme', theme);
+    window.dispatchEvent(new CustomEvent('katha-theme-changed', { detail: theme }));
   };
   document.querySelectorAll('[data-set-theme]').forEach(btn => {
     btn.addEventListener('click', () => {

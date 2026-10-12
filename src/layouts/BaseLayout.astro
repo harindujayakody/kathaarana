@@ -38,7 +38,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="si" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -83,17 +83,17 @@ const {
       })();
     </script>
   </head>
-  <body class="min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-900 dark:selection:text-emerald-100">
+  <body class="min-h-screen flex flex-col selection:bg-[#0F766E]/20 selection:text-[#0F766E] dark:selection:bg-[#2DD4BF]/20 dark:selection:text-[#2DD4BF]">
     
     {!hideHeader && (
-      <header class="border-b border-[var(--reader-border)] bg-[var(--reader-panel)]/80 backdrop-blur-md sticky top-0 z-30 transition-colors">
+      <header class="border-b border-[var(--reader-border)] bg-[var(--reader-panel)]/90 backdrop-blur-md sticky top-0 z-30 transition-colors">
         <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
           <a href="/" class="flex items-center gap-2 group">
-            <span class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">
+            <span class="w-8 h-8 rounded-lg accent-bg flex items-center justify-center font-bold text-sm shadow-xs group-hover:scale-105 transition-transform">
               ක
             </span>
             <div class="flex flex-col">
-              <span class="font-bold text-base tracking-tight leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+              <span class="font-bold text-base tracking-tight leading-tight group-hover:accent-text transition-colors">
                 Katha Arana
               </span>
               <span class="text-[10px] text-[var(--reader-muted)] -mt-0.5 tracking-wider font-medium">
@@ -102,23 +102,42 @@ const {
             </div>
           </a>
 
-          <nav class="flex items-center gap-3">
+          <nav class="flex items-center gap-2 sm:gap-3">
             <a
-              href="/#chapters"
-              class="text-xs font-medium text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-border)]/40"
+              href="/#novels"
+              class="text-xs font-medium text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors px-2 py-1.5 rounded-lg hover:bg-[var(--reader-border)]/40 hidden sm:inline"
             >
-              Latest Chapters
+              නවකතා
             </a>
             <a
               href="/rss.xml"
-              class="text-xs font-medium text-amber-600 dark:text-amber-400 hover:opacity-80 transition-opacity flex items-center gap-1 px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-border)]/40"
+              class="text-xs font-medium text-amber-600 dark:text-amber-400 hover:opacity-80 transition-opacity flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-[var(--reader-border)]/40"
               title="Subscribe via RSS"
             >
               <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93v-2.83Z"/>
               </svg>
-              <span>RSS</span>
+              <span class="hidden sm:inline">RSS</span>
             </a>
+
+            <!-- Mobile & Desktop Responsive Light / Dark Mode Toggle -->
+            <button
+              id="global-theme-toggle"
+              type="button"
+              class="p-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/50 active:scale-95 transition-all text-[var(--reader-text)] flex items-center gap-1.5 cursor-pointer"
+              aria-label="තේමාව මාරු කරන්න (Light / Dark mode)"
+              title="තේමාව මාරු කරන්න"
+            >
+              <!-- Sun Icon (Active in Dark/AMOLED) -->
+              <svg id="theme-sun-icon" class="w-4 h-4 hidden text-[#2DD4BF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <!-- Moon Icon (Active in Light/Sepia) -->
+              <svg id="theme-moon-icon" class="w-4 h-4 text-[#0F766E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+              <span id="theme-label" class="text-xs font-medium text-[var(--reader-muted)] hidden md:inline">තේමාව</span>
+            </button>
           </nav>
         </div>
       </header>
@@ -131,18 +150,54 @@ const {
     <footer class="border-t border-[var(--reader-border)] bg-[var(--reader-panel)] mt-20 py-10 transition-colors">
       <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--reader-muted)]">
         <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Katha Arana • SEO-First Static Edge Architecture</span>
+          <span class="w-2 h-2 rounded-full accent-bg animate-pulse"></span>
+          <span>කතා අරණ • SEO-First Static Edge Architecture</span>
         </div>
         <div class="flex items-center gap-4">
           <a href="/rss.xml" class="hover:underline">RSS Feed</a>
           <span>•</span>
           <a href="/sitemap-index.xml" class="hover:underline">Sitemap</a>
           <span>•</span>
-          <span class="text-emerald-700 dark:text-emerald-400 font-medium">Git-Push Workflow Ready</span>
+          <span class="accent-text font-medium">Cloudflare Edge Ready</span>
         </div>
       </div>
     </footer>
 
+    <!-- Global Theme Toggle Sync Script -->
+    <script>
+      const syncThemeIcons = () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const isDark = currentTheme === 'dark' || currentTheme === 'amoled';
+        const sun = document.getElementById('theme-sun-icon');
+        const moon = document.getElementById('theme-moon-icon');
+        const label = document.getElementById('theme-label');
+
+        if (sun && moon) {
+          if (isDark) {
+            sun.classList.remove('hidden');
+            moon.classList.add('hidden');
+            if (label) label.textContent = 'අඳුරු';
+          } else {
+            sun.classList.add('hidden');
+            moon.classList.remove('hidden');
+            if (label) label.textContent = 'ආලෝකය';
+          }
+        }
+      };
+
+      const toggleGlobalTheme = () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = (current === 'light' || current === 'sepia') ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('katha_theme', next);
+        syncThemeIcons();
+        window.dispatchEvent(new CustomEvent('katha-theme-changed', { detail: next }));
+      };
+
+      document.getElementById('global-theme-toggle')?.addEventListener('click', toggleGlobalTheme);
+      window.addEventListener('katha-theme-changed', syncThemeIcons);
+      // Initial sync on load
+      syncThemeIcons();
+    </script>
   </body>
 </html>

@@ -8,28 +8,34 @@
     --card-foreground: 220 20% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 12%;
-    --primary: 158 64% 30%;
+    --primary: 174 77% 26%;
     --primary-foreground: 0 0% 100%;
     --secondary: 35 25% 92%;
     --secondary-foreground: 220 20% 15%;
     --muted: 35 15% 94%;
     --muted-foreground: 220 10% 45%;
-    --accent: 158 40% 92%;
-    --accent-foreground: 158 64% 25%;
+    --accent: 174 40% 92%;
+    --accent-foreground: 174 77% 26%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     --border: 35 15% 88%;
     --input: 35 15% 88%;
-    --ring: 158 64% 30%;
+    --ring: 174 77% 26%;
     --radius: 0.75rem;
+
+    /* Theme Accent Colors (Light Mode) */
+    --theme-accent: #0F766E;
+    --theme-accent-hover: #115E59;
+    --theme-accent-text: #ffffff;
+    --theme-accent-soft: rgba(15, 118, 110, 0.12);
 
     /* Reader specific variables */
     --reader-bg: #fcfbf9;
     --reader-text: #22252a;
-    --reader-muted: #6b7280;
-    --reader-border: #e7e5e0;
+    --reader-muted: #64748b;
+    --reader-border: #e2e8f0;
     --reader-panel: #ffffff;
-    --reader-accent: #15803d;
+    --reader-accent: #0F766E;
   }
 
   /* Dark Theme */
@@ -40,26 +46,32 @@
     --card-foreground: 210 20% 95%;
     --popover: 222 30% 12%;
     --popover-foreground: 210 20% 95%;
-    --primary: 158 60% 48%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 171 67% 50%;
+    --primary-foreground: 174 77% 10%;
     --secondary: 222 25% 18%;
     --secondary-foreground: 210 20% 92%;
     --muted: 222 25% 16%;
     --muted-foreground: 215 15% 65%;
-    --accent: 158 35% 20%;
-    --accent-foreground: 158 60% 65%;
+    --accent: 171 40% 20%;
+    --accent-foreground: 171 67% 50%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 20% 98%;
     --border: 222 25% 18%;
     --input: 222 25% 18%;
-    --ring: 158 60% 48%;
+    --ring: 171 67% 50%;
 
-    --reader-bg: #0f141c;
+    /* Theme Accent Colors (Dark Mode) */
+    --theme-accent: #2DD4BF;
+    --theme-accent-hover: #14B8A6;
+    --theme-accent-text: #042f2e;
+    --theme-accent-soft: rgba(45, 212, 191, 0.16);
+
+    --reader-bg: #0b0f17;
     --reader-text: #e2e8f0;
     --reader-muted: #94a3b8;
     --reader-border: #1e293b;
-    --reader-panel: #161e2b;
-    --reader-accent: #34d399;
+    --reader-panel: #131b26;
+    --reader-accent: #2DD4BF;
   }
 
   /* Sepia Theme */
@@ -70,24 +82,29 @@
     --card-foreground: 25 35% 18%;
     --popover: 39 42% 88%;
     --popover-foreground: 25 35% 18%;
-    --primary: 25 55% 32%;
+    --primary: 174 77% 26%;
     --primary-foreground: 39 45% 95%;
     --secondary: 38 35% 85%;
     --secondary-foreground: 25 35% 20%;
     --muted: 38 30% 84%;
     --muted-foreground: 28 20% 40%;
     --accent: 38 40% 82%;
-    --accent-foreground: 25 55% 28%;
+    --accent-foreground: 174 77% 26%;
     --border: 37 30% 80%;
     --input: 37 30% 80%;
-    --ring: 25 55% 32%;
+    --ring: 174 77% 26%;
+
+    --theme-accent: #0F766E;
+    --theme-accent-hover: #115E59;
+    --theme-accent-text: #ffffff;
+    --theme-accent-soft: rgba(15, 118, 110, 0.15);
 
     --reader-bg: #f4ecd8;
     --reader-text: #433422;
     --reader-muted: #796650;
     --reader-border: #ded2b9;
     --reader-panel: #ece2c8;
-    --reader-accent: #8b5cf6;
+    --reader-accent: #0F766E;
   }
 
   /* AMOLED Black Theme */
@@ -98,24 +115,29 @@
     --card-foreground: 0 0% 90%;
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 90%;
-    --primary: 158 60% 50%;
+    --primary: 171 67% 50%;
     --primary-foreground: 0 0% 0%;
     --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 90%;
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 60%;
     --accent: 0 0% 14%;
-    --accent-foreground: 158 60% 65%;
+    --accent-foreground: 171 67% 50%;
     --border: 0 0% 14%;
     --input: 0 0% 14%;
-    --ring: 158 60% 50%;
+    --ring: 171 67% 50%;
+
+    --theme-accent: #2DD4BF;
+    --theme-accent-hover: #14B8A6;
+    --theme-accent-text: #042f2e;
+    --theme-accent-soft: rgba(45, 212, 191, 0.16);
 
     --reader-bg: #000000;
     --reader-text: #d4d4d8;
     --reader-muted: #71717a;
     --reader-border: #18181b;
     --reader-panel: #09090b;
-    --reader-accent: #34d399;
+    --reader-accent: #2DD4BF;
   }
 }
 
@@ -188,5 +210,29 @@ p, span, a, li, input, button, .font-sans {
 ::-webkit-scrollbar-thumb {
   background: var(--reader-muted);
   border-radius: 9999px;
-  opacity: 0.4;
+  opacity: 0.35;
+}
+
+/* Dynamic Accent Utility Classes */
+.accent-bg {
+  background-color: var(--theme-accent);
+  color: var(--theme-accent-text);
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.accent-bg:hover {
+  background-color: var(--theme-accent-hover);
+}
+
+.accent-text {
+  color: var(--theme-accent);
+  transition: color 0.2s ease;
+}
+
+.accent-badge {
+  background-color: var(--theme-accent-soft);
+  color: var(--theme-accent);
+}
+
+.accent-border {
+  border-color: var(--theme-accent);
 }

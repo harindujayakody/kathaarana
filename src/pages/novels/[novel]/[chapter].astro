@@ -98,7 +98,7 @@ const chapterList = siblings.map((s) => ({
 
     <!-- Chapter Header -->
     <header class="pb-8 mb-8 border-b border-[var(--reader-border)] space-y-2">
-      <div class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+      <div class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider accent-text">
         <span>පරිච්ඡේදය {chapter.data.chapterNumber}</span>
         <span>•</span>
         <a href={`/novels/${novel.id}`} class="hover:underline">{novel.data.title}</a>
@@ -109,7 +109,7 @@ const chapterList = siblings.map((s) => ({
       </h1>
 
       <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-[var(--reader-muted)] pt-1">
-        <span>කර්තෘ: <a href={`/authors/${novel.data.authorSlug}`} class="text-emerald-700 dark:text-emerald-400 font-semibold hover:underline">{novel.data.author}</a></span>
+        <span>කර්තෘ: <a href={`/authors/${novel.data.authorSlug}`} class="accent-text font-semibold hover:underline">{novel.data.author}</a></span>
         <span>•</span>
         <time datetime={chapter.data.publishDate.toISOString()}>{formattedDate}</time>
         <span>•</span>
@@ -127,7 +127,7 @@ const chapterList = siblings.map((s) => ({
     <!-- Chapter End Boundary & Navigation -->
     <div class="mt-16 pt-8 border-t border-[var(--reader-border)]">
       <div class="p-6 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-center space-y-4">
-        <div class="w-8 h-8 rounded-full bg-emerald-600/15 text-emerald-600 mx-auto flex items-center justify-center font-serif text-sm font-bold">
+        <div class="w-8 h-8 rounded-full accent-badge mx-auto flex items-center justify-center font-serif text-sm font-bold">
           ❦
         </div>
         <div>
@@ -160,7 +160,7 @@ const chapterList = siblings.map((s) => ({
           {nextUrl && (
             <a
               href={nextUrl}
-              class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium shadow-sm transition-all"
+              class="px-5 py-2.5 rounded-xl accent-bg text-xs sm:text-sm font-medium shadow-xs transition-all"
             >
               ඊළඟ පරිච්ඡේදය ({chapter.data.chapterNumber + 1}) →
             </a>
