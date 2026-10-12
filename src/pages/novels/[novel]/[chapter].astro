@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ReaderControls from '../../../components/ReaderControls.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allChapters = await getCollection('chapters');
+  const allNovels = await getCollection('novels');
+
+  return allChapters.map((chapter) => {
+    const parentNovel = allNovels.find((n) => n.id === chapter.data.novel) || {
+      id: chapter.data.novel,
+      data: {
+        title: 'සඳගිරි පව්ව',
+        author: 'නිශාන්ත බණ්ඩාර',
+        authorSlug: 'nishantha-bandara',
+        coverImage: '/images/the-shadow-throne-cover.jpg',
+        synopsis: 'මීදුමෙන් වැසුණු කඳු මුදුන් අතර පිහිටි අබිරහස් සඳගිරි ආරණ්‍යයේ කතාව.',
+      }
+    };
+
+    // Get sibling chapters for navigation and TOC
+    const siblings = allChapters
+      .filter((c) => c.data.novel === chapter.data.novel)
+      .sort((a, b) => a.data.chapterNumber - b.data.chapterNumber);
+
+    const currentIndex = siblings.findIndex((c) => c.id === chapter.id);
+    const prevChapter = currentIndex > 0 ? siblings[currentIndex - 1] : null;
+    const nextChapter = currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
+
+    return {
+      params: {
+        novel: chapter.data.novel,
+        chapter: chapter.data.chapterNumber.toString(),
+      },
+      props: {
+        chapter,
+        novel: parentNovel,
+        siblings,
+        prevChapter,
+        nextChapter,
+      },
+    };
+  });
+}
+
+const { chapter, novel, siblings, prevChapter, nextChapter } = Astro.props;
+const { Content } = await render(chapter);
+
+const readTimeMinutes = Math.ceil((chapter.data.wordCount || 850) / 180);
+const formattedDate = chapter.data.publishDate.toLocaleDateString('si-LK', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const prevUrl = prevChapter ? `/novels/${novel.id}/${prevChapter.data.chapterNumber}` : undefined;
+const nextUrl = nextChapter ? `/novels/${novel.id}/${nextChapter.data.chapterNumber}` : undefined;
+
+const chapterList = siblings.map((s) => ({
+  number: s.data.chapterNumber,
+  title: s.data.title,
+  url: `/novels/${novel.id}/${s.data.chapterNumber}`,
+  isCurrent: s.data.chapterNumber === chapter.data.chapterNumber,
+}));
+---
+
+<BaseLayout
+  title={`පරිච්ඡේදය ${chapter.data.chapterNumber}: ${chapter.data.title} - ${novel.data.title}`}
+  description={`${novel.data.title} නවකතාවේ ${chapter.data.chapterNumber} වන පරිච්ඡේදය. කර්තෘ: ${novel.data.author}.`}
+  image={novel.data.coverImage}
+  type="article"
+  publishDate={chapter.data.publishDate}
+  novel={{
+    title: novel.data.title,
+    author: novel.data.author,
+    coverImage: novel.data.coverImage,
+    synopsis: novel.data.synopsis,
+    url: new URL(`/novels/${novel.id}`, Astro.site || 'https://katha-arana.pages.dev').toString(),
+  }}
+  chapter={{
+    number: chapter.data.chapterNumber,
+    title: chapter.data.title,
+    wordCount: chapter.data.wordCount,
+  }}
+>
+  <!-- Main Sinhala Reading Container -->
+  <article class="max-w-2xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-32">
+    
+    <!-- Top Breadcrumbs -->
+    <nav aria-label="Breadcrumb" class="mb-6 flex items-center gap-2 text-xs text-[var(--reader-muted)]">
+      <a href="/" class="hover:underline">මුල් පිටුව</a>
+      <span>/</span>
+      <a href={`/novels/${novel.id}`} class="hover:underline truncate max-w-[150px] sm:max-w-xs">{novel.data.title}</a>
+      <span>/</span>
+      <span class="text-[var(--reader-text)] font-semibold">පරිච්ඡේදය {chapter.data.chapterNumber}</span>
+    </nav>
+
+    <!-- Chapter Header -->
+    <header class="pb-8 mb-8 border-b border-[var(--reader-border)] space-y-2">
+      <div class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+        <span>පරිච්ඡේදය {chapter.data.chapterNumber}</span>
+        <span>•</span>
+        <a href={`/novels/${novel.id}`} class="hover:underline">{novel.data.title}</a>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] font-novel-serif leading-snug">
+        {chapter.data.title}
+      </h1>
+
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-[var(--reader-muted)] pt-1">
+        <span>කර්තෘ: <a href={`/authors/${novel.data.authorSlug}`} class="text-emerald-700 dark:text-emerald-400 font-semibold hover:underline">{novel.data.author}</a></span>
+        <span>•</span>
+        <time datetime={chapter.data.publishDate.toISOString()}>{formattedDate}</time>
+        <span>•</span>
+        <span>වචන {chapter.data.wordCount || 850}</span>
+        <span>•</span>
+        <span>විනාඩි {readTimeMinutes} ක කියවීමක්</span>
+      </div>
+    </header>
+
+    <!-- Chapter Reading Prose Body (Noto Sans Sinhala / Noto Serif Sinhala) -->
+    <div id="chapter-content" class="novel-prose font-novel-sans text-[var(--reader-text)]">
+      <Content />
+    </div>
+
+    <!-- Chapter End Boundary & Navigation -->
+    <div class="mt-16 pt-8 border-t border-[var(--reader-border)]">
+      <div class="p-6 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-center space-y-4">
+        <div class="w-8 h-8 rounded-full bg-emerald-600/15 text-emerald-600 mx-auto flex items-center justify-center font-serif text-sm font-bold">
+          ❦
+        </div>
+        <div>
+          <h3 class="font-semibold text-base text-[var(--reader-text)]">
+            {chapter.data.chapterNumber} වන පරිච්ඡේදය අවසානයි
+          </h3>
+          <p class="text-xs text-[var(--reader-muted)] mt-1">
+            කතා අරණ • නව පරිච්ඡේද සතිපතා එකතු කරනු ලැබේ.
+          </p>
+        </div>
+
+        <!-- Next / Prev Chapter Controls -->
+        <div class="flex flex-col sm:flex-row gap-2 justify-center pt-2">
+          {prevUrl && (
+            <a
+              href={prevUrl}
+              class="px-4 py-2.5 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/50 text-xs sm:text-sm font-medium transition-colors"
+            >
+              ← පෙර පරිච්ඡේදය
+            </a>
+          )}
+          
+          <a
+            href={`/novels/${novel.id}`}
+            class="px-4 py-2.5 rounded-xl bg-[var(--reader-border)]/30 hover:bg-[var(--reader-border)]/60 text-xs sm:text-sm font-medium transition-colors"
+          >
+            සියලු පරිච්ඡේද ({siblings.length})
+          </a>
+
+          {nextUrl && (
+            <a
+              href={nextUrl}
+              class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-medium shadow-sm transition-all"
+            >
+              ඊළඟ පරිච්ඡේදය ({chapter.data.chapterNumber + 1}) →
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+
+  </article>
+
+  <!-- Interactive Floating Reader Dock & Mobile TOC Drawer -->
+  <ReaderControls
+    novelSlug={novel.id}
+    novelTitle={novel.data.title}
+    chapters={chapterList}
+    prevUrl={prevUrl}
+    nextUrl={nextUrl}
+    currentChapterNum={chapter.data.chapterNumber}
+  />
+</BaseLayout>

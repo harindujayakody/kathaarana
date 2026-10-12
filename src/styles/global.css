@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 30 20% 98%;
+    --foreground: 220 20% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 12%;
+    --primary: 158 64% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 35 25% 92%;
+    --secondary-foreground: 220 20% 15%;
+    --muted: 35 15% 94%;
+    --muted-foreground: 220 10% 45%;
+    --accent: 158 40% 92%;
+    --accent-foreground: 158 64% 25%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 35 15% 88%;
+    --input: 35 15% 88%;
+    --ring: 158 64% 30%;
+    --radius: 0.75rem;
+
+    /* Reader specific variables */
+    --reader-bg: #fcfbf9;
+    --reader-text: #22252a;
+    --reader-muted: #6b7280;
+    --reader-border: #e7e5e0;
+    --reader-panel: #ffffff;
+    --reader-accent: #15803d;
+  }
+
+  /* Dark Theme */
+  [data-theme="dark"] {
+    --background: 222 30% 9%;
+    --foreground: 210 20% 95%;
+    --card: 222 30% 12%;
+    --card-foreground: 210 20% 95%;
+    --popover: 222 30% 12%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 158 60% 48%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 222 25% 18%;
+    --secondary-foreground: 210 20% 92%;
+    --muted: 222 25% 16%;
+    --muted-foreground: 215 15% 65%;
+    --accent: 158 35% 20%;
+    --accent-foreground: 158 60% 65%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 222 25% 18%;
+    --input: 222 25% 18%;
+    --ring: 158 60% 48%;
+
+    --reader-bg: #0f141c;
+    --reader-text: #e2e8f0;
+    --reader-muted: #94a3b8;
+    --reader-border: #1e293b;
+    --reader-panel: #161e2b;
+    --reader-accent: #34d399;
+  }
+
+  /* Sepia Theme */
+  [data-theme="sepia"] {
+    --background: 39 45% 91%;
+    --foreground: 25 35% 18%;
+    --card: 39 42% 88%;
+    --card-foreground: 25 35% 18%;
+    --popover: 39 42% 88%;
+    --popover-foreground: 25 35% 18%;
+    --primary: 25 55% 32%;
+    --primary-foreground: 39 45% 95%;
+    --secondary: 38 35% 85%;
+    --secondary-foreground: 25 35% 20%;
+    --muted: 38 30% 84%;
+    --muted-foreground: 28 20% 40%;
+    --accent: 38 40% 82%;
+    --accent-foreground: 25 55% 28%;
+    --border: 37 30% 80%;
+    --input: 37 30% 80%;
+    --ring: 25 55% 32%;
+
+    --reader-bg: #f4ecd8;
+    --reader-text: #433422;
+    --reader-muted: #796650;
+    --reader-border: #ded2b9;
+    --reader-panel: #ece2c8;
+    --reader-accent: #8b5cf6;
+  }
+
+  /* AMOLED Black Theme */
+  [data-theme="amoled"] {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 90%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 90%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 90%;
+    --primary: 158 60% 50%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 90%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 158 60% 65%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 158 60% 50%;
+
+    --reader-bg: #000000;
+    --reader-text: #d4d4d8;
+    --reader-muted: #71717a;
+    --reader-border: #18181b;
+    --reader-panel: #09090b;
+    --reader-accent: #34d399;
+  }
+}
+
+body {
+  background-color: var(--reader-bg);
+  color: var(--reader-text);
+  font-family: 'Noto Sans Sinhala', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 17px;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
+}
+
+/* Headings & Title Typography: Noto Serif Sinhala */
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: 'Noto Serif Sinhala', 'Lora', Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+/* Body & Content Typography: Noto Sans Sinhala */
+p, span, a, li, input, button, .font-sans {
+  font-family: 'Noto Sans Sinhala', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.font-novel-serif {
+  font-family: 'Noto Serif Sinhala', 'Lora', Georgia, serif;
+}
+
+.font-novel-sans {
+  font-family: 'Noto Sans Sinhala', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Reader Typography Engine - 17px base with comfortable Sinhala line height */
+.novel-prose {
+  line-height: 2.15;
+  letter-spacing: 0.01em;
+  font-size: var(--reader-font-size, 17px);
+  font-family: 'Noto Sans Sinhala', 'Inter', system-ui, -apple-system, sans-serif;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.novel-prose p {
+  margin-bottom: 1.7em;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+@media (max-width: 640px) {
+  .novel-prose {
+    font-size: var(--reader-font-size, 16.5px);
+  }
+  .novel-prose p {
+    text-align: left;
+    margin-bottom: 1.5em;
+    line-height: 2.1;
+  }
+}
+
+.novel-prose p:first-of-type {
+  font-size: 1.02em;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--reader-muted);
+  border-radius: 9999px;
+  opacity: 0.4;
+}

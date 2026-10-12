@@ -1,0 +1,298 @@
+---
+interface ChapterItem {
+  number: number;
+  title: string;
+  url: string;
+  isCurrent: boolean;
+}
+
+interface Props {
+  novelSlug: string;
+  novelTitle: string;
+  chapters: ChapterItem[];
+  prevUrl?: string;
+  nextUrl?: string;
+  currentChapterNum: number;
+}
+
+const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } = Astro.props;
+---
+
+<!-- Reading Progress Bar (Top of Viewport) -->
+<div id="reading-progress-container" class="fixed top-0 left-0 right-0 h-1 z-50 pointer-events-none bg-transparent">
+  <div id="reading-progress-bar" class="h-full bg-emerald-600 dark:bg-emerald-400 transition-all duration-75 ease-out w-0"></div>
+</div>
+
+<!-- Floating Bottom Mobile & Desktop Reader Dock -->
+<div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-lg transition-transform duration-300" id="reader-dock">
+  <div class="bg-[var(--reader-panel)]/95 backdrop-blur-md border border-[var(--reader-border)] rounded-2xl shadow-xl px-3 py-2 flex items-center justify-between gap-1 text-sm text-[var(--reader-text)]">
+    
+    <!-- Prev Chapter Button -->
+    {prevUrl ? (
+      <a
+        href={prevUrl}
+        id="btn-prev-chap"
+        class="inline-flex items-center gap-1 px-3 py-2 rounded-xl hover:bg-[var(--reader-border)]/50 active:scale-95 transition-all font-medium text-xs sm:text-sm"
+        title="පෙර පරිච්ඡේදය (Left Arrow)"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span class="hidden sm:inline">පෙර</span>
+      </a>
+    ) : (
+      <span class="inline-flex items-center gap-1 px-3 py-2 rounded-xl opacity-30 cursor-not-allowed font-medium text-[var(--reader-muted)] text-xs sm:text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span class="hidden sm:inline">පෙර</span>
+      </span>
+    )}
+
+    <!-- Table of Contents / Settings Drawer Trigger -->
+    <button
+      id="btn-open-settings"
+      class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--reader-border)]/40 hover:bg-[var(--reader-border)]/80 transition-colors font-medium text-xs sm:text-sm"
+      aria-label="පරිච්ඡේද සහ සැකසුම්"
+    >
+      <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+      </svg>
+      <span>පරි. {currentChapterNum}</span>
+      <span class="text-[var(--reader-muted)] hidden sm:inline">• සැකසුම්</span>
+    </button>
+
+    <!-- Quick Font Resizer in Dock -->
+    <div class="flex items-center gap-0.5 bg-[var(--reader-border)]/30 rounded-xl p-0.5">
+      <button id="btn-font-dec" class="px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-panel)] transition-colors text-xs font-semibold" title="කුඩා අකුරු">A-</button>
+      <button id="btn-font-inc" class="px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-panel)] transition-colors text-xs font-semibold" title="විශාල අකුරු">A+</button>
+    </div>
+
+    <!-- Next Chapter Button -->
+    {nextUrl ? (
+      <a
+        href={nextUrl}
+        id="btn-next-chap"
+        class="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95 transition-all font-medium text-xs sm:text-sm"
+        title="ඊළඟ පරිච්ඡේදය (Right Arrow)"
+      >
+        <span class="hidden sm:inline">ඊළඟ</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+    ) : (
+      <span class="inline-flex items-center gap-1 px-3 py-2 rounded-xl opacity-30 cursor-not-allowed font-medium text-[var(--reader-muted)] text-xs sm:text-sm">
+        <span class="hidden sm:inline">ඊළඟ</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7" />
+        </svg>
+      </span>
+    )}
+
+  </div>
+</div>
+
+<!-- Modal / Drawer Backdrop & Panel -->
+<div id="reader-modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 opacity-0 pointer-events-none transition-opacity duration-200">
+  <div
+    id="reader-modal-panel"
+    class="fixed bottom-0 sm:bottom-auto sm:top-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:max-w-md bg-[var(--reader-panel)] text-[var(--reader-text)] border border-[var(--reader-border)] rounded-t-3xl sm:rounded-2xl shadow-2xl p-6 max-h-[85vh] flex flex-col transition-transform duration-200 translate-y-full sm:translate-y-0 sm:scale-95"
+  >
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between pb-4 border-b border-[var(--reader-border)]">
+      <div>
+        <h3 class="font-semibold text-base font-serif">{novelTitle}</h3>
+        <p class="text-xs text-[var(--reader-muted)]">කියවීමේ සැකසුම් සහ පරිච්ඡේද නාමාවලිය</p>
+      </div>
+      <button id="btn-close-modal" class="p-2 rounded-xl hover:bg-[var(--reader-border)]/50 transition-colors" aria-label="වසන්න">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="overflow-y-auto py-4 space-y-5 flex-1">
+      
+      <!-- Theme Selection -->
+      <div>
+        <label class="block text-xs font-medium text-[var(--reader-muted)] uppercase tracking-wider mb-2">පසුබිම් තේමාව (Theme)</label>
+        <div class="grid grid-cols-4 gap-2">
+          <button data-set-theme="light" class="theme-btn px-2 py-2.5 rounded-xl border border-gray-200 bg-[#fcfbf9] text-gray-900 text-xs font-medium flex flex-col items-center gap-1 active:scale-95 transition-all">
+            <span class="w-4 h-4 rounded-full bg-white border border-gray-300"></span>
+            ආලෝකය
+          </button>
+          <button data-set-theme="sepia" class="theme-btn px-2 py-2.5 rounded-xl border border-[#ded2b9] bg-[#f4ecd8] text-[#433422] text-xs font-medium flex flex-col items-center gap-1 active:scale-95 transition-all">
+            <span class="w-4 h-4 rounded-full bg-[#e8deca] border border-[#d2c4aa]"></span>
+            සීපියා
+          </button>
+          <button data-set-theme="dark" class="theme-btn px-2 py-2.5 rounded-xl border border-slate-700 bg-[#0f141c] text-slate-200 text-xs font-medium flex flex-col items-center gap-1 active:scale-95 transition-all">
+            <span class="w-4 h-4 rounded-full bg-slate-800 border border-slate-600"></span>
+            අඳුරු
+          </button>
+          <button data-set-theme="amoled" class="theme-btn px-2 py-2.5 rounded-xl border border-zinc-800 bg-[#000000] text-zinc-300 text-xs font-medium flex flex-col items-center gap-1 active:scale-95 transition-all">
+            <span class="w-4 h-4 rounded-full bg-black border border-zinc-700"></span>
+            AMOLED
+          </button>
+        </div>
+      </div>
+
+      <!-- Typography Choice (Noto Sans Sinhala vs Noto Serif Sinhala) -->
+      <div>
+        <label class="block text-xs font-medium text-[var(--reader-muted)] uppercase tracking-wider mb-2">අකුරු මෝස්තරය (Font Style)</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-font-sans" class="font-toggle-btn px-3 py-2.5 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/40 text-xs font-medium flex items-center justify-center gap-2">
+            <span>Noto Sans Sinhala</span>
+          </button>
+          <button id="btn-font-serif" class="font-toggle-btn px-3 py-2.5 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/40 text-xs font-serif flex items-center justify-center gap-2">
+            <span>Noto Serif Sinhala</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table of Contents -->
+      <div>
+        <label class="block text-xs font-medium text-[var(--reader-muted)] uppercase tracking-wider mb-2">පරිච්ඡේද ({chapters.length})</label>
+        <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+          {chapters.map((ch) => (
+            <a
+              href={ch.url}
+              class={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-colors ${
+                ch.isCurrent
+                  ? 'bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 font-semibold border border-emerald-600/20'
+                  : 'hover:bg-[var(--reader-border)]/50 text-[var(--reader-text)] border border-transparent'
+              }`}
+            >
+              <span class="truncate">පරිච්ඡේදය {ch.number}: {ch.title}</span>
+              {ch.isCurrent && (
+                <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-600 text-white shrink-0 ml-2">කියවමින්</span>
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="pt-3 border-t border-[var(--reader-border)] flex justify-between items-center text-xs text-[var(--reader-muted)]">
+      <span>පිටු පෙරලීමට <kbd class="px-1 py-0.5 bg-[var(--reader-border)]/60 rounded">←</kbd> <kbd class="px-1 py-0.5 bg-[var(--reader-border)]/60 rounded">→</kbd></span>
+      <a href={`/novels/${novelSlug}`} class="text-emerald-600 dark:text-emerald-400 hover:underline">නවකතා තොරතුරු</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Client-side Reader Logic
+  const root = document.documentElement;
+  const contentEl = document.getElementById('chapter-content');
+
+  // 1. Reading Progress Bar
+  const progressBar = document.getElementById('reading-progress-bar');
+  window.addEventListener('scroll', () => {
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (totalHeight > 0 && progressBar) {
+      const progress = (window.scrollY / totalHeight) * 100;
+      progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+    }
+  }, { passive: true });
+
+  // 2. Font Size Controller (Default: 17px)
+  let currentSize = parseFloat(localStorage.getItem('katha_font_size') || '17');
+  const applyFontSize = (size: number) => {
+    currentSize = Math.min(24, Math.max(14, Math.round(size)));
+    root.style.setProperty('--reader-font-size', `${currentSize}px`);
+    localStorage.setItem('katha_font_size', currentSize.toString());
+  };
+  applyFontSize(currentSize);
+
+  document.getElementById('btn-font-dec')?.addEventListener('click', () => applyFontSize(currentSize - 1));
+  document.getElementById('btn-font-inc')?.addEventListener('click', () => applyFontSize(currentSize + 1));
+
+  // 3. Theme Controller
+  const applyTheme = (theme: string) => {
+    root.setAttribute('data-theme', theme);
+    localStorage.setItem('katha_theme', theme);
+  };
+  document.querySelectorAll('[data-set-theme]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = btn.getAttribute('data-set-theme') || 'light';
+      applyTheme(theme);
+    });
+  });
+
+  // 4. Font Family Toggle (Defaults to Noto Sans Sinhala)
+  const applyFontFamily = (family: 'serif' | 'sans') => {
+    if (contentEl) {
+      if (family === 'serif') {
+        contentEl.classList.remove('font-novel-sans');
+        contentEl.classList.add('font-novel-serif');
+      } else {
+        contentEl.classList.remove('font-novel-serif');
+        contentEl.classList.add('font-novel-sans');
+      }
+    }
+    localStorage.setItem('katha_font_family', family);
+  };
+
+  const savedFont = localStorage.getItem('katha_font_family') || 'sans';
+  applyFontFamily(savedFont as 'serif' | 'sans');
+
+  document.getElementById('btn-font-serif')?.addEventListener('click', () => applyFontFamily('serif'));
+  document.getElementById('btn-font-sans')?.addEventListener('click', () => applyFontFamily('sans'));
+
+  // 5. Drawer / Modal Toggle
+  const overlay = document.getElementById('reader-modal-overlay');
+  const panel = document.getElementById('reader-modal-panel');
+  const openBtn = document.getElementById('btn-open-settings');
+  const closeBtn = document.getElementById('btn-close-modal');
+
+  const openModal = () => {
+    overlay?.classList.remove('opacity-0', 'pointer-events-none');
+    overlay?.classList.add('opacity-100');
+    panel?.classList.remove('translate-y-full', 'sm:scale-95');
+    panel?.classList.add('translate-y-0', 'sm:scale-100');
+  };
+
+  const closeModal = () => {
+    overlay?.classList.add('opacity-0', 'pointer-events-none');
+    overlay?.classList.remove('opacity-100');
+    panel?.classList.add('translate-y-full', 'sm:scale-95');
+    panel?.classList.remove('translate-y-0', 'sm:scale-100');
+  };
+
+  openBtn?.addEventListener('click', openModal);
+  closeBtn?.addEventListener('click', closeModal);
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  // 6. Keyboard Shortcuts
+  window.addEventListener('keydown', (e) => {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    if (e.key === 'ArrowLeft') {
+      const prev = document.getElementById('btn-prev-chap') as HTMLAnchorElement;
+      if (prev?.href) window.location.href = prev.href;
+    } else if (e.key === 'ArrowRight') {
+      const next = document.getElementById('btn-next-chap') as HTMLAnchorElement;
+      if (next?.href) window.location.href = next.href;
+    } else if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+
+  // 7. Auto Hide Dock on Scroll Down, Show on Scroll Up
+  let lastScrollY = window.scrollY;
+  const dock = document.getElementById('reader-dock');
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > lastScrollY && currentScrollY > 150) {
+      dock?.classList.add('translate-y-24');
+    } else {
+      dock?.classList.remove('translate-y-24');
+    }
+    lastScrollY = currentScrollY;
+  }, { passive: true });
+</script>

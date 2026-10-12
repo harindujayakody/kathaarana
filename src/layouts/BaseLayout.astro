@@ -1,0 +1,148 @@
+---
+import SEO from '../components/SEO.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: 'website' | 'article' | 'book';
+  canonicalUrl?: string;
+  publishDate?: Date;
+  novel?: {
+    title: string;
+    author: string;
+    coverImage: string;
+    synopsis: string;
+    url: string;
+  };
+  chapter?: {
+    number: number;
+    title: string;
+    wordCount?: number;
+  };
+  hideHeader?: boolean;
+}
+
+const {
+  title,
+  description,
+  image,
+  type = 'website',
+  canonicalUrl,
+  publishDate,
+  novel,
+  chapter,
+  hideHeader = false
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Katha Arana RSS Feed" href="/rss.xml" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Google Fonts Optimization: Noto Sans Sinhala & Noto Serif Sinhala -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@300;400;500;600;700&family=Noto+Serif+Sinhala:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- SEO & Schema Markup -->
+    <SEO
+      title={title}
+      description={description}
+      image={image}
+      type={type}
+      canonicalUrl={canonicalUrl}
+      publishDate={publishDate}
+      novel={novel}
+      chapter={chapter}
+    />
+
+    <!-- Anti-FOUC Theme Initializer -->
+    <script is:inline>
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('katha_theme') || 'light';
+          document.documentElement.setAttribute('data-theme', savedTheme);
+          const savedSize = localStorage.getItem('katha_font_size');
+          if (savedSize) {
+            const sizeVal = savedSize.includes('rem') || savedSize.includes('px') ? savedSize : (parseFloat(savedSize) > 5 ? `${savedSize}px` : `${savedSize}rem`);
+            document.documentElement.style.setProperty('--reader-font-size', sizeVal);
+          } else {
+            document.documentElement.style.setProperty('--reader-font-size', '17px');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-900 dark:selection:text-emerald-100">
+    
+    {!hideHeader && (
+      <header class="border-b border-[var(--reader-border)] bg-[var(--reader-panel)]/80 backdrop-blur-md sticky top-0 z-30 transition-colors">
+        <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+          <a href="/" class="flex items-center gap-2 group">
+            <span class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">
+              ක
+            </span>
+            <div class="flex flex-col">
+              <span class="font-bold text-base tracking-tight leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                Katha Arana
+              </span>
+              <span class="text-[10px] text-[var(--reader-muted)] -mt-0.5 tracking-wider font-medium">
+                කතා අරණ • Web Novels
+              </span>
+            </div>
+          </a>
+
+          <nav class="flex items-center gap-3">
+            <a
+              href="/#chapters"
+              class="text-xs font-medium text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-border)]/40"
+            >
+              Latest Chapters
+            </a>
+            <a
+              href="/rss.xml"
+              class="text-xs font-medium text-amber-600 dark:text-amber-400 hover:opacity-80 transition-opacity flex items-center gap-1 px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-border)]/40"
+              title="Subscribe via RSS"
+            >
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93v-2.83Z"/>
+              </svg>
+              <span>RSS</span>
+            </a>
+          </nav>
+        </div>
+      </header>
+    )}
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="border-t border-[var(--reader-border)] bg-[var(--reader-panel)] mt-20 py-10 transition-colors">
+      <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--reader-muted)]">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Katha Arana • SEO-First Static Edge Architecture</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="/rss.xml" class="hover:underline">RSS Feed</a>
+          <span>•</span>
+          <a href="/sitemap-index.xml" class="hover:underline">Sitemap</a>
+          <span>•</span>
+          <span class="text-emerald-700 dark:text-emerald-400 font-medium">Git-Push Workflow Ready</span>
+        </div>
+      </div>
+    </footer>
+
+  </body>
+</html>

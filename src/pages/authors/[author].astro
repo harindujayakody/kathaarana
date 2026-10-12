@@ -1,0 +1,121 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const novels = await getCollection('novels');
+  const allChapters = await getCollection('chapters');
+
+  // Group by authorSlug
+  const authorsMap = new Map();
+  novels.forEach((novel) => {
+    const slug = novel.data.authorSlug;
+    if (!authorsMap.has(slug)) {
+      authorsMap.set(slug, {
+        name: novel.data.author,
+        slug: slug,
+        novels: [],
+      });
+    }
+    authorsMap.get(slug).novels.push(novel);
+  });
+
+  return Array.from(authorsMap.values()).map((authorInfo) => {
+    const authorNovels = authorInfo.novels;
+    const authorNovelIds = authorNovels.map((n: any) => n.id);
+    const authorChapters = allChapters.filter((c) => authorNovelIds.includes(c.data.novel));
+
+    return {
+      params: { author: authorInfo.slug },
+      props: {
+        authorName: authorInfo.name,
+        authorSlug: authorInfo.slug,
+        novels: authorNovels,
+        chapters: authorChapters,
+      },
+    };
+  });
+}
+
+const { authorName, authorSlug, novels, chapters } = Astro.props;
+---
+
+<BaseLayout
+  title={`${authorName} ගේ නවකතා එකතුව - කතා අරණ`}
+  description={`${authorName} විසින් රචිත සියලුම සිංහල නවකතා සහ පරිච්ඡේද මෙතැනින් කියවන්න.`}
+>
+  <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs text-[var(--reader-muted)]">
+      <a href="/" class="hover:underline">මුල් පිටුව</a>
+      <span>/</span>
+      <span class="text-[var(--reader-text)] font-semibold">{authorName}</span>
+    </nav>
+
+    <!-- Author Profile Header -->
+    <div class="p-6 sm:p-8 rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] flex flex-col sm:flex-row items-center sm:items-start gap-6">
+      <div class="w-20 h-20 rounded-2xl bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 font-bold text-2xl flex items-center justify-center shrink-0 border border-emerald-600/20">
+        {authorName.charAt(0)}
+      </div>
+
+      <div class="space-y-2 text-center sm:text-left flex-1">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-600/15 text-emerald-700 dark:text-emerald-400">
+          කතා අරණ ලේඛක
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold font-serif text-[var(--reader-text)]">
+          {authorName}
+        </h1>
+        <p class="text-xs sm:text-sm text-[var(--reader-muted)]">
+          නවකතා {novels.length} ක් • පරිච්ඡේද {chapters.length} ක් ප්‍රකාශයට පත් කර ඇත.
+        </p>
+      </div>
+    </div>
+
+    <!-- Author's Novels Grid -->
+    <div class="space-y-4">
+      <h2 class="text-xl font-bold text-[var(--reader-text)] pb-2 border-b border-[var(--reader-border)]">
+        රචිත නවකතා ({novels.length})
+      </h2>
+
+      <div class="grid sm:grid-cols-2 gap-6">
+        {novels.map((novel: any) => {
+          const novelChapters = chapters.filter((c: any) => c.data.novel === novel.id);
+          const firstChapterUrl = novelChapters.length > 0 ? `/novels/${novel.id}/1` : `/novels/${novel.id}`;
+
+          return (
+            <div class="p-5 rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] flex gap-4 items-start hover:shadow-md transition-shadow">
+              <a href={`/novels/${novel.id}`} class="w-24 sm:w-28 shrink-0 rounded-xl overflow-hidden aspect-[2/3] border border-[var(--reader-border)] bg-neutral-900 block">
+                <img src={novel.data.coverImage} alt={novel.data.title} class="w-full h-full object-cover" />
+              </a>
+
+              <div class="flex-1 space-y-2">
+                <a href={`/novels/${novel.id}`} class="font-bold text-base text-[var(--reader-text)] hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors block">
+                  {novel.data.title}
+                </a>
+
+                <p class="text-xs text-[var(--reader-muted)] line-clamp-2">
+                  {novel.data.synopsis}
+                </p>
+
+                <div class="text-[11px] text-[var(--reader-muted)]">
+                  <span>පරිච්ඡේද: <strong>{novelChapters.length}</strong></span>
+                </div>
+
+                <div class="pt-2">
+                  <a
+                    href={firstChapterUrl}
+                    class="inline-block px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-colors"
+                  >
+                    කියවන්න →
+                  </a>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>

@@ -1,0 +1,138 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: 'website' | 'article' | 'book';
+  canonicalUrl?: string;
+  publishDate?: Date;
+  novel?: {
+    title: string;
+    author: string;
+    coverImage: string;
+    synopsis: string;
+    url: string;
+  };
+  chapter?: {
+    number: number;
+    title: string;
+    wordCount?: number;
+  };
+}
+
+const {
+  title,
+  description,
+  image = '/images/the-shadow-throne-cover.jpg',
+  type = 'website',
+  canonicalUrl = Astro.url.href,
+  publishDate,
+  novel,
+  chapter
+} = Astro.props;
+
+const siteName = "Katha Arana - Realm of Novels";
+const siteUrl = Astro.site ? Astro.site.toString() : "https://katha-arana.pages.dev";
+const fullImageUrl = new URL(image, siteUrl).toString();
+
+// Generate Rich JSON-LD Schemas
+const jsonLdSchemas: any[] = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": siteName,
+    "url": siteUrl,
+    "description": "An SEO-first, distraction-free reading realm for web novels and serialized fiction."
+  }
+];
+
+if (novel && !chapter) {
+  jsonLdSchemas.push({
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": novel.title,
+    "author": {
+      "@type": "Person",
+      "name": novel.author
+    },
+    "description": novel.synopsis,
+    "image": new URL(novel.coverImage, siteUrl).toString(),
+    "url": novel.url,
+    "inLanguage": "en",
+    "genre": "Fantasy"
+  });
+}
+
+if (novel && chapter) {
+  jsonLdSchemas.push({
+    "@context": "https://schema.org",
+    "@type": "Chapter",
+    "name": `Chapter ${chapter.number}: ${chapter.title}`,
+    "position": chapter.number,
+    "wordCount": chapter.wordCount,
+    "isPartOf": {
+      "@type": "Book",
+      "name": novel.title,
+      "author": {
+        "@type": "Person",
+        "name": novel.author
+      },
+      "url": novel.url
+    },
+    "datePublished": publishDate ? publishDate.toISOString() : undefined,
+    "url": canonicalUrl
+  });
+
+  // Breadcrumb schema
+  jsonLdSchemas.push({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": siteUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": novel.title,
+        "item": novel.url
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": `Chapter ${chapter.number}`,
+        "item": canonicalUrl
+      }
+    ]
+  });
+}
+---
+
+<!-- Primary Meta Tags -->
+<title>{title} | {siteName}</title>
+<meta name="title" content={`${title} | ${siteName}`} />
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type === 'book' || chapter ? 'article' : 'website'} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:title" content={`${title} | ${siteName}`} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={fullImageUrl} />
+<meta property="og:site_name" content={siteName} />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content={canonicalUrl} />
+<meta name="twitter:title" content={`${title} | ${siteName}`} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={fullImageUrl} />
+
+<!-- Structured Data (JSON-LD) for Search Engines -->
+{jsonLdSchemas.map(schema => (
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+))}
