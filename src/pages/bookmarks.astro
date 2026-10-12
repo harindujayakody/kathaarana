@@ -1,0 +1,305 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="මගේ කියවීම් ලැයිස්තුව සහ පිටුසන් (Reading Desk & Bookmarks) - Katha Arana"
+  description="ඔබ කියවූ නවකතා ඉතිහාසය, සුරැකි පිටුසන් සහ කියවීමේ ප්‍රගතිය. සියල්ල ඔබගේ උපාංගයේම සුරැකේ."
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
+    
+    <!-- Page Header & Breadcrumbs -->
+    <div class="space-y-3 pb-6 border-b border-[var(--reader-border)]">
+      <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-[var(--reader-muted)]">
+        <a href="/" class="hover:underline">මුල් පිටුව</a>
+        <span>/</span>
+        <span class="text-[var(--reader-text)] font-semibold">මගේ කියවීම් ලැයිස්තුව</span>
+      </nav>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] font-serif">
+            මගේ කියවීම් මේසය
+          </h1>
+          <p class="text-xs sm:text-sm text-[var(--reader-muted)] mt-1">
+            ඔබ කියවූ පරිච්ඡේද, ඉතිහාසය සහ සුරැකි පිටුසන් (Bookmarks)
+          </p>
+        </div>
+
+        <button
+          id="btn-page-clear-history"
+          type="button"
+          class="text-xs font-medium text-red-500 hover:text-red-600 hover:underline px-3 py-2 rounded-xl border border-red-500/20 bg-red-500/5 self-start sm:self-auto cursor-pointer transition-colors"
+        >
+          ඉතිහාසය මකන්න
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Reading Stats Ribbon -->
+    <div class="grid grid-cols-3 gap-3 sm:gap-4 p-5 rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-center shadow-xs">
+      <div>
+        <div id="page-stat-novels" class="text-3xl sm:text-4xl font-extrabold accent-text font-serif">0</div>
+        <div class="text-xs text-[var(--reader-muted)] font-medium mt-1">කියවූ නවකතා</div>
+      </div>
+      <div class="border-x border-[var(--reader-border)]">
+        <div id="page-stat-chapters" class="text-3xl sm:text-4xl font-extrabold text-[var(--reader-text)] font-serif">0</div>
+        <div class="text-xs text-[var(--reader-muted)] font-medium mt-1">කියවූ පරිච්ඡේද</div>
+      </div>
+      <div>
+        <div id="page-stat-bookmarks" class="text-3xl sm:text-4xl font-extrabold text-amber-500 font-serif">0</div>
+        <div class="text-xs text-[var(--reader-muted)] font-medium mt-1">සුරැකි පිටුසන්</div>
+      </div>
+    </div>
+
+    <!-- Segmented Filter Tabs -->
+    <div class="flex gap-2 p-1.5 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-xs sm:text-sm font-medium">
+      <button
+        id="tab-history"
+        type="button"
+        class="flex-1 py-2.5 rounded-xl text-center transition-all accent-bg shadow-xs cursor-pointer"
+      >
+        කියවූ ඉතිහාසය (<span id="count-history-badge">0</span>)
+      </button>
+      <button
+        id="tab-bookmarks"
+        type="button"
+        class="flex-1 py-2.5 rounded-xl text-center text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all cursor-pointer"
+      >
+        සුරැකි පිටුසන් (<span id="count-bookmarks-badge">0</span>)
+      </button>
+    </div>
+
+    <!-- Items List Container -->
+    <div class="space-y-4">
+      
+      <!-- History List -->
+      <div id="page-history-container" class="space-y-3">
+        <!-- Rendered client side -->
+      </div>
+
+      <!-- Bookmarks List -->
+      <div id="page-bookmarks-container" class="space-y-3 hidden">
+        <!-- Rendered client side -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="page-empty-state" class="hidden py-16 text-center space-y-4 rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)]">
+        <div class="w-16 h-16 rounded-2xl accent-badge mx-auto flex items-center justify-center text-2xl">
+          📖
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-[var(--reader-text)] font-serif">තවම කියවීම් හෝ පිටුසන් නැත</h2>
+          <p class="text-xs sm:text-sm text-[var(--reader-muted)] max-w-sm mx-auto mt-1">
+            ඔබ නවකතාවක් කියවීම ආරම්භ කළ විට, ඔබේ කියවීමේ ප්‍රගතිය ස්වයංක්‍රීයව මෙහි සටහන් වේ.
+          </p>
+        </div>
+        <div>
+          <a
+            href="/novels"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl accent-bg text-xs font-semibold shadow-xs transition-all"
+          >
+            නවකතා නාමාවලිය වෙත යන්න →
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let activeTab: 'history' | 'bookmarks' = 'history';
+
+    const tabHistory = document.getElementById('tab-history');
+    const tabBookmarks = document.getElementById('tab-bookmarks');
+    const historyContainer = document.getElementById('page-history-container');
+    const bookmarksContainer = document.getElementById('page-bookmarks-container');
+    const emptyState = document.getElementById('page-empty-state');
+    const clearBtn = document.getElementById('btn-page-clear-history');
+
+    const renderPageContent = () => {
+      try {
+        const history = JSON.parse(localStorage.getItem('katha_history') || '[]');
+        const bookmarks = JSON.parse(localStorage.getItem('katha_bookmarks') || '[]');
+        const stats = JSON.parse(localStorage.getItem('katha_stats') || '{"chaptersRead":[], "novelsRead":[]}');
+
+        const novelsCount = Math.max(stats.novelsRead?.length || 0, history.length);
+        const chaptersCount = stats.chaptersRead?.length || 0;
+        const bookmarksCount = bookmarks.length;
+
+        // Update stats
+        const elNovels = document.getElementById('page-stat-novels');
+        const elChapters = document.getElementById('page-stat-chapters');
+        const elBookmarks = document.getElementById('page-stat-bookmarks');
+        const elHistBadge = document.getElementById('count-history-badge');
+        const elBookBadge = document.getElementById('count-bookmarks-badge');
+
+        if (elNovels) elNovels.textContent = novelsCount.toString();
+        if (elChapters) elChapters.textContent = chaptersCount.toString();
+        if (elBookmarks) elBookmarks.textContent = bookmarksCount.toString();
+        if (elHistBadge) elHistBadge.textContent = history.length.toString();
+        if (elBookBadge) elBookBadge.textContent = bookmarksCount.toString();
+
+        // Render History
+        if (historyContainer) {
+          if (history.length === 0) {
+            historyContainer.innerHTML = '';
+          } else {
+            historyContainer.innerHTML = history.map((item: any, idx: number) => `
+              <div class="flex items-center gap-4 p-4 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/50 transition-all group">
+                <img src="${item.novelCover}" alt="${item.novelTitle}" class="w-14 sm:w-16 h-20 sm:h-24 rounded-xl object-cover border border-[var(--reader-border)] shrink-0 shadow-xs" />
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full accent-badge">
+                      අවසන් වරට කියවූ
+                    </span>
+                    <span class="text-[11px] text-[var(--reader-muted)]">
+                      ${new Date(item.readAt || Date.now()).toLocaleDateString('si-LK', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  <h3 class="text-base sm:text-lg font-bold text-[var(--reader-text)] hover:accent-text font-serif truncate">
+                    <a href="${item.url}">${item.novelTitle}</a>
+                  </h3>
+                  <p class="text-xs accent-text font-medium mt-0.5">
+                    ${item.chapterTitle || `පරිච්ඡේදය ${item.chapterNumber}`}
+                  </p>
+                  <p class="text-[11px] text-[var(--reader-muted)] mt-1">
+                    කර්තෘ: ${item.author}
+                  </p>
+                </div>
+                <div class="shrink-0 flex flex-col sm:flex-row gap-2">
+                  <a
+                    href="${item.url}"
+                    class="px-4 py-2 rounded-xl accent-bg text-xs font-semibold shadow-xs active:scale-95 transition-all text-center"
+                  >
+                    නැවත කියවන්න →
+                  </a>
+                  <button
+                    data-remove-history="${idx}"
+                    class="px-3 py-2 rounded-xl border border-[var(--reader-border)] hover:bg-red-500/10 hover:text-red-500 text-xs text-[var(--reader-muted)] transition-colors cursor-pointer"
+                  >
+                    ඉවත් කරන්න
+                  </button>
+                </div>
+              </div>
+            `).join('');
+
+            // Attach remove history handlers
+            document.querySelectorAll('[data-remove-history]').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                const target = e.currentTarget as HTMLElement;
+                const index = parseInt(target.getAttribute('data-remove-history') || '-1');
+                if (index >= 0) {
+                  const cur = JSON.parse(localStorage.getItem('katha_history') || '[]');
+                  cur.splice(index, 1);
+                  localStorage.setItem('katha_history', JSON.stringify(cur));
+                  renderPageContent();
+                  window.dispatchEvent(new CustomEvent('katha-stats-updated'));
+                }
+              });
+            });
+          }
+        }
+
+        // Render Bookmarks
+        if (bookmarksContainer) {
+          if (bookmarks.length === 0) {
+            bookmarksContainer.innerHTML = '';
+          } else {
+            bookmarksContainer.innerHTML = bookmarks.map((item: any, idx: number) => `
+              <div class="flex items-center gap-4 p-4 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/50 transition-all group">
+                <img src="${item.novelCover}" alt="${item.novelTitle}" class="w-14 sm:w-16 h-20 sm:h-24 rounded-xl object-cover border border-[var(--reader-border)] shrink-0 shadow-xs" />
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                      🔖 සුරැකි පිටුසන
+                    </span>
+                  </div>
+                  <h3 class="text-base sm:text-lg font-bold text-[var(--reader-text)] hover:accent-text font-serif truncate">
+                    <a href="${item.url}">${item.novelTitle}</a>
+                  </h3>
+                  <p class="text-xs text-amber-500 font-medium mt-0.5">
+                    ${item.chapterTitle || `පරිච්ඡේදය ${item.chapterNumber}`}
+                  </p>
+                </div>
+                <div class="shrink-0 flex flex-col sm:flex-row gap-2">
+                  <a
+                    href="${item.url}"
+                    class="px-4 py-2 rounded-xl accent-bg text-xs font-semibold shadow-xs active:scale-95 transition-all text-center"
+                  >
+                    කියවන්න →
+                  </a>
+                  <button
+                    data-remove-page-bookmark="${idx}"
+                    class="px-3 py-2 rounded-xl border border-[var(--reader-border)] hover:bg-red-500/10 hover:text-red-500 text-xs text-[var(--reader-muted)] transition-colors cursor-pointer"
+                  >
+                    ඉවත් කරන්න
+                  </button>
+                </div>
+              </div>
+            `).join('');
+
+            // Attach remove bookmark handlers
+            document.querySelectorAll('[data-remove-page-bookmark]').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                const target = e.currentTarget as HTMLElement;
+                const index = parseInt(target.getAttribute('data-remove-page-bookmark') || '-1');
+                if (index >= 0) {
+                  const cur = JSON.parse(localStorage.getItem('katha_bookmarks') || '[]');
+                  cur.splice(index, 1);
+                  localStorage.setItem('katha_bookmarks', JSON.stringify(cur));
+                  renderPageContent();
+                  window.dispatchEvent(new CustomEvent('katha-stats-updated'));
+                }
+              });
+            });
+          }
+        }
+
+        // Empty state check
+        const activeList = activeTab === 'history' ? history : bookmarks;
+        if (emptyState) {
+          if (activeList.length === 0) {
+            emptyState.classList.remove('hidden');
+          } else {
+            emptyState.classList.add('hidden');
+          }
+        }
+      } catch (e) {}
+    };
+
+    // Tab switching
+    tabHistory?.addEventListener('click', () => {
+      activeTab = 'history';
+      tabHistory.className = 'flex-1 py-2.5 rounded-xl text-center transition-all accent-bg shadow-xs cursor-pointer';
+      tabBookmarks!.className = 'flex-1 py-2.5 rounded-xl text-center text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all cursor-pointer';
+      historyContainer?.classList.remove('hidden');
+      bookmarksContainer?.classList.add('hidden');
+      renderPageContent();
+    });
+
+    tabBookmarks?.addEventListener('click', () => {
+      activeTab = 'bookmarks';
+      tabBookmarks.className = 'flex-1 py-2.5 rounded-xl text-center transition-all accent-bg shadow-xs cursor-pointer';
+      tabHistory!.className = 'flex-1 py-2.5 rounded-xl text-center text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all cursor-pointer';
+      bookmarksContainer?.classList.remove('hidden');
+      historyContainer?.classList.add('hidden');
+      renderPageContent();
+    });
+
+    // Clear all history
+    clearBtn?.addEventListener('click', () => {
+      if (confirm('ඔබේ කියවීමේ ඉතිහාසය සහ පිටුසන් සියල්ල මකා දැමීමට අවශ්‍යද?')) {
+        localStorage.removeItem('katha_history');
+        localStorage.removeItem('katha_bookmarks');
+        localStorage.removeItem('katha_stats');
+        renderPageContent();
+        window.dispatchEvent(new CustomEvent('katha-stats-updated'));
+      }
+    });
+
+    window.addEventListener('katha-stats-updated', renderPageContent);
+    renderPageContent();
+  </script>
+</BaseLayout>

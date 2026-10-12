@@ -80,60 +80,22 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
             <span>🔖</span> <span>ස්වයංක්‍රීය පිටුසන්</span>
           </span>
         </div>
-      </div>
-    </section>
 
-    <!-- User's Personal Reading Desk & Stats (Loaded from localStorage) -->
-    <section id="user-reading-desk" class="rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] p-6 sm:p-8 space-y-6 transition-all">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--reader-border)]">
-        <div class="flex items-center gap-2.5">
-          <span class="w-8 h-8 rounded-xl accent-badge flex items-center justify-center text-sm font-bold">
-            📖
-          </span>
-          <div>
-            <h2 class="text-lg sm:text-xl font-bold text-[var(--reader-text)] font-serif">
-              ඔබේ කියවීම් මේසය (Your Reading Desk)
-            </h2>
-            <p class="text-xs text-[var(--reader-muted)]">
-              ඔබගේ කියවීමේ ප්‍රගතිය, ඉතිහාසය සහ සංඛ්‍යාලේඛන
-            </p>
-          </div>
-        </div>
-
-        <!-- Quick Desk Actions -->
-        <button
-          data-trigger-bookmarks
-          class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/50 text-xs font-semibold accent-text active:scale-95 transition-all self-start sm:self-auto cursor-pointer"
-        >
-          <span>🔖 සියලු පිටුසන් බලන්න</span>
-        </button>
-      </div>
-
-      <!-- Live User Stats Ribbon -->
-      <div class="grid grid-cols-3 gap-3 sm:gap-4 text-center">
-        <div class="p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
-          <div id="home-stat-novels" class="text-2xl sm:text-3xl font-extrabold accent-text font-serif">0</div>
-          <div class="text-xs text-[var(--reader-muted)] mt-1 font-medium">කියවූ නවකතා</div>
-        </div>
-        <div class="p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
-          <div id="home-stat-chapters" class="text-2xl sm:text-3xl font-extrabold text-[var(--reader-text)] font-serif">0</div>
-          <div class="text-xs text-[var(--reader-muted)] mt-1 font-medium">කියවූ පරිච්ඡේද</div>
-        </div>
-        <div class="p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
-          <div id="home-stat-bookmarks" class="text-2xl sm:text-3xl font-extrabold text-amber-500 font-serif">0</div>
-          <div class="text-xs text-[var(--reader-muted)] mt-1 font-medium">සුරැකි පිටුසන්</div>
-        </div>
-      </div>
-
-      <!-- Resume Reading Banner or Welcoming First-Time Prompt -->
-      <div id="resume-reading-container">
-        <!-- Injected via client script below -->
-        <div class="p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)] text-xs text-[var(--reader-muted)] flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2">
-            <span>💡</span>
-            <span>ඔබ නවකතාවක් කියවීම ආරම්භ කළ විට, ඔබ නැවැත්වූ පරිච්ඡේදය ස්වයංක්‍රීයව මෙහි සටහන් වේ.</span>
-          </div>
-          <a href="#novels-catalog" class="accent-text font-semibold hover:underline shrink-0">නවකතාවක් තෝරන්න →</a>
+        <!-- Quick Action CTAs -->
+        <div class="flex flex-wrap items-center gap-3 pt-3">
+          <a
+            href="#novels-catalog"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl accent-bg font-semibold text-xs shadow-xs active:scale-95 transition-all"
+          >
+            <span>නවකතා කියවීම අරඹන්න</span>
+            <span>↓</span>
+          </a>
+          <a
+            href="/bookmarks"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/50 text-xs font-semibold text-[var(--reader-text)] active:scale-95 transition-all"
+          >
+            <span>🔖 මගේ කියවීම් ලැයිස්තුව (Bookmarks)</span>
+          </a>
         </div>
       </div>
     </section>
@@ -420,56 +382,9 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
 
   </div>
 
-  <!-- Client-Side Reading Desk Sync & Interactive Catalog Filter Script -->
+  <!-- Interactive Catalog Filter Script -->
   <script>
-    // 1. Sync User Reading Desk from localStorage
-    const syncReadingDesk = () => {
-      try {
-        const history = JSON.parse(localStorage.getItem('katha_history') || '[]');
-        const bookmarks = JSON.parse(localStorage.getItem('katha_bookmarks') || '[]');
-        const stats = JSON.parse(localStorage.getItem('katha_stats') || '{"chaptersRead":[], "novelsRead":[]}');
-
-        const novelsCount = Math.max(stats.novelsRead?.length || 0, history.length);
-        const chaptersCount = stats.chaptersRead?.length || 0;
-        const bookmarksCount = bookmarks.length;
-
-        const elNovels = document.getElementById('home-stat-novels');
-        const elChapters = document.getElementById('home-stat-chapters');
-        const elBookmarks = document.getElementById('home-stat-bookmarks');
-        const resumeContainer = document.getElementById('resume-reading-container');
-
-        if (elNovels) elNovels.textContent = novelsCount.toString();
-        if (elChapters) elChapters.textContent = chaptersCount.toString();
-        if (elBookmarks) elBookmarks.textContent = bookmarksCount.toString();
-
-        if (resumeContainer && history.length > 0) {
-          const latest = history[0];
-          resumeContainer.innerHTML = `
-            <div class="flex items-center justify-between gap-4 p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--theme-accent)]/30">
-              <div class="flex items-center gap-3.5 min-w-0">
-                <img src="${latest.novelCover}" alt="${latest.novelTitle}" class="w-11 h-14 rounded-lg object-cover border border-[var(--reader-border)] shrink-0 shadow-xs" />
-                <div class="min-w-0">
-                  <div class="text-[11px] accent-text font-semibold">අවසන් වරට කියවූ පරිච්ඡේදය</div>
-                  <div class="font-bold text-sm sm:text-base text-[var(--reader-text)] truncate font-serif">${latest.novelTitle}</div>
-                  <div class="text-xs text-[var(--reader-muted)] truncate">${latest.chapterTitle || `පරිච්ඡේදය ${latest.chapterNumber}`}</div>
-                </div>
-              </div>
-              <a
-                href="${latest.url}"
-                class="px-4 py-2.5 rounded-xl accent-bg text-xs font-semibold shadow-xs shrink-0 active:scale-95 transition-all text-center"
-              >
-                නැවත කියවන්න →
-              </a>
-            </div>
-          `;
-        }
-      } catch (e) {}
-    };
-
-    window.addEventListener('katha-stats-updated', syncReadingDesk);
-    syncReadingDesk();
-
-    // 2. Interactive Frontpage Grid Filtering
+    // Interactive Frontpage Grid Filtering
     let currentStatus = 'all';
     let currentGenre = 'all';
 
