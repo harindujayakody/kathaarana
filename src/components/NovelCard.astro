@@ -1,0 +1,134 @@
+---
+import { getGenreSlug } from '../utils/genres';
+
+interface Props {
+  id: string;
+  title: string;
+  author: string;
+  authorSlug: string;
+  coverImage: string;
+  synopsis: string;
+  genres: string[];
+  status: 'Ongoing' | 'Completed' | string;
+  chapterCount?: number;
+  featured?: boolean;
+}
+
+const {
+  id,
+  title,
+  author,
+  authorSlug,
+  coverImage,
+  synopsis,
+  genres,
+  status,
+  chapterCount = 1,
+  featured = false,
+} = Astro.props;
+
+const isCompleted = status === 'Completed';
+---
+
+<article
+  class="group relative flex flex-col rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_16px_36px_-12px_rgba(15,118,110,0.2)] dark:hover:shadow-[0_16px_36px_-12px_rgba(45,212,189,0.15)] hover:border-[var(--theme-accent)]/60"
+  data-novel-card
+  data-status={status}
+  data-genres={genres.join(',')}
+>
+  <!-- Book Cover Canvas with 2:3 Aspect Ratio -->
+  <div class="relative aspect-[2/3] w-full overflow-hidden bg-neutral-900 select-none">
+    <img
+      src={coverImage}
+      alt={`${title} - Novel Cover`}
+      class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+      loading="lazy"
+    />
+
+    <!-- Realistic Book Left Edge Bevel Shadow -->
+    <div class="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/40 via-black/15 to-transparent pointer-events-none"></div>
+
+    <!-- Top Floating Badges (Status & Bookmark) -->
+    <div class="absolute top-2.5 inset-x-2.5 flex items-center justify-between gap-1 pointer-events-none z-10">
+      <!-- Status Badge -->
+      {isCompleted ? (
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/85 text-emerald-300 border border-emerald-500/30 backdrop-blur-md shadow-xs">
+          <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+          </svg>
+          සම්පූර්ණයි
+        </span>
+      ) : (
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-950/85 text-[#2DD4BF] border border-[#2DD4BF]/30 backdrop-blur-md shadow-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#2DD4BF] animate-pulse"></span>
+          ලියවෙමින් පවතී
+        </span>
+      )}
+
+      <!-- Chapter Count Pill -->
+      <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/65 text-zinc-200 backdrop-blur-md border border-white/10 shadow-xs">
+        පරි. {chapterCount}
+      </span>
+    </div>
+
+    <!-- Hover Gradient Overlay with Quick Read CTA -->
+    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3.5 z-10 pointer-events-none">
+      <p class="text-[11px] text-zinc-300 line-clamp-3 leading-relaxed mb-3 italic hidden sm:block font-novel-sans">
+        "{synopsis}"
+      </p>
+      <div class="flex items-center justify-between">
+        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-white accent-text">
+          <span>කියවීම අරඹන්න</span>
+          <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Interactive full-cover click target -->
+    <a href={`/novels/${id}`} class="absolute inset-0 z-20" aria-label={`කියවන්න ${title}`}></a>
+  </div>
+
+  <!-- Novel Metadata Body -->
+  <div class="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-2">
+    <div>
+      <!-- Genre Tags -->
+      <div class="flex flex-wrap gap-1 mb-1.5">
+        {genres.slice(0, 2).map((genre) => (
+          <a
+            href={`/genres/${getGenreSlug(genre)}`}
+            class="text-[10px] font-medium text-[var(--reader-muted)] hover:accent-text bg-[var(--reader-bg)] px-1.5 py-0.5 rounded-md border border-[var(--reader-border)] transition-colors"
+          >
+            {genre}
+          </a>
+        ))}
+      </div>
+
+      <!-- Novel Title -->
+      <h3 class="font-bold text-sm sm:text-base text-[var(--reader-text)] group-hover:accent-text transition-colors leading-snug line-clamp-2 font-serif">
+        <a href={`/novels/${id}`}>
+          {title}
+        </a>
+      </h3>
+    </div>
+
+    <!-- Author & Footer Info -->
+    <div class="pt-2 border-t border-[var(--reader-border)]/60 flex items-center justify-between text-xs text-[var(--reader-muted)]">
+      <a
+        href={`/authors/${authorSlug}`}
+        class="hover:accent-text transition-colors truncate max-w-[140px] text-[11px] sm:text-xs flex items-center gap-1"
+      >
+        <span class="w-1.5 h-1.5 rounded-full accent-bg shrink-0"></span>
+        <span class="truncate">{author}</span>
+      </a>
+
+      <a
+        href={`/novels/${id}`}
+        class="accent-text font-semibold text-[11px] hover:underline shrink-0"
+      >
+        කියවන්න →
+      </a>
+    </div>
+  </div>
+</article>

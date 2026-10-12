@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const novels = await getCollection('novels');
+const allChapters = await getCollection('chapters');
+
+// Extract unique authors
+const uniqueAuthors = Array.from(
+  new Set(novels.map(n => JSON.stringify({ name: n.data.author, slug: n.data.authorSlug })))
+).map(s => JSON.parse(s));
+
+// Map author data
+const authorDetails = uniqueAuthors.map(author => {
+  const authorNovels = novels.filter(n => n.data.authorSlug === author.slug);
+  const novelIds = authorNovels.map(n => n.id);
+  const chaptersCount = allChapters.filter(c => novelIds.includes(c.data.novel)).length;
+  const genres = Array.from(new Set(authorNovels.flatMap(n => n.data.genres)));
+
+  return {
+    ...author,
+    novels: authorNovels,
+    chaptersCount,
+    genres,
+  };
+});
+---
+
+<BaseLayout
+  title="කතුවරුන්ගේ නාමාවලිය - Katha Arana"
+  description="කතා අරණ වේදිකාවේ සිංහල නවකතා ලියන සියලුම ලේඛකයන්ගේ සහ නිර්මාණකරුවන්ගේ නාමාවලිය."
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
+    
+    <!-- Page Header -->
+    <div class="space-y-3 pb-6 border-b border-[var(--reader-border)]">
+      <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-[var(--reader-muted)]">
+        <a href="/" class="hover:underline">මුල් පිටුව</a>
+        <span>/</span>
+        <span class="text-[var(--reader-text)] font-semibold">කතුවරුන්</span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] font-serif">
+        කතුවරුන්ගේ නාමාවලිය
+      </h1>
+      <p class="text-xs sm:text-sm text-[var(--reader-muted)] max-w-2xl">
+        ශ්‍රී ලංකාවේ විවිධ ප්‍රභේදයන්ගෙන් සිංහල නවකතා සහ කෙටිකතා නිර්මාණය කරන දක්ෂ ලේඛකයන්ගේ නාමාවලිය.
+      </p>
+    </div>
+
+    <!-- Authors Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {authorDetails.map(author => (
+        <article class="p-6 rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/60 hover:-translate-y-1 hover:shadow-lg transition-all flex flex-col justify-between gap-6 group">
+          
+          <div class="space-y-4">
+            <!-- Author Header & Avatar -->
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl accent-badge flex items-center justify-center font-bold text-xl font-serif shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+                {author.name.charAt(0)}
+              </div>
+              <div class="min-w-0">
+                <h2 class="text-lg font-bold text-[var(--reader-text)] group-hover:accent-text transition-colors font-serif truncate">
+                  <a href={`/authors/${author.slug}`}>
+                    {author.name}
+                  </a>
+                </h2>
+                <div class="text-xs text-[var(--reader-muted)] mt-0.5">
+                  නවකතා {author.novels.length} • පරිච්ඡේද {author.chaptersCount}
+                </div>
+              </div>
+            </div>
+
+            <!-- Genre Pills -->
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              {author.genres.map((g: string) => (
+                <span class="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--reader-bg)] border border-[var(--reader-border)] text-[var(--reader-muted)]">
+                  {g}
+                </span>
+              ))}
+            </div>
+
+            <!-- Novel Covers Thumbnails -->
+            <div class="pt-2">
+              <div class="text-[11px] font-semibold text-[var(--reader-muted)] mb-2 uppercase tracking-wider">
+                ප්‍රකාශිත නවකතා
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                {author.novels.map((n) => (
+                  <a href={`/novels/${n.id}`} class="block rounded-lg overflow-hidden border border-[var(--reader-border)] aspect-[2/3] group/thumb hover:scale-105 transition-transform shadow-xs">
+                    <img src={n.data.coverImage} alt={n.data.title} class="w-full h-full object-cover" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Link Action -->
+          <div class="pt-4 border-t border-[var(--reader-border)]">
+            <a
+              href={`/authors/${author.slug}`}
+              class="w-full py-2.5 rounded-xl bg-[var(--reader-bg)] hover:accent-bg text-[var(--reader-text)] hover:text-white font-semibold text-xs border border-[var(--reader-border)] hover:border-transparent flex items-center justify-center gap-1.5 transition-all text-center"
+            >
+              <span>කතුවරයාගේ පිටුවට යන්න</span>
+              <span>→</span>
+            </a>
+          </div>
+
+        </article>
+      ))}
+    </div>
+
+  </div>
+</BaseLayout>

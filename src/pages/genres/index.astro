@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { GENRE_MAP, getGenreSlug } from '../../utils/genres';
+
+const novels = await getCollection('novels');
+
+// Count novels per genre
+const genreStats = Object.values(GENRE_MAP).map(genre => {
+  const matchingNovels = novels.filter(n => n.data.genres.includes(genre.name));
+  return {
+    ...genre,
+    count: matchingNovels.length,
+    novels: matchingNovels,
+  };
+});
+---
+
+<BaseLayout
+  title="නවකතා වර්ගීකරණය (Genres) - Katha Arana"
+  description="කතා අරණ වෙබ් අඩවියේ සිංහල නවකතා ප්‍රභේද සහ වර්ගීකරණයන්. අපරාධ පරීක්ෂණ, ත්‍රාසජනක, අබිරහස් සහ ආදර කතා."
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
+    
+    <!-- Page Header -->
+    <div class="space-y-3 pb-6 border-b border-[var(--reader-border)]">
+      <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-[var(--reader-muted)]">
+        <a href="/" class="hover:underline">මුල් පිටුව</a>
+        <span>/</span>
+        <span class="text-[var(--reader-text)] font-semibold">වර්ගීකරණය</span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] font-serif">
+        නවකතා වර්ගීකරණය (Genres)
+      </h1>
+      <p class="text-xs sm:text-sm text-[var(--reader-muted)] max-w-2xl">
+        ඔබ ප්‍රියකරන සාහිත්‍ය ප්‍රභේදය අනුව සිංහල නවකතා සහ කෙටිකතා තෝරාගන්න.
+      </p>
+    </div>
+
+    <!-- Genres Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {genreStats.map(genre => (
+        <a
+          href={`/genres/${genre.slug}`}
+          class="p-6 rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/60 hover:-translate-y-1 hover:shadow-lg transition-all flex flex-col justify-between gap-6 group"
+        >
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-3xl p-3 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)] group-hover:scale-110 transition-transform">
+                {genre.icon}
+              </span>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold accent-badge">
+                නවකතා {genre.count}
+              </span>
+            </div>
+
+            <h2 class="text-xl font-bold text-[var(--reader-text)] group-hover:accent-text transition-colors font-serif">
+              {genre.name}
+            </h2>
+
+            <p class="text-xs text-[var(--reader-muted)] leading-relaxed">
+              {genre.description}
+            </p>
+          </div>
+
+          <!-- Mini Cover Thumbnails Preview -->
+          {genre.novels.length > 0 && (
+            <div class="pt-4 border-t border-[var(--reader-border)] flex items-center gap-2">
+              {genre.novels.slice(0, 3).map(n => (
+                <img src={n.data.coverImage} alt={n.data.title} class="w-10 h-14 rounded-lg object-cover border border-[var(--reader-border)] shadow-xs" />
+              ))}
+              <span class="text-xs accent-text font-semibold ml-auto group-hover:underline">කියවන්න →</span>
+            </div>
+          )}
+        </a>
+      ))}
+    </div>
+
+  </div>
+</BaseLayout>

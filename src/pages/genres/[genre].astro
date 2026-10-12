@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NovelCard from '../../components/NovelCard.astro';
+import { getCollection } from 'astro:content';
+import { GENRE_MAP } from '../../utils/genres';
+
+export async function getStaticPaths() {
+  const allNovels = await getCollection('novels');
+  const allChapters = await getCollection('chapters');
+
+  // Map chapter counts
+  const chapterCounts: Record<string, number> = {};
+  allChapters.forEach(c => {
+    chapterCounts[c.data.novel] = (chapterCounts[c.data.novel] || 0) + 1;
+  });
+
+  return Object.values(GENRE_MAP).map(genre => {
+    const matchingNovels = allNovels.filter(n => n.data.genres.includes(genre.name));
+    return {
+      params: { genre: genre.slug },
+      props: {
+        genre,
+        novels: matchingNovels,
+        chapterCounts,
+      },
+    };
+  });
+}
+
+const { genre, novels, chapterCounts } = Astro.props;
+---
+
+<BaseLayout
+  title={`${genre.name} නවකතා - Katha Arana`}
+  description={`${genre.name} ප්‍රභේදයේ සිංහල නවකතා සහ කෙටිකතා. ${genre.description}`}
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
+    
+    <!-- Page Header -->
+    <div class="space-y-4 pb-6 border-b border-[var(--reader-border)]">
+      <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-[var(--reader-muted)]">
+        <a href="/" class="hover:underline">මුල් පිටුව</a>
+        <span>/</span>
+        <a href="/genres" class="hover:underline">වර්ගීකරණය</a>
+        <span>/</span>
+        <span class="text-[var(--reader-text)] font-semibold">{genre.name}</span>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <span class="text-3xl sm:text-4xl p-3.5 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] shadow-xs">
+          {genre.icon}
+        </span>
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] font-serif">
+            {genre.name}
+          </h1>
+          <p class="text-xs sm:text-sm text-[var(--reader-muted)] mt-1">
+            {genre.description}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Novels Grid -->
+    {novels.length > 0 ? (
+      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-6">
+        {novels.map(novel => (
+          <NovelCard
+            id={novel.id}
+            title={novel.data.title}
+            author={novel.data.author}
+            authorSlug={novel.data.authorSlug}
+            coverImage={novel.data.coverImage}
+            synopsis={novel.data.synopsis}
+            genres={novel.data.genres}
+            status={novel.data.status}
+            chapterCount={chapterCounts[novel.id] || 1}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="py-16 text-center space-y-3 bg-[var(--reader-panel)] rounded-3xl border border-[var(--reader-border)]">
+        <div class="text-3xl">📚</div>
+        <h3 class="text-base font-bold text-[var(--reader-text)] font-serif">නවකතා සූදානම් වෙමින් පවතී</h3>
+        <p class="text-xs text-[var(--reader-muted)] max-w-sm mx-auto">
+          මෙම වර්ගීකරණයට අයත් නවකතා ළඟදීම අපගේ වේදිකාවට එක්කරනු ලැබේ.
+        </p>
+        <a href="/novels" class="inline-block text-xs font-semibold accent-text hover:underline mt-2">
+          සියලුම නවකතා වෙත යන්න →
+        </a>
+      </div>
+    )}
+
+  </div>
+</BaseLayout>

@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import NovelCard from '../components/NovelCard.astro';
 import { getCollection } from 'astro:content';
+import { GENRE_MAP, getGenreSlug } from '../utils/genres';
 
 const novels = await getCollection('novels');
 const allChapters = await getCollection('chapters');
@@ -13,6 +15,12 @@ const featuredNovel = sortedNovels[0];
 const uniqueAuthors = Array.from(
   new Set(novels.map(n => JSON.stringify({ name: n.data.author, slug: n.data.authorSlug })))
 ).map(s => JSON.parse(s));
+
+// Map chapter count per novel
+const novelChapterCounts: Record<string, number> = {};
+allChapters.forEach(c => {
+  novelChapterCounts[c.data.novel] = (novelChapterCounts[c.data.novel] || 0) + 1;
+});
 
 // Sort all chapters descending for "Latest Chapter Releases"
 const latestChapters = allChapters
@@ -27,20 +35,114 @@ const featuredChapters = allChapters
 const featuredFirstChapterUrl = featuredChapters.length > 0
   ? `/novels/${featuredNovel.id}/${featuredChapters[0].data.chapterNumber}`
   : `/novels/${featuredNovel.id}`;
+
+// Unique genres across all novels
+const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
 ---
 
 <BaseLayout
-  title="කතා අරණ - සිංහල නවකතා කියවීමේ නිදහස් අවකාශය"
-  description="විවිධ ලේඛකයන්ගේ සිංහල නවකතා, අබිරහස්, ත්‍රාසජනක සහ ආදර කතා ජංගම දුරකථනයෙන් පහසුවෙන් කියවන්න."
+  title="කතා අරණ - සිංහල නවකතා කියවීමේ නිදහස් අවකාශය | Realm of Sinhala Web Novels"
+  description="ශ්‍රී ලාංකේය ලේඛකයන්ගේ සිංහල නවකතා, අබිරහස්, ත්‍රාසජනක සහ ආදර කතා ජංගම දුරකථනයෙන් පහසුවෙන් කියවන්න. නොමිලේ, ගිණුම් අවශ්‍ය නැත."
   image={featuredNovel.data.coverImage}
 >
-  <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-12">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-16">
     
-    <!-- Hero / Featured Novel Spotlight -->
+    <!-- Platform Hero & Orientation -->
+    <section class="relative rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] p-6 sm:p-10 overflow-hidden shadow-sm">
+      <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-[var(--theme-accent)]/10 blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-3xl space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold accent-badge border border-[var(--theme-accent)]/20">
+          <span class="w-2 h-2 rounded-full accent-bg animate-pulse"></span>
+          <span>නොමිලේ සිංහල වෙබ් නවකතා එකතුව</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[var(--reader-text)] leading-tight font-serif">
+          සිංහල නවකතාවල අසීමිත ලෝකය ඔබේ ඇඟිලි තුඩුවලට
+        </h1>
+
+        <p class="text-sm sm:text-base text-[var(--reader-muted)] leading-relaxed font-novel-sans">
+          ශ්‍රී ලාංකේය දක්ෂ ලේඛකයන්ගේ අබිරහස්, ත්‍රාසජනක, ආදර සහ ඓතිහාසික සිංහල නවකතා සහ කෙටිකතා කියවීමට නිර්මාණය කළ නිදහස් ඩිජිටල් අවකාශය. ජංගම දුරකථන සඳහා විශේෂිතව සකස් කළ 17px අකුරු මෝස්තරය.
+        </p>
+
+        <!-- Feature Pills -->
+        <div class="flex flex-wrap gap-2.5 pt-2 text-xs text-[var(--reader-muted)]">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
+            <span>📱</span> <span>ජංගම දුරකථන කියවීම</span>
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
+            <span>⚡</span> <span>වේගවත් Edge SSG</span>
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
+            <span>🌙</span> <span>අඳුරු / ආලෝක තේමා</span>
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
+            <span>🔖</span> <span>ස්වයංක්‍රීය පිටුසන්</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- User's Personal Reading Desk & Stats (Loaded from localStorage) -->
+    <section id="user-reading-desk" class="rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] p-6 sm:p-8 space-y-6 transition-all">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--reader-border)]">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-xl accent-badge flex items-center justify-center text-sm font-bold">
+            📖
+          </span>
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-[var(--reader-text)] font-serif">
+              ඔබේ කියවීම් මේසය (Your Reading Desk)
+            </h2>
+            <p class="text-xs text-[var(--reader-muted)]">
+              ඔබගේ කියවීමේ ප්‍රගතිය, ඉතිහාසය සහ සංඛ්‍යාලේඛන
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Desk Actions -->
+        <button
+          data-trigger-bookmarks
+          class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/50 text-xs font-semibold accent-text active:scale-95 transition-all self-start sm:self-auto cursor-pointer"
+        >
+          <span>🔖 සියලු පිටුසන් බලන්න</span>
+        </button>
+      </div>
+
+      <!-- Live User Stats Ribbon -->
+      <div class="grid grid-cols-3 gap-3 sm:gap-4 text-center">
+        <div class="p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
+          <div id="home-stat-novels" class="text-2xl sm:text-3xl font-extrabold accent-text font-serif">0</div>
+          <div class="text-xs text-[var(--reader-muted)] mt-1 font-medium">කියවූ නවකතා</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
+          <div id="home-stat-chapters" class="text-2xl sm:text-3xl font-extrabold text-[var(--reader-text)] font-serif">0</div>
+          <div class="text-xs text-[var(--reader-muted)] mt-1 font-medium">කියවූ පරිච්ඡේද</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)]">
+          <div id="home-stat-bookmarks" class="text-2xl sm:text-3xl font-extrabold text-amber-500 font-serif">0</div>
+          <div class="text-xs text-[var(--reader-muted)] mt-1 font-medium">සුරැකි පිටුසන්</div>
+        </div>
+      </div>
+
+      <!-- Resume Reading Banner or Welcoming First-Time Prompt -->
+      <div id="resume-reading-container">
+        <!-- Injected via client script below -->
+        <div class="p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)] text-xs text-[var(--reader-muted)] flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span>💡</span>
+            <span>ඔබ නවකතාවක් කියවීම ආරම්භ කළ විට, ඔබ නැවැත්වූ පරිච්ඡේදය ස්වයංක්‍රීයව මෙහි සටහන් වේ.</span>
+          </div>
+          <a href="#novels-catalog" class="accent-text font-semibold hover:underline shrink-0">නවකතාවක් තෝරන්න →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Novel Spotlight -->
     <section class="bg-[var(--reader-panel)] border border-[var(--reader-border)] rounded-3xl p-6 sm:p-8 shadow-sm transition-colors">
       <div class="flex flex-col md:flex-row gap-8 items-start">
         
-        <!-- Book Cover Art -->
+        <!-- Book Cover Art with 2:3 aspect ratio -->
         <div class="w-full sm:w-64 md:w-72 shrink-0 mx-auto md:mx-0 group">
           <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-[var(--reader-border)] aspect-[2/3] bg-neutral-900">
             <img
@@ -64,15 +166,20 @@ const featuredFirstChapterUrl = featuredChapters.length > 0
           <div>
             <div class="flex flex-wrap gap-2 mb-3">
               {featuredNovel.data.genres.map(genre => (
-                <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--reader-border)]/40 text-[var(--reader-muted)] border border-[var(--reader-border)]/60">
+                <a
+                  href={`/genres/${getGenreSlug(genre)}`}
+                  class="px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--reader-border)]/40 text-[var(--reader-muted)] hover:accent-text border border-[var(--reader-border)]/60 transition-colors"
+                >
                   {genre}
-                </span>
+                </a>
               ))}
             </div>
 
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] leading-snug font-serif">
-              {featuredNovel.data.title}
-            </h1>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] leading-snug font-serif">
+              <a href={`/novels/${featuredNovel.id}`} class="hover:accent-text transition-colors">
+                {featuredNovel.data.title}
+              </a>
+            </h2>
             
             <p class="text-sm sm:text-base text-[var(--reader-muted)] mt-2">
               කර්තෘ: <a href={`/authors/${featuredNovel.data.authorSlug}`} class="accent-text font-semibold hover:underline">{featuredNovel.data.author}</a>
@@ -92,7 +199,9 @@ const featuredFirstChapterUrl = featuredChapters.length > 0
             </div>
             <div>
               <div class="text-[11px] text-[var(--reader-muted)]">තත්ත්වය</div>
-              <div class="text-base font-bold accent-text">ලියවෙමින් පවතී</div>
+              <div class="text-base font-bold accent-text">
+                {featuredNovel.data.status === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින් පවතී'}
+              </div>
             </div>
             <div>
               <div class="text-[11px] text-[var(--reader-muted)]">භාෂාව</div>
@@ -128,77 +237,137 @@ const featuredFirstChapterUrl = featuredChapters.length > 0
       </div>
     </section>
 
-    <!-- Multi-Author Novels Catalog -->
-    <section id="novels" class="space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--reader-border)]">
+    <!-- Catchy & Professional Novel Grid Catalog -->
+    <section id="novels-catalog" class="space-y-6">
+      
+      <!-- Catalog Header & Filter Controls -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-[var(--reader-border)]">
         <div>
-          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--reader-text)] font-serif">
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--reader-text)] font-serif">
             සියලුම නවකතා
           </h2>
-          <p class="text-xs text-[var(--reader-muted)] mt-0.5">
-            විවිධ කතුවරුන්ගේ සිංහල කතා එකතුව
+          <p class="text-xs sm:text-sm text-[var(--reader-muted)] mt-1">
+            විවිධ කතුවරුන්ගේ සිංහල නවකතා නාමාවලිය
           </p>
         </div>
 
-        <!-- Authors Quick Filter -->
-        <div class="flex flex-wrap gap-2 text-xs">
-          <span class="text-[var(--reader-muted)] self-center mr-1">කතුවරුන්:</span>
-          {uniqueAuthors.map((author: any) => (
-            <a
-              href={`/authors/${author.slug}`}
-              class="px-3 py-1.5 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)] hover:accent-text font-medium transition-colors"
+        <!-- Filter Segment: Status (All / Ongoing / Completed) -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex p-1 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-xs font-medium">
+            <button
+              data-filter-status="all"
+              class="status-filter-btn px-3 py-1.5 rounded-lg accent-bg font-semibold shadow-xs transition-all"
             >
-              {author.name}
-            </a>
-          ))}
+              සියලුම ({novels.length})
+            </button>
+            <button
+              data-filter-status="Ongoing"
+              class="status-filter-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all"
+            >
+              ලියවෙමින් පවතින
+            </button>
+            <button
+              data-filter-status="Completed"
+              class="status-filter-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all"
+            >
+              සම්පූර්ණ වූ
+            </button>
+          </div>
+
+          <a
+            href="/novels"
+            class="hidden sm:inline-flex items-center gap-1 text-xs font-semibold accent-text hover:underline px-2.5 py-1.5 rounded-lg border border-[var(--reader-border)]"
+          >
+            <span>සම්පූර්ණ නාමාවලිය</span>
+            <span>→</span>
+          </a>
         </div>
       </div>
 
-      <!-- Novels Grid -->
-      <div class="grid md:grid-cols-2 gap-6">
-        {sortedNovels.map((n) => {
-          const novelChaps = allChapters.filter(c => c.data.novel === n.id);
-          const firstChapUrl = novelChaps.length > 0 ? `/novels/${n.id}/1` : `/novels/${n.id}`;
+      <!-- Quick Genre Pills Filter -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 text-xs scrollbar-none">
+        <span class="text-[var(--reader-muted)] shrink-0 text-[11px] font-medium">වර්ගීකරණය:</span>
+        <button
+          data-filter-genre="all"
+          class="genre-filter-btn px-3 py-1.5 rounded-xl accent-badge font-semibold shrink-0 transition-all border border-[var(--theme-accent)]/30"
+        >
+          සියලු වර්ග
+        </button>
+        {allGenres.map(g => (
+          <button
+            data-filter-genre={g}
+            class="genre-filter-btn px-3 py-1.5 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-[var(--reader-muted)] hover:text-[var(--reader-text)] shrink-0 transition-all"
+          >
+            {g}
+          </button>
+        ))}
+      </div>
 
+      <!-- Novels Grid: 2 columns on Mobile, 3 on Tablet, 4 on Desktop -->
+      <div
+        id="novels-grid-container"
+        class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-6"
+      >
+        {sortedNovels.map((novel) => (
+          <NovelCard
+            id={novel.id}
+            title={novel.data.title}
+            author={novel.data.author}
+            authorSlug={novel.data.authorSlug}
+            coverImage={novel.data.coverImage}
+            synopsis={novel.data.synopsis}
+            genres={novel.data.genres}
+            status={novel.data.status}
+            chapterCount={novelChapterCounts[novel.id] || 1}
+          />
+        ))}
+      </div>
+
+      <!-- Filter Empty State -->
+      <div id="grid-empty-state" class="hidden py-16 text-center space-y-3 bg-[var(--reader-panel)] rounded-3xl border border-[var(--reader-border)]">
+        <div class="text-3xl">📚</div>
+        <h3 class="text-base font-bold text-[var(--reader-text)] font-serif">නවකතා හමු නොවීය</h3>
+        <p class="text-xs text-[var(--reader-muted)]">තෝරාගත් වර්ගීකරණයට අදාළ නවකතා තවම නොමැත.</p>
+        <button id="btn-reset-filters" class="text-xs font-semibold accent-text hover:underline">
+          සියලුම නවකතා පෙන්වන්න
+        </button>
+      </div>
+    </section>
+
+    <!-- Multi-Author Roster Spotlight -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--reader-border)]">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--reader-text)] font-serif">
+            අපගේ කතුවරුන්
+          </h2>
+          <p class="text-xs text-[var(--reader-muted)] mt-0.5">
+            විවිධ ශෛලීන්ගෙන් නවකතා ලියන නිර්මාණශීලී ලේඛකයන්
+          </p>
+        </div>
+        <a href="/authors" class="text-xs font-semibold accent-text hover:underline flex items-center gap-1">
+          <span>සියලු කතුවරුන්</span>
+          <span>→</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {uniqueAuthors.map(author => {
+          const authorNovels = novels.filter(n => n.data.authorSlug === author.slug);
           return (
-            <div class="p-5 rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] flex gap-4 sm:gap-5 items-start hover:border-[var(--theme-accent)]/50 hover:shadow-md transition-all group">
-              <!-- Cover Thumbnail -->
-              <a href={`/novels/${n.id}`} class="w-24 sm:w-28 shrink-0 rounded-2xl overflow-hidden aspect-[2/3] border border-[var(--reader-border)] bg-neutral-900 block group-hover:scale-[1.02] transition-transform">
-                <img src={n.data.coverImage} alt={n.data.title} class="w-full h-full object-cover" />
-              </a>
-
-              <!-- Info -->
-              <div class="flex-1 space-y-2">
-                <div class="flex flex-wrap gap-1.5">
-                  {n.data.genres.slice(0, 2).map(g => (
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-[var(--reader-border)]/40 text-[var(--reader-muted)]">
-                      {g}
-                    </span>
-                  ))}
-                </div>
-
-                <a href={`/novels/${n.id}`} class="font-bold text-base sm:text-lg text-[var(--reader-text)] group-hover:accent-text transition-colors block font-serif leading-snug">
-                  {n.data.title}
-                </a>
-
-                <p class="text-xs text-[var(--reader-muted)]">
-                  කර්තෘ: <a href={`/authors/${n.data.authorSlug}`} class="font-medium accent-text hover:underline">{n.data.author}</a>
-                </p>
-
-                <p class="text-xs text-[var(--reader-text)]/80 line-clamp-2 leading-relaxed">
-                  {n.data.synopsis}
-                </p>
-
-                <div class="flex items-center justify-between pt-2 border-t border-[var(--reader-border)]/60 text-xs">
-                  <span class="text-[var(--reader-muted)]">පරිච්ඡේද {novelChaps.length}</span>
-                  <a
-                    href={firstChapUrl}
-                    class="font-semibold accent-text hover:underline flex items-center gap-1"
-                  >
-                    <span>කියවන්න</span>
-                    <span>→</span>
+            <div class="p-4 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/50 transition-all flex items-center gap-3.5 group">
+              <div class="w-12 h-12 rounded-xl accent-badge flex items-center justify-center font-bold text-base font-serif shrink-0 group-hover:scale-105 transition-transform">
+                {author.name.charAt(0)}
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-sm sm:text-base text-[var(--reader-text)] group-hover:accent-text transition-colors truncate font-serif">
+                  <a href={`/authors/${author.slug}`}>
+                    {author.name}
                   </a>
-                </div>
+                </h3>
+                <p class="text-xs text-[var(--reader-muted)] mt-0.5">
+                  නවකතා {authorNovels.length} ක් • <a href={`/authors/${author.slug}`} class="accent-text font-medium hover:underline">පැතිකඩ →</a>
+                </p>
               </div>
             </div>
           );
@@ -206,62 +375,42 @@ const featuredFirstChapterUrl = featuredChapters.length > 0
       </div>
     </section>
 
-    <!-- Latest Chapters Feed -->
-    <section id="chapters" class="space-y-4">
-      <div class="flex items-center justify-between pb-2 border-b border-[var(--reader-border)]">
+    <!-- Latest Chapter Releases Feed -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between pb-3 border-b border-[var(--reader-border)]">
         <div>
           <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--reader-text)] font-serif">
-            නවතම පරිච්ඡේද
+            නවතම පරිච්ඡේද නිකුත් කිරීම්
           </h2>
           <p class="text-xs text-[var(--reader-muted)] mt-0.5">
-            අලුතින්ම නිකුත් වූ පරිච්ඡේද
+            අවසන් වරට යාවත්කාලීන වූ පරිච්ඡේද පෙළ
           </p>
         </div>
-        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-[var(--reader-border)]/50 text-[var(--reader-muted)]">
-          {latestChapters.length} ක්
-        </span>
+        <a href="/rss.xml" class="text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
+          <span>RSS Feed</span>
+          <span>📡</span>
+        </a>
       </div>
 
-      <div class="grid gap-3">
-        {latestChapters.map((ch) => {
-          const parentNovel = sortedNovels.find(n => n.id === ch.data.novel);
-          const readTime = Math.ceil((ch.data.wordCount || 800) / 180);
-          const dateStr = ch.data.publishDate.toLocaleDateString('si-LK', {
-            month: 'short',
-            day: 'numeric',
-          });
-
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+        {latestChapters.map(chap => {
+          const parentNovel = novels.find(n => n.id === chap.data.novel);
           return (
             <a
-              href={`/novels/${ch.data.novel}/${ch.data.chapterNumber}`}
-              class="group flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/50 hover:shadow-md transition-all"
+              href={`/novels/${chap.data.novel}/${chap.data.chapterNumber}`}
+              class="p-4 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/60 hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-3 group"
             >
-              <div class="flex items-center gap-3 sm:gap-4">
-                <span class="shrink-0 w-9 h-9 rounded-xl accent-badge font-bold flex items-center justify-center text-xs sm:text-sm">
-                  {ch.data.chapterNumber}
-                </span>
-                <div>
-                  <div class="text-[11px] font-semibold accent-text">
-                    {parentNovel?.data.title} • {parentNovel?.data.author}
-                  </div>
-                  <h3 class="text-sm sm:text-base font-semibold text-[var(--reader-text)] group-hover:accent-text transition-colors">
-                    පරිච්ඡේදය {ch.data.chapterNumber}: {ch.data.title}
-                  </h3>
-                  <div class="flex items-center gap-2 mt-1 text-xs text-[var(--reader-muted)]">
-                    <span>{dateStr}</span>
-                    <span>•</span>
-                    <span>වචන {ch.data.wordCount || 850}</span>
-                    <span>•</span>
-                    <span>විනාඩි {readTime} ක කියවීමක්</span>
-                  </div>
+              <div>
+                <div class="text-[11px] accent-text font-semibold uppercase tracking-wider mb-1">
+                  {parentNovel?.data.title}
                 </div>
+                <h3 class="font-bold text-sm sm:text-base text-[var(--reader-text)] group-hover:accent-text transition-colors font-serif leading-snug line-clamp-1">
+                  පරිච්ඡේදය {chap.data.chapterNumber}: {chap.data.title}
+                </h3>
               </div>
-
-              <div class="flex items-center gap-1.5 text-xs font-semibold accent-text group-hover:translate-x-1 transition-transform">
-                <span class="hidden sm:inline">කියවන්න</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
+              <div class="flex items-center justify-between text-[11px] text-[var(--reader-muted)] pt-2 border-t border-[var(--reader-border)]/50">
+                <span>{chap.data.publishDate.toLocaleDateString('si-LK', { month: 'short', day: 'numeric' })}</span>
+                <span class="accent-text font-medium group-hover:underline">කියවන්න →</span>
               </div>
             </a>
           );
@@ -269,19 +418,119 @@ const featuredFirstChapterUrl = featuredChapters.length > 0
       </div>
     </section>
 
-    <!-- Cloudflare & Google Noto Sans Sinhala Badge -->
-    <section class="p-6 rounded-3xl bg-[var(--reader-border)]/20 border border-[var(--reader-border)] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--reader-muted)]">
-      <div class="space-y-1 text-center sm:text-left">
-        <div class="font-semibold text-[var(--reader-text)]">🇱🇰 Google Noto Sans Sinhala + Cloudflare Edge</div>
-        <p>සිංහල අක්ෂර සඳහාම විශේෂයෙන් සකසන ලද ජංගම කියවීමේ මෘදුකාංගය. අකුරු ප්‍රමාණය සහ රාත්‍රී තේමාවන් සමඟින්.</p>
-      </div>
-      <a
-        href={featuredFirstChapterUrl}
-        class="shrink-0 px-4 py-2 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/50 text-[var(--reader-text)] font-medium transition-colors"
-      >
-        කියවීම අරඹන්න →
-      </a>
-    </section>
-
   </div>
+
+  <!-- Client-Side Reading Desk Sync & Interactive Catalog Filter Script -->
+  <script>
+    // 1. Sync User Reading Desk from localStorage
+    const syncReadingDesk = () => {
+      try {
+        const history = JSON.parse(localStorage.getItem('katha_history') || '[]');
+        const bookmarks = JSON.parse(localStorage.getItem('katha_bookmarks') || '[]');
+        const stats = JSON.parse(localStorage.getItem('katha_stats') || '{"chaptersRead":[], "novelsRead":[]}');
+
+        const novelsCount = Math.max(stats.novelsRead?.length || 0, history.length);
+        const chaptersCount = stats.chaptersRead?.length || 0;
+        const bookmarksCount = bookmarks.length;
+
+        const elNovels = document.getElementById('home-stat-novels');
+        const elChapters = document.getElementById('home-stat-chapters');
+        const elBookmarks = document.getElementById('home-stat-bookmarks');
+        const resumeContainer = document.getElementById('resume-reading-container');
+
+        if (elNovels) elNovels.textContent = novelsCount.toString();
+        if (elChapters) elChapters.textContent = chaptersCount.toString();
+        if (elBookmarks) elBookmarks.textContent = bookmarksCount.toString();
+
+        if (resumeContainer && history.length > 0) {
+          const latest = history[0];
+          resumeContainer.innerHTML = `
+            <div class="flex items-center justify-between gap-4 p-4 rounded-2xl bg-[var(--reader-bg)] border border-[var(--theme-accent)]/30">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <img src="${latest.novelCover}" alt="${latest.novelTitle}" class="w-11 h-14 rounded-lg object-cover border border-[var(--reader-border)] shrink-0 shadow-xs" />
+                <div class="min-w-0">
+                  <div class="text-[11px] accent-text font-semibold">අවසන් වරට කියවූ පරිච්ඡේදය</div>
+                  <div class="font-bold text-sm sm:text-base text-[var(--reader-text)] truncate font-serif">${latest.novelTitle}</div>
+                  <div class="text-xs text-[var(--reader-muted)] truncate">${latest.chapterTitle || `පරිච්ඡේදය ${latest.chapterNumber}`}</div>
+                </div>
+              </div>
+              <a
+                href="${latest.url}"
+                class="px-4 py-2.5 rounded-xl accent-bg text-xs font-semibold shadow-xs shrink-0 active:scale-95 transition-all text-center"
+              >
+                නැවත කියවන්න →
+              </a>
+            </div>
+          `;
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener('katha-stats-updated', syncReadingDesk);
+    syncReadingDesk();
+
+    // 2. Interactive Frontpage Grid Filtering
+    let currentStatus = 'all';
+    let currentGenre = 'all';
+
+    const cards = document.querySelectorAll('[data-novel-card]');
+    const emptyState = document.getElementById('grid-empty-state');
+
+    const filterGrid = () => {
+      let visibleCount = 0;
+      cards.forEach(card => {
+        const cardStatus = card.getAttribute('data-status') || '';
+        const cardGenres = (card.getAttribute('data-genres') || '').split(',');
+
+        const matchesStatus = currentStatus === 'all' || cardStatus.toLowerCase() === currentStatus.toLowerCase();
+        const matchesGenre = currentGenre === 'all' || cardGenres.some(g => g.trim() === currentGenre);
+
+        if (matchesStatus && matchesGenre) {
+          (card as HTMLElement).style.display = 'flex';
+          visibleCount++;
+        } else {
+          (card as HTMLElement).style.display = 'none';
+        }
+      });
+
+      if (emptyState) {
+        if (visibleCount === 0) {
+          emptyState.classList.remove('hidden');
+        } else {
+          emptyState.classList.add('hidden');
+        }
+      }
+    };
+
+    // Status Buttons
+    document.querySelectorAll('[data-filter-status]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter-status]').forEach(b => {
+          b.className = 'status-filter-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all';
+        });
+        btn.className = 'status-filter-btn px-3 py-1.5 rounded-lg accent-bg font-semibold shadow-xs transition-all';
+        currentStatus = btn.getAttribute('data-filter-status') || 'all';
+        filterGrid();
+      });
+    });
+
+    // Genre Buttons
+    document.querySelectorAll('[data-filter-genre]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter-genre]').forEach(b => {
+          b.className = 'genre-filter-btn px-3 py-1.5 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-[var(--reader-muted)] hover:text-[var(--reader-text)] shrink-0 transition-all';
+        });
+        btn.className = 'genre-filter-btn px-3 py-1.5 rounded-xl accent-badge font-semibold shrink-0 transition-all border border-[var(--theme-accent)]/30';
+        currentGenre = btn.getAttribute('data-filter-genre') || 'all';
+        filterGrid();
+      });
+    });
+
+    document.getElementById('btn-reset-filters')?.addEventListener('click', () => {
+      currentStatus = 'all';
+      currentGenre = 'all';
+      (document.querySelector('[data-filter-status="all"]') as HTMLElement)?.click();
+      (document.querySelector('[data-filter-genre="all"]') as HTMLElement)?.click();
+    });
+  </script>
 </BaseLayout>

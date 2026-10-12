@@ -68,6 +68,21 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
       <button id="btn-font-inc" class="px-2.5 py-1.5 rounded-lg hover:bg-[var(--reader-panel)] transition-colors text-xs font-semibold cursor-pointer" title="විශාල අකුරු">A+</button>
     </div>
 
+    <!-- Bookmark Chapter Button in Dock -->
+    <button
+      id="btn-dock-bookmark"
+      type="button"
+      class="p-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-panel)] text-[var(--reader-muted)] hover:text-amber-500 active:scale-95 transition-all cursor-pointer"
+      title="පිටුසනක් එක්කරන්න (Bookmark this chapter)"
+    >
+      <svg id="bookmark-icon-empty" class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+      </svg>
+      <svg id="bookmark-icon-filled" class="w-4 h-4 text-amber-500 hidden" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+      </svg>
+    </button>
+
     <!-- Next Chapter Button -->
     {nextUrl ? (
       <a
@@ -326,4 +341,50 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
     }
     lastScrollY = currentScrollY;
   }, { passive: true });
+
+  // 8. Bookmark Dock Handler
+  const syncBookmarkStatus = () => {
+    try {
+      const bookmarks = JSON.parse(localStorage.getItem('katha_bookmarks') || '[]');
+      const isBookmarked = bookmarks.some((b: any) => b.novelId === novelSlug && b.chapterNumber === currentChapterNum);
+      const emptyIcon = document.getElementById('bookmark-icon-empty');
+      const filledIcon = document.getElementById('bookmark-icon-filled');
+      if (emptyIcon && filledIcon) {
+        if (isBookmarked) {
+          emptyIcon.classList.add('hidden');
+          filledIcon.classList.remove('hidden');
+        } else {
+          emptyIcon.classList.remove('hidden');
+          filledIcon.classList.add('hidden');
+        }
+      }
+    } catch(e) {}
+  };
+
+  document.getElementById('btn-dock-bookmark')?.addEventListener('click', () => {
+    try {
+      let bookmarks = JSON.parse(localStorage.getItem('katha_bookmarks') || '[]');
+      const index = bookmarks.findIndex((b: any) => b.novelId === novelSlug && b.chapterNumber === currentChapterNum);
+      if (index >= 0) {
+        bookmarks.splice(index, 1);
+      } else {
+        bookmarks.unshift({
+          novelId: novelSlug,
+          novelTitle: novelTitle,
+          novelCover: `/images/${novelSlug === 'sandagiri-pawwa' ? 'the-shadow-throne-cover.jpg' : novelSlug === 'maruthaye-handa' ? 'maruthaye-handa-cover.jpg' : 'neela-nethu-cover.jpg'}`,
+          chapterNumber: currentChapterNum,
+          chapterTitle: `පරිච්ඡේදය ${currentChapterNum}`,
+          author: '',
+          url: window.location.pathname,
+          savedAt: Date.now()
+        });
+      }
+      localStorage.setItem('katha_bookmarks', JSON.stringify(bookmarks));
+      syncBookmarkStatus();
+      window.dispatchEvent(new CustomEvent('katha-stats-updated'));
+    } catch(e) {}
+  });
+
+  window.addEventListener('katha-stats-updated', syncBookmarkStatus);
+  syncBookmarkStatus();
 </script>

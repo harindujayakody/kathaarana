@@ -180,4 +180,45 @@ const chapterList = siblings.map((s) => ({
     nextUrl={nextUrl}
     currentChapterNum={chapter.data.chapterNumber}
   />
+
+  <!-- Reading History & Stats Automatic Tracker -->
+  <script is:inline define:vars={{
+    novelId: novel.id,
+    novelTitle: novel.data.title,
+    novelCover: novel.data.coverImage,
+    author: novel.data.author,
+    chapterNum: chapter.data.chapterNumber,
+    chapterTitle: chapter.data.title
+  }}>
+    (function() {
+      try {
+        // 1. Record Reading History
+        let history = JSON.parse(localStorage.getItem('katha_history') || '[]');
+        history = history.filter(item => item.novelId !== novelId);
+        history.unshift({
+          novelId: novelId,
+          novelTitle: novelTitle,
+          novelCover: novelCover,
+          author: author,
+          chapterNumber: chapterNum,
+          chapterTitle: chapterTitle,
+          url: window.location.pathname,
+          readAt: Date.now()
+        });
+        localStorage.setItem('katha_history', JSON.stringify(history.slice(0, 20)));
+
+        // 2. Record Reading Stats
+        let stats = JSON.parse(localStorage.getItem('katha_stats') || '{"chaptersRead":[], "novelsRead":[]}');
+        const chapterKey = `${novelId}/${chapterNum}`;
+        if (!stats.chaptersRead.includes(chapterKey)) {
+          stats.chaptersRead.push(chapterKey);
+        }
+        if (!stats.novelsRead.includes(novelId)) {
+          stats.novelsRead.push(novelId);
+        }
+        localStorage.setItem('katha_stats', JSON.stringify(stats));
+        window.dispatchEvent(new CustomEvent('katha-stats-updated'));
+      } catch (e) {}
+    })();
+  </script>
 </BaseLayout>
