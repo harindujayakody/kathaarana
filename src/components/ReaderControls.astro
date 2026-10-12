@@ -212,11 +212,25 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
   document.getElementById('btn-font-inc')?.addEventListener('click', () => applyFontSize(currentSize + 1));
 
   // 3. Theme Controller
+  const syncActiveThemeUI = () => {
+    const curTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    document.querySelectorAll('[data-set-theme]').forEach(btn => {
+      const theme = btn.getAttribute('data-set-theme');
+      if (theme === curTheme) {
+        btn.classList.add('ring-2', 'ring-[var(--theme-accent)]', 'shadow-xs');
+      } else {
+        btn.classList.remove('ring-2', 'ring-[var(--theme-accent)]', 'shadow-xs');
+      }
+    });
+  };
+
   const applyTheme = (theme: string) => {
     root.setAttribute('data-theme', theme);
     localStorage.setItem('katha_theme', theme);
+    syncActiveThemeUI();
     window.dispatchEvent(new CustomEvent('katha-theme-changed', { detail: theme }));
   };
+
   document.querySelectorAll('[data-set-theme]').forEach(btn => {
     btn.addEventListener('click', () => {
       const theme = btn.getAttribute('data-set-theme') || 'light';
@@ -224,7 +238,22 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
     });
   });
 
+  window.addEventListener('katha-theme-changed', syncActiveThemeUI);
+  syncActiveThemeUI();
+
   // 4. Font Family Toggle (Defaults to Noto Sans Sinhala)
+  const syncFontFamilyUI = (family: string) => {
+    const sansBtn = document.getElementById('btn-font-sans');
+    const serifBtn = document.getElementById('btn-font-serif');
+    if (family === 'serif') {
+      serifBtn?.classList.add('accent-badge', 'border-[var(--theme-accent)]/40', 'font-semibold');
+      sansBtn?.classList.remove('accent-badge', 'border-[var(--theme-accent)]/40', 'font-semibold');
+    } else {
+      sansBtn?.classList.add('accent-badge', 'border-[var(--theme-accent)]/40', 'font-semibold');
+      serifBtn?.classList.remove('accent-badge', 'border-[var(--theme-accent)]/40', 'font-semibold');
+    }
+  };
+
   const applyFontFamily = (family: 'serif' | 'sans') => {
     if (contentEl) {
       if (family === 'serif') {
@@ -235,6 +264,7 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
         contentEl.classList.add('font-novel-sans');
       }
     }
+    syncFontFamilyUI(family);
     localStorage.setItem('katha_font_family', family);
   };
 
