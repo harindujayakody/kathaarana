@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, [data-theme="amoled"], [data-theme="amoled"] *));
+
 @layer base {
   :root {
     --background: 30 20% 98%;

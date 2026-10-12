@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NovelCard from '../../components/NovelCard.astro';
+import GenreIcon from '../../components/GenreIcon.astro';
 import { getCollection } from 'astro:content';
 import { GENRE_MAP } from '../../utils/genres';
 
@@ -47,8 +48,8 @@ const { genre, novels, chapterCounts } = Astro.props;
       </nav>
 
       <div class="flex items-center gap-3">
-        <span class="text-3xl sm:text-4xl p-3.5 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] shadow-xs">
-          {genre.icon}
+        <span class="w-14 h-14 rounded-2xl accent-badge border border-[var(--theme-accent)]/20 shadow-xs flex items-center justify-center text-[var(--theme-accent)] shrink-0">
+          <GenreIcon slug={genre.slug} class="w-7 h-7" />
         </span>
         <div>
           <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] font-serif">
@@ -79,8 +80,12 @@ const { genre, novels, chapterCounts } = Astro.props;
         ))}
       </div>
     ) : (
-      <div class="py-16 text-center space-y-3 bg-[var(--reader-panel)] rounded-3xl border border-[var(--reader-border)]">
-        <div class="text-3xl">📚</div>
+      <div class="py-16 text-center space-y-3 bg-[var(--reader-panel)] rounded-2xl border border-[var(--reader-border)]">
+        <div class="w-10 h-10 rounded-xl accent-badge mx-auto flex items-center justify-center text-[var(--theme-accent)]">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
         <h3 class="text-base font-bold text-[var(--reader-text)] font-serif">නවකතා සූදානම් වෙමින් පවතී</h3>
         <p class="text-xs text-[var(--reader-muted)] max-w-sm mx-auto">
           මෙම වර්ගීකරණයට අයත් නවකතා ළඟදීම අපගේ වේදිකාවට එක්කරනු ලැබේ.

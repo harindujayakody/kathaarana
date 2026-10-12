@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { getGenreSlug } from '../../../utils/genres';
 
 export async function getStaticPaths() {
   const novels = await getCollection('novels');
@@ -52,11 +53,14 @@ const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 
       </div>
 
       <div class="flex-1 space-y-4">
-        <div class="flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-1.5">
           {novel.data.genres.map(g => (
-            <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--reader-border)]/40 text-[var(--reader-muted)] border border-[var(--reader-border)]/60">
+            <a
+              href={`/genres/${getGenreSlug(g)}`}
+              class="px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--reader-border)]/30 text-[var(--reader-muted)] hover:accent-text hover:border-[var(--theme-accent)]/40 border border-[var(--reader-border)] transition-colors"
+            >
               {g}
-            </span>
+            </a>
           ))}
         </div>
 

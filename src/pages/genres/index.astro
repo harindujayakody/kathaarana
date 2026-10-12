@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import GenreIcon from '../../components/GenreIcon.astro';
 import { getCollection } from 'astro:content';
 import { GENRE_MAP, getGenreSlug } from '../../utils/genres';
 
@@ -47,10 +48,10 @@ const genreStats = Object.values(GENRE_MAP).map(genre => {
         >
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-3xl p-3 rounded-2xl bg-[var(--reader-bg)] border border-[var(--reader-border)] group-hover:scale-110 transition-transform">
-                {genre.icon}
+              <span class="w-12 h-12 rounded-xl accent-badge flex items-center justify-center text-[var(--theme-accent)] group-hover:scale-105 transition-transform">
+                <GenreIcon slug={genre.slug} class="w-6 h-6" />
               </span>
-              <span class="px-3 py-1 rounded-full text-xs font-semibold accent-badge">
+              <span class="px-2.5 py-0.5 rounded-md text-xs font-semibold accent-badge border border-[var(--theme-accent)]/20 tabular-nums">
                 නවකතා {genre.count}
               </span>
             </div>

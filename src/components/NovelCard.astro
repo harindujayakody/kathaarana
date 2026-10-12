@@ -48,25 +48,25 @@ const isCompleted = status === 'Completed';
     <!-- Realistic Book Left Edge Bevel Shadow -->
     <div class="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/40 via-black/15 to-transparent pointer-events-none"></div>
 
-    <!-- Top Floating Badges (Status & Bookmark) -->
+    <!-- Top Floating Badges (Status & Chapter Count) -->
     <div class="absolute top-2.5 inset-x-2.5 flex items-center justify-between gap-1 pointer-events-none z-10">
       <!-- Status Badge -->
       {isCompleted ? (
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/85 text-emerald-300 border border-emerald-500/30 backdrop-blur-md shadow-xs">
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-950/85 text-emerald-300 border border-emerald-500/30 backdrop-blur-md shadow-xs">
           <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
           </svg>
-          සම්පූර්ණයි
+          <span>සම්පූර්ණයි</span>
         </span>
       ) : (
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-950/85 text-[#2DD4BF] border border-[#2DD4BF]/30 backdrop-blur-md shadow-xs">
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-teal-950/85 text-[#2DD4BF] border border-[#2DD4BF]/30 backdrop-blur-md shadow-xs">
           <span class="w-1.5 h-1.5 rounded-full bg-[#2DD4BF] animate-pulse"></span>
-          ලියවෙමින් පවතී
+          <span>ලියවෙමින් පවතී</span>
         </span>
       )}
 
-      <!-- Chapter Count Pill -->
-      <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/65 text-zinc-200 backdrop-blur-md border border-white/10 shadow-xs">
+      <!-- Chapter Count Badge -->
+      <span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-black/75 text-zinc-200 backdrop-blur-md border border-white/10 shadow-xs tabular-nums">
         පරි. {chapterCount}
       </span>
     </div>
@@ -93,15 +93,18 @@ const isCompleted = status === 'Completed';
   <!-- Novel Metadata Body -->
   <div class="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-2">
     <div>
-      <!-- Genre Tags -->
-      <div class="flex flex-wrap gap-1 mb-1.5">
-        {genres.slice(0, 2).map((genre) => (
-          <a
-            href={`/genres/${getGenreSlug(genre)}`}
-            class="text-[10px] font-medium text-[var(--reader-muted)] hover:accent-text bg-[var(--reader-bg)] px-1.5 py-0.5 rounded-md border border-[var(--reader-border)] transition-colors"
-          >
-            {genre}
-          </a>
+      <!-- Genre Tags (Editorial typographic format) -->
+      <div class="flex items-center gap-1.5 text-[11px] text-[var(--reader-muted)] font-medium mb-1.5 overflow-hidden">
+        {genres.slice(0, 2).map((genre, idx) => (
+          <span class="inline-flex items-center gap-1.5">
+            {idx > 0 && <span class="opacity-40">•</span>}
+            <a
+              href={`/genres/${getGenreSlug(genre)}`}
+              class="hover:accent-text transition-colors truncate"
+            >
+              {genre}
+            </a>
+          </span>
         ))}
       </div>
 
@@ -117,7 +120,7 @@ const isCompleted = status === 'Completed';
     <div class="pt-2 border-t border-[var(--reader-border)]/60 flex items-center justify-between text-xs text-[var(--reader-muted)]">
       <a
         href={`/authors/${authorSlug}`}
-        class="hover:accent-text transition-colors truncate max-w-[140px] text-[11px] sm:text-xs flex items-center gap-1"
+        class="hover:accent-text transition-colors truncate max-w-[140px] text-[11px] sm:text-xs flex items-center gap-1.5"
       >
         <span class="w-1.5 h-1.5 rounded-full accent-bg shrink-0"></span>
         <span class="truncate">{author}</span>

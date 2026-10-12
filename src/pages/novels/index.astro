@@ -39,7 +39,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
           <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] font-serif">
             සියලුම සිංහල නවකතා
           </h1>
-          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold accent-badge border border-[var(--theme-accent)]/20">
+          <span class="px-2 py-0.5 rounded-md text-xs font-semibold accent-badge border border-[var(--theme-accent)]/20 tabular-nums">
             {novels.length}
           </span>
         </div>
@@ -86,20 +86,20 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
         </button>
       </div>
 
-      <!-- Quick Genre Carousel -->
-      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none max-w-full">
+      <!-- Quick Genre Filter Bar -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none max-w-full">
         <button
           data-filter-genre="all"
-          class="genre-btn px-3 py-1.5 rounded-xl accent-badge font-semibold shrink-0 transition-all border border-[var(--theme-accent)]/30 cursor-pointer"
+          class="genre-btn px-3.5 py-1.5 rounded-lg accent-bg font-semibold text-white shrink-0 transition-all shadow-xs cursor-pointer"
         >
-          ✨ සියලු වර්ග
+          සියලු ප්‍රභේද
         </button>
         {allGenres.map(g => (
           <button
             data-filter-genre={g}
-            class="genre-btn px-3 py-1.5 rounded-xl bg-[var(--reader-panel)] border border-[var(--reader-border)] text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:border-[var(--theme-accent)]/40 shrink-0 transition-all cursor-pointer"
+            class="genre-btn px-3.5 py-1.5 rounded-lg bg-[var(--reader-panel)] border border-[var(--reader-border)] text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:border-[var(--theme-accent)]/50 shrink-0 transition-all font-medium cursor-pointer"
           >
-            {GENRE_MAP[getGenreSlug(g)]?.icon || '•'} {g}
+            {g}
           </button>
         ))}
       </div>
@@ -127,8 +127,12 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
     </div>
 
     <!-- Search / Filter Empty State -->
-    <div id="catalog-empty-state" class="hidden py-16 text-center space-y-3 bg-[var(--reader-panel)] rounded-3xl border border-[var(--reader-border)]">
-      <div class="text-3xl">🔍</div>
+    <div id="catalog-empty-state" class="hidden py-16 text-center space-y-3 bg-[var(--reader-panel)] rounded-2xl border border-[var(--reader-border)]">
+      <div class="w-10 h-10 rounded-xl accent-badge mx-auto flex items-center justify-center text-[var(--theme-accent)]">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
       <h3 class="text-base font-bold text-[var(--reader-text)] font-serif">නවකතා හමු නොවීය</h3>
       <p class="text-xs text-[var(--reader-muted)]">ඔබ සොයන නිර්ණායකවලට ගැලපෙන නවකතා නොමැත.</p>
       <button id="btn-reset-catalog" class="text-xs font-semibold accent-text hover:underline cursor-pointer">
@@ -187,9 +191,9 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
     document.querySelectorAll('.status-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.status-btn').forEach(b => {
-          b.className = 'status-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all cursor-pointer';
+          b.className = 'status-btn px-3 py-1.5 rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-all cursor-pointer font-medium';
         });
-        btn.className = 'status-btn px-3 py-1.5 rounded-lg accent-bg font-semibold shadow-xs transition-all cursor-pointer';
+        btn.className = 'status-btn px-3 py-1.5 rounded-lg accent-bg font-semibold text-white shadow-xs transition-all cursor-pointer';
         activeStatus = btn.getAttribute('data-filter-status') || 'all';
         applyFilters();
       });
@@ -199,9 +203,9 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
     document.querySelectorAll('.genre-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.genre-btn').forEach(b => {
-          b.className = 'genre-btn px-3 py-1.5 rounded-xl bg-[var(--reader-bg)] border border-[var(--reader-border)] text-[var(--reader-muted)] hover:text-[var(--reader-text)] shrink-0 transition-all cursor-pointer';
+          b.className = 'genre-btn px-3.5 py-1.5 rounded-lg bg-[var(--reader-panel)] border border-[var(--reader-border)] text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:border-[var(--theme-accent)]/50 shrink-0 transition-all font-medium cursor-pointer';
         });
-        btn.className = 'genre-btn px-3 py-1.5 rounded-xl accent-badge font-semibold shrink-0 transition-all border border-[var(--theme-accent)]/30 cursor-pointer';
+        btn.className = 'genre-btn px-3.5 py-1.5 rounded-lg accent-bg font-semibold text-white shrink-0 transition-all shadow-xs cursor-pointer';
         activeGenre = btn.getAttribute('data-filter-genre') || 'all';
         applyFilters();
       });
