@@ -38,6 +38,12 @@ const {
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
+const navLinks = [
+  { href: '/novels', label: 'නවකතා' },
+  { href: '/genres', label: 'ප්‍රභේද' },
+  { href: '/authors', label: 'කතුවරුන්' },
+];
+const isActive = (href: string) => (href === '/' ? currentPath === '/' : currentPath.startsWith(href));
 ---
 
 <!doctype html>
@@ -88,116 +94,64 @@ const currentPath = Astro.url.pathname;
   <body class="min-h-screen flex flex-col selection:bg-[#0F766E]/20 selection:text-[#0F766E] dark:selection:bg-[#2DD4BF]/20 dark:selection:text-[#2DD4BF]">
     
     {!hideHeader && (
-      <header class="border-b border-[var(--reader-border)] bg-[var(--reader-panel)]/95 backdrop-blur-md sticky top-0 z-40 transition-colors">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          
-          <!-- Logo & Brand -->
-          <a href="/" class="flex items-center gap-2.5 group shrink-0">
-            <span class="w-9 h-9 rounded-xl accent-bg flex items-center justify-center font-bold text-base shadow-sm group-hover:scale-105 transition-transform">
-              ක
-            </span>
-            <div class="flex flex-col">
-              <span class="font-bold text-lg tracking-tight leading-tight group-hover:accent-text transition-colors font-serif">
-                Katha Arana
-              </span>
-              <span class="text-[10px] text-[var(--reader-muted)] -mt-0.5 tracking-wider font-medium">
-                කතා අරණ • Realm of Novels
-              </span>
-            </div>
-          </a>
+      <header class="sticky top-0 z-40 border-b border-[var(--reader-border)] bg-[var(--reader-bg)] transition-colors">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-8">
+          <a href="/" class="font-serif font-bold text-xl shrink-0 hover:accent-text transition-colors">කතා අරණ</a>
 
-          <!-- Desktop Navigation -->
-          <nav class="hidden md:flex items-center gap-1.5 lg:gap-2 text-xs font-medium">
-            <a
-              href="/"
-              class={`px-3 py-2 rounded-xl transition-all ${currentPath === '/' ? 'accent-badge font-semibold' : 'text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:bg-[var(--reader-border)]/40'}`}
-            >
-              මුල් පිටුව
-            </a>
-            <a
-              href="/novels"
-              class={`px-3 py-2 rounded-xl transition-all ${currentPath.startsWith('/novels') && !currentPath.includes('/novels/') ? 'accent-badge font-semibold' : 'text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:bg-[var(--reader-border)]/40'}`}
-            >
-              සියලුම නවකතා
-            </a>
-            <a
-              href="/authors"
-              class={`px-3 py-2 rounded-xl transition-all ${currentPath.startsWith('/authors') ? 'accent-badge font-semibold' : 'text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:bg-[var(--reader-border)]/40'}`}
-            >
-              කතුවරුන්
-            </a>
-            <a
-              href="/genres"
-              class={`px-3 py-2 rounded-xl transition-all ${currentPath.startsWith('/genres') ? 'accent-badge font-semibold' : 'text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:bg-[var(--reader-border)]/40'}`}
-            >
-              වර්ගීකරණය
-            </a>
+          <nav class="hidden md:flex items-center gap-6 text-[0.9375rem]" aria-label="ප්‍රධාන සංචලනය">
+            {navLinks.map(link => (
+              <a
+                href={link.href}
+                aria-current={isActive(link.href) ? 'page' : undefined}
+                class={isActive(link.href) ? 'font-semibold text-[var(--reader-text)]' : 'text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors'}
+              >
+                {link.label}
+              </a>
+            ))}
           </nav>
 
-          <!-- Right Action Items (Bookmarks, RSS, Theme Toggle, Mobile Menu) -->
-          <div class="flex items-center gap-2 sm:gap-2.5">
-            
-            <!-- Bookmarks Desk Shortcut Link -->
+          <div class="ml-auto flex items-center gap-1">
             <a
               href="/bookmarks"
-              class={`relative px-2.5 sm:px-3 py-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/50 active:scale-95 transition-all text-[var(--reader-text)] flex items-center gap-1.5 cursor-pointer text-xs font-medium ${currentPath === '/bookmarks' ? 'accent-badge font-semibold' : ''}`}
-              title="මගේ කියවීම් ලැයිස්තුව සහ පිටුසන්"
+              class="relative p-2 rounded-md text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors"
+              aria-label="පිටුසන් සහ කියවීම් ඉතිහාසය"
+              title="පිටුසන්"
             >
-              <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 4h12v16l-6-4-6 4V4z" />
               </svg>
-              <span class="hidden sm:inline">පිටුසන්</span>
               <span
                 id="nav-bookmark-badge"
-                class="hidden min-w-[18px] h-[18px] px-1 rounded-full accent-bg text-[10px] font-bold items-center justify-center leading-none shadow-xs text-white"
-              >
-                0
-              </span>
+                class="hidden absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 rounded-full accent-bg text-[10px] font-semibold items-center justify-center leading-none"
+              >0</span>
             </a>
 
-            <!-- RSS Feed -->
-            <a
-              href="/rss.xml"
-              class="p-2 sm:px-2.5 sm:py-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/40 text-amber-600 dark:text-amber-400 active:scale-95 transition-all flex items-center gap-1"
-              title="Subscribe via RSS"
-            >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93v-2.83Z"/>
-              </svg>
-              <span class="hidden lg:inline text-xs font-medium">RSS</span>
-            </a>
-
-            <!-- Mobile & Desktop Responsive Light / Dark Mode Toggle -->
             <button
               id="global-theme-toggle"
               type="button"
-              class="p-2 sm:px-3 sm:py-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/50 active:scale-95 transition-all text-[var(--reader-text)] flex items-center gap-1.5 cursor-pointer"
-              aria-label="තේමාව මාරු කරන්න (Light / Dark mode)"
-              title="තේමාව මාරු කරන්න"
+              class="p-2 rounded-md text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors cursor-pointer"
+              aria-label="අඳුරු / ආලෝක තේමාව මාරු කරන්න"
+              title="තේමාව"
             >
-              <!-- Sun Icon (Active in Dark/AMOLED) -->
-              <svg id="theme-sun-icon" class="w-4 h-4 hidden text-[#2DD4BF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              <svg id="theme-sun-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path stroke-linecap="round" d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
               </svg>
-              <!-- Moon Icon (Active in Light/Sepia) -->
-              <svg id="theme-moon-icon" class="w-4 h-4 text-[#0F766E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              <svg id="theme-moon-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
               </svg>
-              <span id="theme-label" class="text-xs font-medium text-[var(--reader-muted)] hidden md:inline">තේමාව</span>
             </button>
 
-            <!-- Mobile Hamburger Button -->
             <button
               id="btn-mobile-menu"
               type="button"
-              class="md:hidden p-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-border)]/50 text-[var(--reader-text)] active:scale-95 transition-all"
+              class="md:hidden p-2 rounded-md text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors"
               aria-label="මෙනුව විවෘත කරන්න"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
               </svg>
             </button>
-
           </div>
         </div>
       </header>
@@ -207,173 +161,62 @@ const currentPath = Astro.url.pathname;
       <slot />
     </main>
 
-    <!-- Mobile Drawer Navigation (At root to prevent stacking context bugs) -->
+    <!-- Mobile menu (kept at body root to avoid stacking-context bugs) -->
     <div
       id="mobile-menu-drawer"
-      class="md:hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"
+      class="md:hidden fixed inset-0 bg-black/50 z-50 opacity-0 pointer-events-none transition-opacity duration-200"
       aria-hidden="true"
     >
       <div
         id="mobile-menu-panel"
-        class="fixed right-0 top-0 bottom-0 w-80 max-w-[85vw] h-full bg-[var(--reader-panel)] border-l border-[var(--reader-border)] p-6 shadow-2xl flex flex-col translate-x-full transition-transform duration-300 ease-out z-50 text-[var(--reader-text)] overflow-y-auto"
+        class="fixed right-0 top-0 bottom-0 w-72 max-w-[85vw] bg-[var(--reader-bg)] border-l border-[var(--reader-border)] px-6 py-4 flex flex-col translate-x-full transition-transform duration-300 ease-out text-[var(--reader-text)] overflow-y-auto"
       >
-        <div class="flex items-center justify-between pb-4 border-b border-[var(--reader-border)]">
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-xl accent-bg flex items-center justify-center font-bold text-sm text-white shadow-xs">
-              ක
-            </span>
-            <div>
-              <span class="font-bold text-base font-serif text-[var(--reader-text)] block leading-tight">සංචලනය</span>
-              <span class="text-[10px] text-[var(--reader-muted)]">Katha Arana Menu</span>
-            </div>
-          </div>
+        <div class="h-10 flex items-center justify-between">
+          <span class="font-serif font-bold text-lg">කතා අරණ</span>
           <button
             id="btn-close-mobile-menu"
             type="button"
-            class="p-2 rounded-xl hover:bg-[var(--reader-border)]/50 text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors cursor-pointer"
+            class="p-2 -mr-2 rounded-md text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors cursor-pointer"
             aria-label="වසන්න"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>
         </div>
 
-        <nav class="flex flex-col gap-1.5 py-6 text-sm font-medium">
-          <a href="/" class="px-3.5 py-2.5 rounded-xl hover:bg-[var(--reader-border)]/40 text-[var(--reader-text)] transition-colors flex items-center justify-between">
-            <span>මුල් පිටුව</span>
-            <span class="text-xs text-[var(--reader-muted)] font-normal">Home</span>
-          </a>
-          <a href="/novels" class="px-3.5 py-2.5 rounded-xl hover:bg-[var(--reader-border)]/40 text-[var(--reader-text)] transition-colors flex items-center justify-between">
-            <span>සියලුම නවකතා</span>
-            <span class="text-xs text-[var(--reader-muted)] font-normal">All Novels</span>
-          </a>
-          <a href="/authors" class="px-3.5 py-2.5 rounded-xl hover:bg-[var(--reader-border)]/40 text-[var(--reader-text)] transition-colors flex items-center justify-between">
-            <span>කතුවරුන්ගේ නාමාවලිය</span>
-            <span class="text-xs text-[var(--reader-muted)] font-normal">Authors</span>
-          </a>
-          <a href="/genres" class="px-3.5 py-2.5 rounded-xl hover:bg-[var(--reader-border)]/40 text-[var(--reader-text)] transition-colors flex items-center justify-between">
-            <span>නවකතා වර්ගීකරණය</span>
-            <span class="text-xs text-[var(--reader-muted)] font-normal">Genres</span>
-          </a>
-          <a href="/bookmarks" class="px-3.5 py-2.5 rounded-xl accent-badge flex items-center justify-between mt-3 font-semibold">
-            <span class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-              </svg>
-              <span>මගේ කියවීම් ලැයිස්තුව</span>
-            </span>
-            <span class="text-xs">බලන්න →</span>
-          </a>
+        <nav class="mt-4 flex flex-col text-lg" aria-label="ප්‍රධාන සංචලනය">
+          {[{ href: '/', label: 'මුල් පිටුව' }, ...navLinks, { href: '/bookmarks', label: 'පිටුසන්' }].map(link => (
+            <a
+              href={link.href}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+              class={`py-3 border-b border-[var(--reader-border)] ${isActive(link.href) ? 'font-semibold' : ''}`}
+            >
+              {link.label}
+            </a>
+          ))}
         </nav>
-
-        <div class="mt-auto pt-4 border-t border-[var(--reader-border)] text-xs text-[var(--reader-muted)] space-y-1">
-          <p class="font-semibold text-[var(--reader-text)]">Katha Arana (කතා අරණ)</p>
-          <p>නොමිලේ සිංහල වෙබ් නවකතා කියවීමේ නිදහස් අවකාශය</p>
-        </div>
       </div>
     </div>
 
     <!-- Global Bookmarks Drawer Modal -->
     <BookmarksDrawer />
 
-    <!-- Redesigned High-Craft Footer -->
-    <footer class="border-t border-[var(--reader-border)] bg-[var(--reader-panel)] mt-24 pt-16 pb-12 transition-colors">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6">
-        
-        <!-- Main Footer Columns -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[var(--reader-border)]">
-          
-          <!-- Col 1: About Platform -->
-          <div class="space-y-4 sm:col-span-2 lg:col-span-1">
-            <div class="flex items-center gap-2.5">
-              <span class="w-8 h-8 rounded-xl accent-bg flex items-center justify-center font-bold text-sm shadow-xs">
-                ක
-              </span>
-              <span class="font-bold text-base font-serif text-[var(--reader-text)]">
-                Katha Arana (කතා අරණ)
-              </span>
-            </div>
-            <p class="text-xs text-[var(--reader-muted)] leading-relaxed">
-              ශ්‍රී ලාංකේය ලේඛකයන්ගේ සිංහල වෙබ් නවකතා, අබිරහස් සහ ත්‍රාසජනක කතා කියවීමට නිර්මාණය කළ නිදහස් ඩිජිටල් අවකාශය. ජංගම දුරකථන සඳහා විශේෂිතව සකස් කරන ලද 17px අකුරු මෝස්තරය.
-            </p>
-            <div class="flex items-center gap-2 text-xs">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-medium accent-badge border border-[var(--theme-accent)]/20">
-                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                Cloudflare Edge SSG
-              </span>
-              <span class="px-2.5 py-1 rounded-md text-[10px] font-medium bg-[var(--reader-border)]/50 text-[var(--reader-muted)]">
-                100% නොමිලේ
-              </span>
-            </div>
-          </div>
-
-          <!-- Col 2: Navigation Links -->
-          <div class="space-y-3">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--reader-text)] font-serif">
-              ප්‍රධාන සංචලනය
-            </h3>
-            <ul class="space-y-2 text-xs text-[var(--reader-muted)]">
-              <li><a href="/" class="hover:accent-text transition-colors">මුල් පිටුව (Home)</a></li>
-              <li><a href="/novels" class="hover:accent-text transition-colors">සියලුම නවකතා (All Novels)</a></li>
-              <li><a href="/authors" class="hover:accent-text transition-colors">කතුවරුන්ගේ නාමාවලිය (Authors)</a></li>
-              <li><a href="/genres" class="hover:accent-text transition-colors">වර්ගීකරණය (Genres)</a></li>
-              <li><button data-trigger-bookmarks class="hover:accent-text transition-colors text-left">මගේ කියවීම් මේසය (My Desk)</button></li>
-            </ul>
-          </div>
-
-          <!-- Col 3: Popular Genres -->
-          <div class="space-y-3">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--reader-text)] font-serif">
-              ජනප්‍රිය වර්ගීකරණ
-            </h3>
-            <ul class="space-y-2 text-xs text-[var(--reader-muted)]">
-              <li><a href="/genres/crime" class="hover:accent-text transition-colors">අපරාධ පරීක්ෂණ</a></li>
-              <li><a href="/genres/thriller" class="hover:accent-text transition-colors">ත්‍රාසජනක</a></li>
-              <li><a href="/genres/mystery" class="hover:accent-text transition-colors">අබිරහස්</a></li>
-              <li><a href="/genres/romance" class="hover:accent-text transition-colors">ආදර කතා</a></li>
-              <li><a href="/genres/fantasy" class="hover:accent-text transition-colors">ෆැන්ටසි</a></li>
-            </ul>
-          </div>
-
-          <!-- Col 4: Reader Perks -->
-          <div class="space-y-3">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-[var(--reader-text)] font-serif">
-              පාඨක පහසුකම්
-            </h3>
-            <ul class="space-y-2.5 text-xs text-[var(--reader-muted)]">
-              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full accent-bg shrink-0"></span><span>තේමා 4ක් (Light, Sepia, Dark, AMOLED)</span></li>
-              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full accent-bg shrink-0"></span><span>ජංගම දුරකථන Floating Controls</span></li>
-              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full accent-bg shrink-0"></span><span>ස්වයංක්‍රීය LocalStorage පිටුසන්</span></li>
-              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full accent-bg shrink-0"></span><a href="/rss.xml" class="hover:underline accent-text font-medium">RSS Feed මගින් යාවත්කාලීන වීම්</a></li>
-            </ul>
-          </div>
-
+    <footer class="mt-20 border-t border-[var(--reader-border)] transition-colors">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
+        <div>
+          <a href="/" class="font-serif font-bold text-lg">කතා අරණ</a>
+          <p class="mt-1 text-sm text-[var(--reader-muted)] max-w-xs leading-relaxed">සිංහල නවකතා, පරිච්ඡේදයෙන් පරිච්ඡේදය. නොමිලේ, ගිණුමක් නැතිව.</p>
         </div>
-
-        <!-- Bottom Copyright & Infiax 360 Credits -->
-        <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[var(--reader-muted)]">
-          <div class="flex items-center gap-2">
-            <span>© 2026 Katha Arana (කතා අරණ). All Rights Reserved.</span>
-          </div>
-
-          <!-- Developed by Infiax 360 -->
-          <div class="flex items-center gap-1.5 font-medium">
-            <span>Developed by</span>
-            <a
-              href="https://infiax.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="font-bold accent-text hover:underline inline-flex items-center gap-1 group py-0.5 px-1.5 rounded-md hover:bg-[var(--reader-border)]/40 transition-all"
-            >
-              <span>Infiax 360</span>
-              <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-          </div>
-        </div>
-
+        <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[var(--reader-muted)]" aria-label="පාදක සංචලනය">
+          {[...navLinks, { href: '/bookmarks', label: 'පිටුසන්' }, { href: '/rss.xml', label: 'RSS' }].map(link => (
+            <a href={link.href} class="hover:text-[var(--reader-text)] transition-colors">{link.label}</a>
+          ))}
+        </nav>
+      </div>
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 py-5 border-t border-[var(--reader-border)] flex flex-col sm:flex-row sm:justify-between gap-1 text-xs text-[var(--reader-muted)]">
+        <span>© {new Date().getFullYear()} කතා අරණ (Katha Arana)</span>
+        <span>Developed by <a href="https://infiax.com" target="_blank" rel="noopener noreferrer" class="font-medium text-[var(--reader-text)] hover:underline underline-offset-2">Infiax 360</a></span>
       </div>
     </footer>
 
