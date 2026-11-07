@@ -5,7 +5,7 @@ export const GET: APIRoute = async (context) => {
   const chapters = await getCollection('chapters');
   const novels = await getCollection('novels');
 
-  const site = context.site?.toString() || 'https://katha-arana.pages.dev';
+  const site = context.site?.toString() || 'https://kathaarana.com';
 
   const sortedChapters = chapters.sort(
     (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()

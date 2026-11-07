@@ -76,7 +76,7 @@ const chapterList = siblings.map((s) => ({
     author: novel.data.author,
     coverImage: novel.data.coverImage,
     synopsis: novel.data.synopsis,
-    url: new URL(`/novels/${novel.id}`, Astro.site || 'https://katha-arana.pages.dev').toString(),
+    url: new URL(`/novels/${novel.id}`, Astro.site || 'https://kathaarana.com').toString(),
   }}
   chapter={{
     number: chapter.data.chapterNumber,
