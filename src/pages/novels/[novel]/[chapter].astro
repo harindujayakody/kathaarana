@@ -61,9 +61,9 @@ const chapterList = siblings.map((s) => ({
 ---
 
 <BaseLayout
-  title={`පරිච්ඡේදය ${chapter.data.chapterNumber}: ${chapter.data.title} - ${novel.data.title}`}
+  title={`${novel.data.title} - පරිච්ඡේදය ${chapter.data.chapterNumber}: ${chapter.data.title}`}
   description={`${novel.data.title} නවකතාවේ ${chapter.data.chapterNumber} වන පරිච්ඡේදය. කර්තෘ: ${novel.data.author}.`}
-  image={shareCover}
+  image={`/og/${novel.id}.jpg`}
   type="article"
   publishDate={chapter.data.publishDate}
   novel={{
