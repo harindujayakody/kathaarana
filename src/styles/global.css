@@ -146,7 +146,7 @@
 body {
   background-color: var(--reader-bg);
   color: var(--reader-text);
-  font-family: 'Noto Sans Sinhala', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-si-sans);
   font-size: 17px;
   transition: background-color 0.25s ease, color 0.25s ease;
   overflow-x: hidden;
@@ -154,21 +154,21 @@ body {
 
 /* Headings & Title Typography: Noto Serif Sinhala */
 h1, h2, h3, h4, h5, h6, .font-serif {
-  font-family: 'Noto Serif Sinhala', 'Lora', Georgia, serif;
+  font-family: var(--font-si-serif);
   letter-spacing: -0.01em;
 }
 
 /* Body & Content Typography: Noto Sans Sinhala */
 p, span, a, li, input, button, .font-sans {
-  font-family: 'Noto Sans Sinhala', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-si-sans);
 }
 
 .font-novel-serif {
-  font-family: 'Noto Serif Sinhala', 'Lora', Georgia, serif;
+  font-family: var(--font-si-serif);
 }
 
 .font-novel-sans {
-  font-family: 'Noto Sans Sinhala', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-si-sans);
 }
 
 /* Reader Typography Engine - 17px base with comfortable Sinhala line height */
@@ -176,7 +176,7 @@ p, span, a, li, input, button, .font-sans {
   line-height: 2.15;
   letter-spacing: 0.01em;
   font-size: var(--reader-font-size, 17px);
-  font-family: 'Noto Sans Sinhala', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-si-sans);
   word-break: normal;
   overflow-wrap: break-word;
 }

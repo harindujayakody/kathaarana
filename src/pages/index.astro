@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import { coverShareUrl } from '../utils/covers';
 
 const novels = await getCollection('novels');
 const allChapters = await getCollection('chapters');
@@ -21,8 +23,8 @@ const featuredFirst = allChapters
   .filter(c => c.data.novel === featuredNovel.id)
   .sort((a, b) => a.data.chapterNumber - b.data.chapterNumber)[0];
 const featuredStartUrl = featuredFirst
-  ? `/novels/${featuredNovel.id}/${featuredFirst.data.chapterNumber}`
-  : `/novels/${featuredNovel.id}`;
+  ? `/novels/${featuredNovel.id}/${featuredFirst.data.chapterNumber}/`
+  : `/novels/${featuredNovel.id}/`;
 
 const statusLabel = (s: string) => (s === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්');
 const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -31,7 +33,7 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
 <BaseLayout
   title="කතා අරණ - සිංහල නවකතා කියවීමේ නිදහස් අවකාශය | Realm of Sinhala Web Novels"
   description="ශ්‍රී ලාංකේය ලේඛකයන්ගේ සිංහල නවකතා, අබිරහස්, ත්‍රාසජනක සහ ආදර කතා ජංගම දුරකථනයෙන් පහසුවෙන් කියවන්න. නොමිලේ, ගිණුම් අවශ්‍ය නැත."
-  image={featuredNovel.data.coverImage}
+  image={await coverShareUrl(featuredNovel.data.coverImage)}
 >
   <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
@@ -46,10 +48,12 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
 
     <!-- Featured novel -->
     <section class="py-10 sm:py-14 grid sm:grid-cols-[220px_1fr] md:grid-cols-[260px_1fr] gap-8 md:gap-12 items-start">
-      <a href={`/novels/${featuredNovel.id}`} class="block w-44 sm:w-full mx-auto sm:mx-0">
-        <img
+      <a href={`/novels/${featuredNovel.id}/`} class="block w-44 sm:w-full mx-auto sm:mx-0">
+        <Image
           src={featuredNovel.data.coverImage}
           alt={`${featuredNovel.data.title} කවරය`}
+          widths={[176, 260, 352, 520]}
+          sizes="(min-width: 768px) 260px, (min-width: 640px) 220px, 176px"
           class="w-full aspect-[2/3] object-cover rounded-md shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)]"
           loading="eager"
           fetchpriority="high"
@@ -58,10 +62,10 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
 
       <div class="max-w-[38rem]">
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.35] text-balance">
-          <a href={`/novels/${featuredNovel.id}`} class="font-serif hover:accent-text transition-colors">{featuredNovel.data.title}</a>
+          <a href={`/novels/${featuredNovel.id}/`} class="font-serif hover:accent-text transition-colors">{featuredNovel.data.title}</a>
         </h1>
         <p class="mt-3 text-[var(--reader-muted)]">
-          <a href={`/authors/${featuredNovel.data.authorSlug}`} class="text-[var(--reader-text)] font-medium hover:accent-text transition-colors">{featuredNovel.data.author}</a>
+          <a href={`/authors/${featuredNovel.data.authorSlug}/`} class="text-[var(--reader-text)] font-medium hover:accent-text transition-colors">{featuredNovel.data.author}</a>
           <span aria-hidden="true"> · </span>{featuredNovel.data.genres.join(', ')}
         </p>
         <p class="mt-5 text-[1.0625rem] leading-[1.95]">{featuredNovel.data.synopsis}</p>
@@ -72,7 +76,7 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
           <a href={featuredStartUrl} class="accent-bg inline-flex justify-center items-center px-6 py-3 rounded-md font-semibold">
             කියවීම අරඹන්න
           </a>
-          <a href={`/novels/${featuredNovel.id}`} class="text-center font-medium text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors">
+          <a href={`/novels/${featuredNovel.id}/`} class="text-center font-medium text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors">
             පරිච්ඡේද ලැයිස්තුව
           </a>
         </div>
@@ -90,8 +94,8 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
           const novel = novels.find(n => n.id === chap.data.novel);
           return (
             <li class="border-b border-[var(--reader-border)] last:border-b-0">
-              <a href={`/novels/${chap.data.novel}/${chap.data.chapterNumber}`} class="flex items-center gap-4 py-4 group">
-                <img src={novel?.data.coverImage} alt="" class="w-10 h-[3.75rem] object-cover rounded-sm shrink-0" loading="lazy" />
+              <a href={`/novels/${chap.data.novel}/${chap.data.chapterNumber}/`} class="flex items-center gap-4 py-4 group">
+                {novel && <Image src={novel.data.coverImage} alt="" width={80} class="w-10 h-[3.75rem] object-cover rounded-sm shrink-0" />}
                 <span class="flex-1 min-w-0">
                   <span class="block font-serif font-semibold truncate group-hover:accent-text transition-colors">{novel?.data.title}</span>
                   <span class="block text-sm text-[var(--reader-muted)] truncate">පරිච්ඡේදය {chap.data.chapterNumber}: {chap.data.title}</span>
@@ -108,16 +112,17 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
     <section id="novels-catalog" class="pt-14">
       <div class="flex items-baseline justify-between gap-4">
         <h2 class="text-2xl font-bold">සියලුම නවකතා</h2>
-        <a href="/novels" class="text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors">සියල්ල බලන්න</a>
+        <a href="/novels/" class="text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors">සියල්ල බලන්න</a>
       </div>
       <div class="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-5 gap-y-8">
         {sortedNovels.map(novel => (
-          <a href={`/novels/${novel.id}`} class="group block">
-            <img
+          <a href={`/novels/${novel.id}/`} class="group block">
+            <Image
               src={novel.data.coverImage}
               alt={`${novel.data.title} කවරය`}
+              widths={[180, 240, 360, 480]}
+              sizes="(min-width: 1024px) 230px, (min-width: 768px) 22vw, (min-width: 640px) 30vw, 45vw"
               class="w-full aspect-[2/3] object-cover rounded-md transition-shadow group-hover:shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)]"
-              loading="lazy"
             />
             <span class="mt-3 block font-serif font-semibold leading-snug group-hover:accent-text transition-colors">{novel.data.title}</span>
             <span class="mt-0.5 block text-sm text-[var(--reader-muted)]">{novel.data.author}</span>

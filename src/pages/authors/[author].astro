@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
@@ -81,16 +82,16 @@ const { authorName, authorSlug, novels, chapters } = Astro.props;
       <div class="grid sm:grid-cols-2 gap-6">
         {novels.map((novel: any) => {
           const novelChapters = chapters.filter((c: any) => c.data.novel === novel.id);
-          const firstChapterUrl = novelChapters.length > 0 ? `/novels/${novel.id}/1` : `/novels/${novel.id}`;
+          const firstChapterUrl = novelChapters.length > 0 ? `/novels/${novel.id}/1/` : `/novels/${novel.id}/`;
 
           return (
             <div class="p-5 rounded-3xl bg-[var(--reader-panel)] border border-[var(--reader-border)] flex gap-4 items-start hover:border-[var(--theme-accent)]/50 hover:shadow-md transition-all">
-              <a href={`/novels/${novel.id}`} class="w-24 sm:w-28 shrink-0 rounded-xl overflow-hidden aspect-[2/3] border border-[var(--reader-border)] bg-neutral-900 block">
-                <img src={novel.data.coverImage} alt={novel.data.title} class="w-full h-full object-cover" />
+              <a href={`/novels/${novel.id}/`} class="w-24 sm:w-28 shrink-0 rounded-xl overflow-hidden aspect-[2/3] border border-[var(--reader-border)] bg-neutral-900 block">
+                <Image src={novel.data.coverImage} alt={novel.data.title} width={224} class="w-full h-full object-cover" />
               </a>
 
               <div class="flex-1 space-y-2">
-                <a href={`/novels/${novel.id}`} class="font-bold text-base text-[var(--reader-text)] hover:accent-text transition-colors block font-serif">
+                <a href={`/novels/${novel.id}/`} class="font-bold text-base text-[var(--reader-text)] hover:accent-text transition-colors block font-serif">
                   {novel.data.title}
                 </a>
 

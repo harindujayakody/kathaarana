@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="පිටුව හමු නොවීය"
+  description="ඔබ සොයන පිටුව මෙහි නැත."
+  noindex
+>
+  <div class="max-w-xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+    <h1 class="text-3xl sm:text-4xl font-bold leading-[1.35]">පිටුව හමු නොවීය</h1>
+    <p class="mt-4 text-[1.0625rem] leading-[1.95]">
+      මෙම සබැඳිය වෙනස් වී හෝ ඉවත් කර ඇති විය හැක. නවකතා ලැයිස්තුවෙන් ඔබ සොයන කතාව සොයාගන්න.
+    </p>
+    <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+      <a href="/novels/" class="accent-bg inline-flex justify-center items-center px-6 py-3 rounded-md font-semibold">සියලුම නවකතා</a>
+      <a href="/" class="text-center font-medium text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors">මුල් පිටුවට</a>
+    </div>
+  </div>
+</BaseLayout>

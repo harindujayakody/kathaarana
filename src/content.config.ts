@@ -3,13 +3,13 @@ import { glob } from 'astro/loaders';
 
 const novels = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/novels' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
     titleEn: z.string().optional(),
     author: z.string(),
     authorSlug: z.string(),
     synopsis: z.string(),
-    coverImage: z.string(),
+    coverImage: image(),
     genres: z.array(z.string()),
     status: z.enum(['Ongoing', 'Completed']).default('Ongoing'),
     language: z.string().default('si'),

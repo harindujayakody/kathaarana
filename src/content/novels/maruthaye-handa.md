@@ -4,7 +4,7 @@ titleEn: "Maruthaye Handa"
 author: "නිශාන්ත ගුණතිලක"
 authorSlug: "nishantha-gunathilaka"
 synopsis: "දකුණු මුහුදු තීරයේ හුදකලා ප්‍රදීපාගාරයක් අසල ජීවත් වන තරුණයෙකු සහ කුණාටු සහිත රැයක වෙරළට ගසාගෙන එන අද්භූත තරුණියක් අතර ඇතිවන සංවේදී ආදරය සහ සැඟවුණු අතීතයක සුළිසුළඟ."
-coverImage: "/images/maruthaye-handa-cover.jpg"
+coverImage: "../../assets/covers/maruthaye-handa-cover.jpg"
 genres: ["ආදර කතා", "නාට්‍යමය", "ත්‍රාසජනක"]
 status: "Completed"
 language: "si"

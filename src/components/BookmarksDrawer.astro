@@ -4,6 +4,7 @@
 
 <div
   id="bookmarks-drawer-overlay"
+  inert
   class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"
   aria-hidden="true"
 >
@@ -131,22 +132,35 @@
   const tabBookmarks = document.getElementById('tab-btn-bookmarks');
   const clearBtn = document.getElementById('btn-clear-history');
 
+  // Closed drawer is inert so hidden controls can't take keyboard focus.
+  let drawerTrigger: HTMLElement | null = null;
   const openBookmarksDrawer = () => {
     renderDrawerContent();
+    drawerTrigger = document.activeElement as HTMLElement | null;
+    overlay?.removeAttribute('inert');
+    overlay?.setAttribute('aria-hidden', 'false');
     overlay?.classList.remove('opacity-0', 'pointer-events-none');
     overlay?.classList.add('opacity-100');
     panel?.classList.remove('translate-x-full');
     panel?.classList.add('translate-x-0');
+    closeBtn?.focus();
   };
 
   const closeBookmarksDrawer = () => {
+    if (overlay?.hasAttribute('inert')) return;
+    overlay?.setAttribute('inert', '');
+    overlay?.setAttribute('aria-hidden', 'true');
     overlay?.classList.add('opacity-0', 'pointer-events-none');
     overlay?.classList.remove('opacity-100');
     panel?.classList.add('translate-x-full');
     panel?.classList.remove('translate-x-0');
+    drawerTrigger?.focus();
   };
 
   closeBtn?.addEventListener('click', closeBookmarksDrawer);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeBookmarksDrawer();
+  });
   overlay?.addEventListener('click', (e) => {
     if (e.target === overlay) closeBookmarksDrawer();
   });

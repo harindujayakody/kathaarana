@@ -4,7 +4,7 @@ titleEn: "Neela Nethu Abirahasa"
 author: "මලිත් ප්‍රසන්න"
 authorSlug: "malith-prasanna"
 synopsis: "නුවරඑළියේ පැරණි බ්‍රිතාන්‍ය යුගයේ බංගලාවක රාත්‍රී කාලයේ මතුවන නිල්වන් එළියක් පිටුපස ඇති බිහිසුණු ඓතිහාසික සත්‍යය හෙළිකර ගැනීමට වෙහෙසෙන රහස් පරීක්ෂකවරයෙකුගේ වික්‍රමය."
-coverImage: "/images/neela-nethu-cover.jpg"
+coverImage: "../../assets/covers/neela-nethu-cover.jpg"
 genres: ["අපරාධ පරීක්ෂණ", "ත්‍රාසජනක", "අබිරහස්"]
 status: "Ongoing"
 language: "si"

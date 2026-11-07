@@ -1,4 +1,5 @@
 ---
+import { Font } from 'astro:assets';
 import SEO from '../components/SEO.astro';
 import BookmarksDrawer from '../components/BookmarksDrawer.astro';
 import '../styles/global.css';
@@ -23,6 +24,7 @@ interface Props {
     wordCount?: number;
   };
   hideHeader?: boolean;
+  noindex?: boolean;
 }
 
 const {
@@ -35,13 +37,14 @@ const {
   novel,
   chapter,
   hideHeader = false,
+  noindex = false,
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
 const navLinks = [
-  { href: '/novels', label: 'නවකතා' },
-  { href: '/genres', label: 'ප්‍රභේද' },
-  { href: '/authors', label: 'කතුවරුන්' },
+  { href: '/novels/', label: 'නවකතා' },
+  { href: '/genres/', label: 'ප්‍රභේද' },
+  { href: '/authors/', label: 'කතුවරුන්' },
 ];
 const isActive = (href: string) => (href === '/' ? currentPath === '/' : currentPath.startsWith(href));
 ---
@@ -54,13 +57,8 @@ const isActive = (href: string) => (href === '/' ? currentPath === '/' : current
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- Google Fonts: Noto Sans Sinhala & Noto Serif Sinhala -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@300;400;500;600;700&family=Noto+Serif+Sinhala:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap"
-      rel="stylesheet"
-    />
+    <Font cssVariable="--font-si-sans" preload={[{ subset: 'sinhala', weight: '400 700' }]} />
+    <Font cssVariable="--font-si-serif" />
 
     <!-- SEO & OpenGraph Engine -->
     <SEO
@@ -72,6 +70,7 @@ const isActive = (href: string) => (href === '/' ? currentPath === '/' : current
       publishDate={publishDate}
       novel={novel}
       chapter={chapter}
+      noindex={noindex}
     />
 
     <!-- Anti-FOUC Theme Initializer -->
@@ -112,7 +111,7 @@ const isActive = (href: string) => (href === '/' ? currentPath === '/' : current
 
           <div class="ml-auto flex items-center gap-1">
             <a
-              href="/bookmarks"
+              href="/bookmarks/"
               class="relative p-2 rounded-md text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors"
               aria-label="පිටුසන් සහ කියවීම් ඉතිහාසය"
               title="පිටුසන්"
@@ -164,6 +163,7 @@ const isActive = (href: string) => (href === '/' ? currentPath === '/' : current
     <!-- Mobile menu (kept at body root to avoid stacking-context bugs) -->
     <div
       id="mobile-menu-drawer"
+      inert
       class="md:hidden fixed inset-0 bg-black/50 z-50 opacity-0 pointer-events-none transition-opacity duration-200"
       aria-hidden="true"
     >
@@ -186,7 +186,7 @@ const isActive = (href: string) => (href === '/' ? currentPath === '/' : current
         </div>
 
         <nav class="mt-4 flex flex-col text-lg" aria-label="ප්‍රධාන සංචලනය">
-          {[{ href: '/', label: 'මුල් පිටුව' }, ...navLinks, { href: '/bookmarks', label: 'පිටුසන්' }].map(link => (
+          {[{ href: '/', label: 'මුල් පිටුව' }, ...navLinks, { href: '/bookmarks/', label: 'පිටුසන්' }].map(link => (
             <a
               href={link.href}
               aria-current={isActive(link.href) ? 'page' : undefined}
@@ -209,7 +209,7 @@ const isActive = (href: string) => (href === '/' ? currentPath === '/' : current
           <p class="mt-1 text-sm text-[var(--reader-muted)] max-w-xs leading-relaxed">සිංහල නවකතා, පරිච්ඡේදයෙන් පරිච්ඡේදය. නොමිලේ, ගිණුමක් නැතිව.</p>
         </div>
         <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[var(--reader-muted)]" aria-label="පාදක සංචලනය">
-          {[...navLinks, { href: '/bookmarks', label: 'පිටුසන්' }, { href: '/rss.xml', label: 'RSS' }].map(link => (
+          {[...navLinks, { href: '/bookmarks/', label: 'පිටුසන්' }, { href: '/rss.xml', label: 'RSS' }].map(link => (
             <a href={link.href} class="hover:text-[var(--reader-text)] transition-colors">{link.label}</a>
           ))}
         </nav>
@@ -261,19 +261,30 @@ const isActive = (href: string) => (href === '/' ? currentPath === '/' : current
       const openMobileBtn = document.getElementById('btn-mobile-menu');
       const closeMobileBtn = document.getElementById('btn-close-mobile-menu');
 
+      // Closed drawers are inert so hidden links can't take keyboard focus.
       const openMobileMenu = () => {
+        mobileDrawer?.removeAttribute('inert');
+        mobileDrawer?.setAttribute('aria-hidden', 'false');
         mobileDrawer?.classList.remove('opacity-0', 'pointer-events-none');
         mobileDrawer?.classList.add('opacity-100');
         mobilePanel?.classList.remove('translate-x-full');
         mobilePanel?.classList.add('translate-x-0');
+        closeMobileBtn?.focus();
       };
 
       const closeMobileMenu = () => {
+        if (mobileDrawer?.hasAttribute('inert')) return;
+        mobileDrawer?.setAttribute('inert', '');
+        mobileDrawer?.setAttribute('aria-hidden', 'true');
         mobileDrawer?.classList.add('opacity-0', 'pointer-events-none');
         mobileDrawer?.classList.remove('opacity-100');
         mobilePanel?.classList.add('translate-x-full');
         mobilePanel?.classList.remove('translate-x-0');
+        openMobileBtn?.focus();
       };
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMobileMenu();
+      });
 
       openMobileBtn?.addEventListener('click', openMobileMenu);
       closeMobileBtn?.addEventListener('click', closeMobileMenu);

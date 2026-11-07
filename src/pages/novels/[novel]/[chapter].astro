@@ -2,22 +2,15 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ReaderControls from '../../../components/ReaderControls.astro';
 import { getCollection, render } from 'astro:content';
+import { coverShareUrl, coverThumbUrl } from '../../../utils/covers';
 
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
   const allNovels = await getCollection('novels');
 
   return allChapters.map((chapter) => {
-    const parentNovel = allNovels.find((n) => n.id === chapter.data.novel) || {
-      id: chapter.data.novel,
-      data: {
-        title: 'සඳගිරි පව්ව',
-        author: 'නිශාන්ත බණ්ඩාර',
-        authorSlug: 'nishantha-bandara',
-        coverImage: '/images/the-shadow-throne-cover.jpg',
-        synopsis: 'මීදුමෙන් වැසුණු කඳු මුදුන් අතර පිහිටි අබිරහස් සඳගිරි ආරණ්‍යයේ කතාව.',
-      }
-    };
+    const parentNovel = allNovels.find((n) => n.id === chapter.data.novel);
+    if (!parentNovel) throw new Error(`Chapter ${chapter.id} points to unknown novel "${chapter.data.novel}"`);
 
     // Get sibling chapters for navigation and TOC
     const siblings = allChapters
@@ -46,6 +39,8 @@ export async function getStaticPaths() {
 
 const { chapter, novel, siblings, prevChapter, nextChapter } = Astro.props;
 const { Content } = await render(chapter);
+const shareCover = await coverShareUrl(novel.data.coverImage);
+const thumbCover = await coverThumbUrl(novel.data.coverImage);
 
 const readTimeMinutes = Math.ceil((chapter.data.wordCount || 850) / 180);
 const formattedDate = chapter.data.publishDate.toLocaleDateString('en-US', {
@@ -54,13 +49,13 @@ const formattedDate = chapter.data.publishDate.toLocaleDateString('en-US', {
   day: 'numeric',
 });
 
-const prevUrl = prevChapter ? `/novels/${novel.id}/${prevChapter.data.chapterNumber}` : undefined;
-const nextUrl = nextChapter ? `/novels/${novel.id}/${nextChapter.data.chapterNumber}` : undefined;
+const prevUrl = prevChapter ? `/novels/${novel.id}/${prevChapter.data.chapterNumber}/` : undefined;
+const nextUrl = nextChapter ? `/novels/${novel.id}/${nextChapter.data.chapterNumber}/` : undefined;
 
 const chapterList = siblings.map((s) => ({
   number: s.data.chapterNumber,
   title: s.data.title,
-  url: `/novels/${novel.id}/${s.data.chapterNumber}`,
+  url: `/novels/${novel.id}/${s.data.chapterNumber}/`,
   isCurrent: s.data.chapterNumber === chapter.data.chapterNumber,
 }));
 ---
@@ -68,15 +63,15 @@ const chapterList = siblings.map((s) => ({
 <BaseLayout
   title={`පරිච්ඡේදය ${chapter.data.chapterNumber}: ${chapter.data.title} - ${novel.data.title}`}
   description={`${novel.data.title} නවකතාවේ ${chapter.data.chapterNumber} වන පරිච්ඡේදය. කර්තෘ: ${novel.data.author}.`}
-  image={novel.data.coverImage}
+  image={shareCover}
   type="article"
   publishDate={chapter.data.publishDate}
   novel={{
     title: novel.data.title,
     author: novel.data.author,
-    coverImage: novel.data.coverImage,
+    coverImage: shareCover,
     synopsis: novel.data.synopsis,
-    url: new URL(`/novels/${novel.id}`, Astro.site || 'https://kathaarana.com').toString(),
+    url: new URL(`/novels/${novel.id}/`, Astro.site || 'https://kathaarana.com').toString(),
   }}
   chapter={{
     number: chapter.data.chapterNumber,
@@ -91,7 +86,7 @@ const chapterList = siblings.map((s) => ({
     <nav aria-label="Breadcrumb" class="mb-6 flex items-center gap-2 text-xs text-[var(--reader-muted)]">
       <a href="/" class="hover:underline">මුල් පිටුව</a>
       <span>/</span>
-      <a href={`/novels/${novel.id}`} class="hover:underline truncate max-w-[150px] sm:max-w-xs">{novel.data.title}</a>
+      <a href={`/novels/${novel.id}/`} class="hover:underline truncate max-w-[150px] sm:max-w-xs">{novel.data.title}</a>
       <span>/</span>
       <span class="text-[var(--reader-text)] font-semibold">පරිච්ඡේදය {chapter.data.chapterNumber}</span>
     </nav>
@@ -101,7 +96,7 @@ const chapterList = siblings.map((s) => ({
       <div class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider accent-text">
         <span>පරිච්ඡේදය {chapter.data.chapterNumber}</span>
         <span>•</span>
-        <a href={`/novels/${novel.id}`} class="hover:underline">{novel.data.title}</a>
+        <a href={`/novels/${novel.id}/`} class="hover:underline">{novel.data.title}</a>
       </div>
 
       <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--reader-text)] font-novel-serif leading-snug">
@@ -109,7 +104,7 @@ const chapterList = siblings.map((s) => ({
       </h1>
 
       <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-[var(--reader-muted)] pt-1">
-        <span>කර්තෘ: <a href={`/authors/${novel.data.authorSlug}`} class="accent-text font-semibold hover:underline">{novel.data.author}</a></span>
+        <span>කර්තෘ: <a href={`/authors/${novel.data.authorSlug}/`} class="accent-text font-semibold hover:underline">{novel.data.author}</a></span>
         <span>•</span>
         <time datetime={chapter.data.publishDate.toISOString()}>{formattedDate}</time>
         <span>•</span>
@@ -151,7 +146,7 @@ const chapterList = siblings.map((s) => ({
           )}
           
           <a
-            href={`/novels/${novel.id}`}
+            href={`/novels/${novel.id}/`}
             class="px-4 py-2.5 rounded-xl bg-[var(--reader-border)]/30 hover:bg-[var(--reader-border)]/60 text-xs sm:text-sm font-medium transition-colors"
           >
             සියලු පරිච්ඡේද ({siblings.length})
@@ -174,6 +169,7 @@ const chapterList = siblings.map((s) => ({
   <!-- Interactive Floating Reader Dock & Mobile TOC Drawer -->
   <ReaderControls
     novelSlug={novel.id}
+    novelCover={thumbCover}
     novelTitle={novel.data.title}
     chapters={chapterList}
     prevUrl={prevUrl}
@@ -185,7 +181,7 @@ const chapterList = siblings.map((s) => ({
   <script is:inline define:vars={{
     novelId: novel.id,
     novelTitle: novel.data.title,
-    novelCover: novel.data.coverImage,
+    novelCover: thumbCover,
     author: novel.data.author,
     chapterNum: chapter.data.chapterNumber,
     chapterTitle: chapter.data.title

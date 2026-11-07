@@ -4,7 +4,7 @@ titleEn: "Sandagiri Pawwa"
 author: "නිශාන්ත බණ්ඩාර"
 authorSlug: "nishantha-bandara"
 synopsis: "මීදුමෙන් වැසුණු කඳු මුදුන් අතර පිහිටි අබිරහස් සඳගිරි ආරණ්‍යයේ සැඟවුණු පැරණි සෙල්ලිපියක් සහ එය සොයා යන තරුණ පර්යේෂකයෙකු මුහුණ දෙන අද්භූත සිදුවීම් මාලාවක් වටා ගෙතෙන ත්‍රාසජනක නවකතාවකි."
-coverImage: "/images/the-shadow-throne-cover.jpg"
+coverImage: "../../assets/covers/the-shadow-throne-cover.jpg"
 genres: ["අබිරහස්", "ත්‍රාසජනක", "ෆැන්ටසි"]
 status: "Ongoing"
 language: "si"

@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import { coverShareUrl } from '../../../utils/covers';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { getGenreSlug } from '../../../utils/genres';
@@ -20,18 +22,19 @@ export async function getStaticPaths() {
 }
 
 const { novel, chapters } = Astro.props;
-const firstChapterUrl = chapters.length > 0 ? `/novels/${novel.id}/${chapters[0].data.chapterNumber}` : '#';
+const shareCover = await coverShareUrl(novel.data.coverImage);
+const firstChapterUrl = chapters.length > 0 ? `/novels/${novel.id}/${chapters[0].data.chapterNumber}/` : '#';
 const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 0), 0);
 ---
 
 <BaseLayout
   title={`${novel.data.title} - සිංහල නවකතාව`}
   description={novel.data.synopsis}
-  image={novel.data.coverImage}
+  image={shareCover}
   novel={{
     title: novel.data.title,
     author: novel.data.author,
-    coverImage: novel.data.coverImage,
+    coverImage: shareCover,
     synopsis: novel.data.synopsis,
     url: Astro.url.href,
   }}
@@ -48,7 +51,7 @@ const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 
     <div class="bg-[var(--reader-panel)] border border-[var(--reader-border)] rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row gap-8 items-start">
       <div class="w-full sm:w-60 md:w-64 shrink-0 mx-auto md:mx-0">
         <div class="rounded-2xl overflow-hidden shadow-xl border border-[var(--reader-border)] aspect-[2/3]">
-          <img src={novel.data.coverImage} alt={novel.data.title} class="w-full h-full object-cover" />
+          <Image src={novel.data.coverImage} alt={novel.data.title} widths={[256, 384, 512, 720]} sizes="(min-width: 640px) 256px, calc(100vw - 80px)" loading="eager" fetchpriority="high" class="w-full h-full object-cover" />
         </div>
       </div>
 
@@ -56,7 +59,7 @@ const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 
         <div class="flex flex-wrap gap-1.5">
           {novel.data.genres.map(g => (
             <a
-              href={`/genres/${getGenreSlug(g)}`}
+              href={`/genres/${getGenreSlug(g)}/`}
               class="px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--reader-border)]/30 text-[var(--reader-muted)] hover:accent-text hover:border-[var(--theme-accent)]/40 border border-[var(--reader-border)] transition-colors"
             >
               {g}
@@ -66,7 +69,7 @@ const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 
 
         <h1 class="text-3xl font-bold font-serif text-[var(--reader-text)]">{novel.data.title}</h1>
         <p class="text-sm text-[var(--reader-muted)]">
-          කර්තෘ: <a href={`/authors/${novel.data.authorSlug}`} class="font-semibold accent-text hover:underline">{novel.data.author}</a>
+          කර්තෘ: <a href={`/authors/${novel.data.authorSlug}/`} class="font-semibold accent-text hover:underline">{novel.data.author}</a>
         </p>
         <p class="text-sm leading-relaxed text-[var(--reader-text)]/90 italic border-l-2 border-[var(--theme-accent)]/50 pl-3">
           "{novel.data.synopsis}"
@@ -98,7 +101,7 @@ const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 
       <div class="grid gap-2.5">
         {chapters.map((ch) => (
           <a
-            href={`/novels/${novel.id}/${ch.data.chapterNumber}`}
+            href={`/novels/${novel.id}/${ch.data.chapterNumber}/`}
             class="flex items-center justify-between p-4 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/50 transition-colors"
           >
             <div class="flex items-center gap-3">

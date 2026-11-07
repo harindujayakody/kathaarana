@@ -42,7 +42,7 @@ const { genre, novels, chapterCounts } = Astro.props;
       <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs text-[var(--reader-muted)]">
         <a href="/" class="hover:underline">මුල් පිටුව</a>
         <span>/</span>
-        <a href="/genres" class="hover:underline">වර්ගීකරණය</a>
+        <a href="/genres/" class="hover:underline">වර්ගීකරණය</a>
         <span>/</span>
         <span class="text-[var(--reader-text)] font-semibold">{genre.name}</span>
       </nav>
@@ -90,7 +90,7 @@ const { genre, novels, chapterCounts } = Astro.props;
         <p class="text-xs text-[var(--reader-muted)] max-w-sm mx-auto">
           මෙම වර්ගීකරණයට අයත් නවකතා ළඟදීම අපගේ වේදිකාවට එක්කරනු ලැබේ.
         </p>
-        <a href="/novels" class="inline-block text-xs font-semibold accent-text hover:underline mt-2">
+        <a href="/novels/" class="inline-block text-xs font-semibold accent-text hover:underline mt-2">
           සියලුම නවකතා වෙත යන්න →
         </a>
       </div>

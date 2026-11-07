@@ -9,13 +9,14 @@ interface ChapterItem {
 interface Props {
   novelSlug: string;
   novelTitle: string;
+  novelCover: string;
   chapters: ChapterItem[];
   prevUrl?: string;
   nextUrl?: string;
   currentChapterNum: number;
 }
 
-const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } = Astro.props;
+const { novelSlug, novelTitle, novelCover, chapters, prevUrl, nextUrl, currentChapterNum } = Astro.props;
 ---
 
 <!-- Reading Progress Bar (Top of Viewport) -->
@@ -71,6 +72,10 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
     <!-- Bookmark Chapter Button in Dock -->
     <button
       id="btn-dock-bookmark"
+      data-novel-slug={novelSlug}
+      data-novel-title={novelTitle}
+      data-novel-cover={novelCover}
+      data-chapter={currentChapterNum}
       type="button"
       class="p-2 rounded-xl border border-[var(--reader-border)] hover:bg-[var(--reader-panel)] text-[var(--reader-muted)] hover:text-amber-500 active:scale-95 transition-all cursor-pointer"
       title="පිටුසනක් එක්කරන්න (Bookmark this chapter)"
@@ -193,7 +198,7 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
     <!-- Modal Footer -->
     <div class="pt-3 border-t border-[var(--reader-border)] flex justify-between items-center text-xs text-[var(--reader-muted)]">
       <span>පිටු පෙරලීමට <kbd class="px-1 py-0.5 bg-[var(--reader-border)]/60 rounded">←</kbd> <kbd class="px-1 py-0.5 bg-[var(--reader-border)]/60 rounded">→</kbd></span>
-      <a href={`/novels/${novelSlug}`} class="accent-text hover:underline">නවකතා තොරතුරු</a>
+      <a href={`/novels/${novelSlug}/`} class="accent-text hover:underline">නවකතා තොරතුරු</a>
     </div>
 
   </div>
@@ -342,7 +347,12 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
     lastScrollY = currentScrollY;
   }, { passive: true });
 
-  // 8. Bookmark Dock Handler
+  // 8. Bookmark Dock Handler (server values arrive as data attributes; frontmatter isn't visible here)
+  const dockBookmark = document.getElementById('btn-dock-bookmark');
+  const novelSlug = dockBookmark?.dataset.novelSlug || '';
+  const novelTitle = dockBookmark?.dataset.novelTitle || '';
+  const novelCover = dockBookmark?.dataset.novelCover || '';
+  const currentChapterNum = Number(dockBookmark?.dataset.chapter);
   const syncBookmarkStatus = () => {
     try {
       const bookmarks = JSON.parse(localStorage.getItem('katha_bookmarks') || '[]');
@@ -371,7 +381,7 @@ const { novelSlug, novelTitle, chapters, prevUrl, nextUrl, currentChapterNum } =
         bookmarks.unshift({
           novelId: novelSlug,
           novelTitle: novelTitle,
-          novelCover: `/images/${novelSlug === 'sandagiri-pawwa' ? 'the-shadow-throne-cover.jpg' : novelSlug === 'maruthaye-handa' ? 'maruthaye-handa-cover.jpg' : 'neela-nethu-cover.jpg'}`,
+          novelCover,
           chapterNumber: currentChapterNum,
           chapterTitle: `පරිච්ඡේදය ${currentChapterNum}`,
           author: '',

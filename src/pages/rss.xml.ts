@@ -14,7 +14,7 @@ export const GET: APIRoute = async (context) => {
   const rssItems = sortedChapters
     .map((ch) => {
       const parent = novels.find((n) => n.id === ch.data.novel);
-      const link = `${site}/novels/${ch.data.novel}/${ch.data.chapterNumber}`;
+      const link = new URL(`/novels/${ch.data.novel}/${ch.data.chapterNumber}/`, site).href;
       return `    <item>
       <title><![CDATA[${parent ? parent.data.title + ' - ' : ''}පරිච්ඡේදය ${ch.data.chapterNumber}: ${ch.data.title}]]></title>
       <link>${link}</link>
@@ -31,7 +31,7 @@ export const GET: APIRoute = async (context) => {
     <title>කතා අරණ (Katha Arana) - නවතම පරිච්ඡේද</title>
     <description>විවිධ කතුවරුන්ගේ සිංහල නවකතාවල නවතම පරිච්ඡේද</description>
     <link>${site}</link>
-    <atom:link href="${site}/rss.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="${new URL('/rss.xml', site).href}" rel="self" type="application/rss+xml"/>
     <language>si</language>
 ${rssItems}
   </channel>
