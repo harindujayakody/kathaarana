@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
-import { coverShareUrl } from '../utils/covers';
 
 const novels = await getCollection('novels');
 const allChapters = await getCollection('chapters');
@@ -31,9 +30,8 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
 ---
 
 <BaseLayout
-  title="කතා අරණ - සිංහල නවකතා කියවීමේ නිදහස් අවකාශය | Realm of Sinhala Web Novels"
+  title="කතා අරණ | සිංහල නවකතා කියවීමේ නිදහස් අවකාශය"
   description="ශ්‍රී ලාංකේය ලේඛකයන්ගේ සිංහල නවකතා, අබිරහස්, ත්‍රාසජනක සහ ආදර කතා ජංගම දුරකථනයෙන් පහසුවෙන් කියවන්න. නොමිලේ, ගිණුම් අවශ්‍ය නැත."
-  image={await coverShareUrl(featuredNovel.data.coverImage)}
 >
   <div class="max-w-5xl mx-auto px-4 sm:px-6">
 

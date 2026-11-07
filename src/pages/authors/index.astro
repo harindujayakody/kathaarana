@@ -28,7 +28,7 @@ const authorDetails = uniqueAuthors.map(author => {
 ---
 
 <BaseLayout
-  title="කතුවරුන්ගේ නාමාවලිය - Katha Arana"
+  title="කතුවරුන්"
   description="කතා අරණ වේදිකාවේ සිංහල නවකතා ලියන සියලුම ලේඛකයන්ගේ සහ නිර්මාණකරුවන්ගේ නාමාවලිය."
 >
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
@@ -87,7 +87,7 @@ const authorDetails = uniqueAuthors.map(author => {
                 ප්‍රකාශිත නවකතා
               </div>
               <div class="grid grid-cols-3 gap-2">
-                {author.novels.map((n) => (
+                {author.novels.map((n: any) => (
                   <a href={`/novels/${n.id}/`} class="block rounded-lg overflow-hidden border border-[var(--reader-border)] aspect-[2/3] group/thumb hover:scale-105 transition-transform shadow-xs">
                     <Image src={n.data.coverImage} alt={n.data.title} width={200} class="w-full h-full object-cover" />
                   </a>

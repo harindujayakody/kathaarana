@@ -30,12 +30,13 @@ const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 
 <BaseLayout
   title={`${novel.data.title} - සිංහල නවකතාව`}
   description={novel.data.synopsis}
-  image={shareCover}
+  image={`/og/${novel.id}.jpg`}
   novel={{
     title: novel.data.title,
     author: novel.data.author,
     coverImage: shareCover,
     synopsis: novel.data.synopsis,
+    genres: novel.data.genres,
     url: Astro.url.href,
   }}
 >
