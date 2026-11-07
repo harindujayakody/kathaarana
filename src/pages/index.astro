@@ -25,7 +25,7 @@ const featuredStartUrl = featuredFirst
   : `/novels/${featuredNovel.id}`;
 
 const statusLabel = (s: string) => (s === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්');
-const formatDate = (d: Date) => d.toLocaleDateString('si-LK', { month: 'short', day: 'numeric' });
+const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 ---
 
 <BaseLayout
