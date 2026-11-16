@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import { chapterWords } from '../utils/wordCount';
 
 export const GET: APIRoute = async (context) => {
   const chapters = await getCollection('chapters');
@@ -20,7 +21,7 @@ export const GET: APIRoute = async (context) => {
       <link>${link}</link>
       <guid isPermaLink="true">${link}</guid>
       <pubDate>${ch.data.publishDate.toUTCString()}</pubDate>
-      <description><![CDATA[${parent?.data.title || 'කතා අරණ'} හි ${ch.data.chapterNumber} වන පරිච්ඡේදය. කර්තෘ: ${parent?.data.author || ''}. වචන: ${ch.data.wordCount || 850}.]]></description>
+      <description><![CDATA[${parent?.data.title || 'කතා අරණ'} හි ${ch.data.chapterNumber} වන පරිච්ඡේදය. කර්තෘ: ${parent?.data.author || ''}. වචන: ${chapterWords(ch)}.]]></description>
     </item>`;
     })
     .join('\n');

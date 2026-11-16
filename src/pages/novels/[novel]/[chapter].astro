@@ -5,6 +5,7 @@ import Icon from '../../../components/Icon.astro';
 import RatingStars from '../../../components/RatingStars.astro';
 import { getCollection, render } from 'astro:content';
 import { coverShareUrl, coverThumbUrl } from '../../../utils/covers';
+import { chapterWords } from '../../../utils/wordCount';
 
 export async function getStaticPaths() {
   const allChapters = await getCollection('chapters');
@@ -47,7 +48,8 @@ const thumbCover = await coverThumbUrl(novel.data.coverImage);
 // A source that is a web address is shown as a link; anything else as plain text.
 const sourceIsLink = !!novel.data.source && /^https?:\/\//.test(novel.data.source);
 
-const readTimeMinutes = Math.ceil((chapter.data.wordCount || 850) / 180);
+const words = chapterWords(chapter);
+const readTimeMinutes = Math.max(1, Math.ceil(words / 180));
 const formattedDate = chapter.data.publishDate.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'short',
@@ -91,7 +93,7 @@ const reactions = [
   chapter={{
     number: chapter.data.chapterNumber,
     title: chapter.data.title,
-    wordCount: chapter.data.wordCount,
+    wordCount: words,
   }}
 >
   <article
