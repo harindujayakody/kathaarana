@@ -176,11 +176,6 @@ p, span, a, li, input, button, .font-sans {
 }
 
 /* Side columns scroll on their own when taller than the screen: keep the bar thin. */
-.side-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: var(--reader-border) transparent;
-}
-
 /* The wordmark is one transparent PNG used as a mask and filled with the text colour,
    so it is dark on light, white on black and brown on sepia without separate files. */
 .brand-logo {
