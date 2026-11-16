@@ -199,7 +199,9 @@ export default {
     // Built files moved from /_astro/ to /assets/ (2026-11-16). Image names changed with the
     // move, so this fixed list maps every file that ever had an /_astro/ address to its new name.
     if (url.pathname.startsWith('/_astro/')) {
-      const target = legacyAssets[url.pathname.slice('/_astro/'.length)];
+      const name = url.pathname.slice('/_astro/'.length);
+      // hasOwn: names like "constructor" must 404, not match built-in object keys.
+      const target = Object.hasOwn(legacyAssets, name) ? legacyAssets[name] : null;
       if (!target) return new Response('Not found', { status: 404 });
       return new Response(null, {
         status: 301,

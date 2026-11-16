@@ -90,9 +90,12 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
   return node;
 };
 
+// History comes from localStorage, so only links back into this site are used.
+const localPath = (url: string) => (url.startsWith('/') && !url.startsWith('//') ? url : '/');
+
 function historyRow(item: HistoryItem) {
   const a = el('a', 'tap flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-[var(--reader-bg)]');
-  a.href = item.url;
+  a.href = localPath(item.url);
   if (item.novelCover) {
     const img = el('img', 'h-12 w-8 shrink-0 rounded object-cover');
     img.src = item.novelCover;
@@ -111,7 +114,7 @@ function historyRow(item: HistoryItem) {
 
 function historyCard(item: HistoryItem) {
   const a = el('a', 'tap surface flex w-[17rem] items-center gap-3 p-3 hover:border-[var(--theme-accent)]');
-  a.href = item.url;
+  a.href = localPath(item.url);
   if (item.novelCover) {
     const img = el('img', 'h-20 w-[3.35rem] shrink-0 rounded-md object-cover');
     img.src = item.novelCover;
