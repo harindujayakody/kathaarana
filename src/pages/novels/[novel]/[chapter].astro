@@ -3,6 +3,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ReaderControls from '../../../components/ReaderControls.astro';
 import Icon from '../../../components/Icon.astro';
 import RatingStars from '../../../components/RatingStars.astro';
+import ShareButtons from '../../../components/ShareButtons.astro';
 import { getCollection, render } from 'astro:content';
 import { coverShareUrl, coverThumbUrl } from '../../../utils/covers';
 import { chapterWords } from '../../../utils/wordCount';
@@ -157,6 +158,12 @@ const reactions = [
           )}
         </div>
       )}
+
+      <ShareButtons
+        url={new URL(Astro.url.pathname, Astro.site).href}
+        title={`${novel.data.title} - ${chapter.data.title}`}
+        class={`mx-auto max-w-[46rem] ${source ? 'mt-4' : 'mt-10 border-t border-[var(--reader-border)] pt-5'}`}
+      />
     </div>
 
     <!-- Reactions -->
