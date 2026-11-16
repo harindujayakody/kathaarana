@@ -11,8 +11,12 @@
     // Permanent redirects from the old /_astro/ file addresses (see src/legacy-assets.json).
     { "pattern": "kathaarana.com/_astro/*", "zone_name": "kathaarana.com" },
     // Adds X-Robots-Tag: noindex to the story PDFs.
-    { "pattern": "kathaarana.com/downloads/*", "zone_name": "kathaarana.com" }
+    { "pattern": "kathaarana.com/downloads/*", "zone_name": "kathaarana.com" },
+    // Online publishing dashboard (src/admin.js), behind Cloudflare Access.
+    { "pattern": "kathaarana.com/admin*", "zone_name": "kathaarana.com" }
   ],
+  // The dashboard page (scripts/admin/index.html) is bundled as text.
+  "rules": [{ "type": "Text", "globs": ["**/*.html"], "fallthrough": true }],
   "workers_dev": false,
   "d1_databases": [
     {
@@ -29,14 +33,25 @@
   "triggers": { "crons": ["17 3 * * *"] },
   "vars": {
     "ALLOWED_ORIGINS": "https://kathaarana.com",
-    "CATALOG_URL": "https://kathaarana.com/catalog.json"
+    "CATALOG_URL": "https://kathaarana.com/catalog.json",
+    // Dashboard: the repository it publishes to.
+    // Secrets, set with `npx wrangler secret put <NAME>` and kept out of this public repo:
+    //   GITHUB_TOKEN  fine-grained token, this repo only, Contents: read and write
+    //   ACCESS_TEAM   Cloudflare Access team name (the part before .cloudflareaccess.com)
+    //   ACCESS_AUD    the Access application's Audience (AUD) tag
+    //   ADMIN_EMAILS  who may sign in, comma-separated
+    // While any of the last three is missing, /admin refuses everyone.
+    "GITHUB_REPO": "harindujayakody/kathaarana"
   },
   "env": {
     // `wrangler dev --env dev` against the local Astro preview.
     "dev": {
       "vars": {
         "ALLOWED_ORIGINS": "http://localhost:4321",
-        "CATALOG_URL": "http://localhost:4321/catalog.json"
+        "CATALOG_URL": "http://localhost:4321/catalog.json",
+        "GITHUB_REPO": "harindujayakody/kathaarana",
+        // Skips sign-in on localhost only, for testing the dashboard with `wrangler dev`.
+        "ADMIN_INSECURE_DEV": "1"
       },
       "d1_databases": [{ "binding": "DB", "database_name": "kathaarana", "database_id": "local" }],
       "ratelimits": [

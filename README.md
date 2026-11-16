@@ -96,6 +96,15 @@ Opens a page at `http://localhost:4400` on your own computer:
 
 It only listens on this computer, uses your own git login, and only writes to `src/content/` and `src/assets/covers/`. Publishing needs the `main` branch checked out.
 
+### Online dashboard
+
+The same screens at **[kathaarana.com/admin/](https://kathaarana.com/admin/)**, for publishing from a phone. Saving publishes: the Worker ([`worker/src/admin.js`](worker/src/admin.js)) writes the files to `main` as one commit through GitHub's API, and GitHub Actions deploys it.
+
+- **Sign-in:** Cloudflare Access (email one-time code or Google) in front of `/admin*`. The Worker also checks Access's signed token, its audience tag and the email on every request, and refuses everyone until it is configured.
+- **Settings** are Worker secrets, so nothing private is in this repo: `GITHUB_TOKEN` (fine-grained, this repo only, Contents read and write), `ACCESS_TEAM`, `ACCESS_AUD`, `ADMIN_EMAILS`. Set each with `npx wrangler secret put <NAME>` in `worker/`.
+- It only ever writes `src/content/` and `src/assets/covers/`. Story text has `<` written as `&lt;`, so pasted HTML can't run on the site.
+- The rules shared by both dashboards live in [`scripts/admin/content.mjs`](scripts/admin/content.mjs) (tests: `node scripts/admin/content.test.mjs`).
+
 ### By hand
 
 No admin panel: a story is a few Markdown files. Copy a template, fill it in and push to `main`. The site rebuilds and goes live in a couple of minutes.

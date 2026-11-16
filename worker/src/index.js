@@ -4,6 +4,7 @@
 // rate limit only slows that down. Add Turnstile if rankings ever get abused.
 
 import legacyAssets from './legacy-assets.json';
+import { handleAdmin } from './admin.js';
 
 const REACTIONS = ['like', 'sad'];
 const DEVICE_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -186,6 +187,8 @@ export default {
       for (const [k, v] of Object.entries(cors)) res.headers.set(k, v);
       return res;
     };
+
+    if (url.pathname === '/admin' || url.pathname.startsWith('/admin/')) return handleAdmin(request, env);
 
     // Story PDFs stay out of search results, so searchers land on the reading pages.
     // GitHub Pages can't send this header, so the Worker passes the file through and adds it.
