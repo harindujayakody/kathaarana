@@ -1,6 +1,6 @@
 // Chapter page behaviour: history, view count, reader bar, settings sheet, reactions.
 import { navigate } from 'astro:transitions/client';
-import { post, setTheme, type HistoryItem } from './app';
+import { burst, pop, post, setTheme, type HistoryItem } from './app';
 
 const API = import.meta.env.PUBLIC_API_BASE ?? '/api';
 
@@ -180,6 +180,10 @@ async function initReactions(page: Page) {
       }
       save('katha_votes', votes);
       render();
+      if (previous !== kind) {
+        pop(btn.querySelector('[role="img"]'));
+        burst(btn);
+      }
       post('/react', { novel: page.novel, chapter: page.chapter, kind: previous === kind ? null : kind }).catch(() => {});
     };
   });
