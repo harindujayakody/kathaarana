@@ -11,10 +11,11 @@
     --reader-muted: #5f6570;
     --reader-border: #e3e5ea;
 
-    --theme-accent: #0f766e;
-    --theme-accent-hover: #115e59;
+    /* Accent is ink, not a hue: black buttons, the colour comes from the covers. */
+    --theme-accent: #111111;
+    --theme-accent-hover: #3a3a3a;
     --theme-accent-text: #ffffff;
-    --theme-accent-soft: rgba(15, 118, 110, 0.1);
+    --theme-accent-soft: rgba(17, 17, 17, 0.07);
 
     --star: #d97706;
     --like: #e11d48;
@@ -30,10 +31,11 @@
     --reader-muted: #a0a0a0;
     --reader-border: #222222;
 
-    --theme-accent: #2dd4bf;
-    --theme-accent-hover: #5eead4;
-    --theme-accent-text: #00201c;
-    --theme-accent-soft: rgba(45, 212, 191, 0.14);
+    /* White buttons with black text, so they stand out on pure black. */
+    --theme-accent: #f2f2f2;
+    --theme-accent-hover: #ffffff;
+    --theme-accent-text: #000000;
+    --theme-accent-soft: rgba(255, 255, 255, 0.1);
 
     --star: #fbbf24;
     --like: #fb7185;
@@ -49,10 +51,10 @@
     --reader-muted: #6f5d48;
     --reader-border: #dccfb4;
 
-    --theme-accent: #0f766e;
-    --theme-accent-hover: #115e59;
-    --theme-accent-text: #ffffff;
-    --theme-accent-soft: rgba(15, 118, 110, 0.12);
+    --theme-accent: #3b2d1d;
+    --theme-accent-hover: #5a4630;
+    --theme-accent-text: #f7f0de;
+    --theme-accent-soft: rgba(59, 45, 29, 0.1);
 
     --star: #b45309;
     --like: #be123c;
