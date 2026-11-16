@@ -42,6 +42,12 @@ export const GENRE_MAP: Record<string, GenreInfo> = {
     description: 'සමාජ ගැටුම්, මානව සබඳතා සහ ගැඹුරු ජීවන අත්දැකීම්.',
     icon: '🎭',
   },
+  'short-stories': {
+    slug: 'short-stories',
+    name: 'කෙටිකතා',
+    description: 'එක් වාඩිවීමකින් කියවිය හැකි කෙටි කතා.',
+    icon: '📝',
+  },
 };
 
 export function getGenreSlug(genreName: string): string {
