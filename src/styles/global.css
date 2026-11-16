@@ -323,7 +323,8 @@ dialog.search-dialog::backdrop {
   border-color: var(--theme-accent);
   background: var(--theme-accent-soft);
 }
-:is([data-chart-tab], [data-lib-tab])[aria-selected="true"] {
+:is([data-chart-tab], [data-lib-tab])[aria-selected="true"],
+[data-page][aria-current="page"] {
   background: var(--reader-text);
   color: var(--reader-panel);
   border-color: var(--reader-text);

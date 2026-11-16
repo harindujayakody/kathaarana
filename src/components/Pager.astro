@@ -1,0 +1,52 @@
+---
+// Page buttons for a list that is already on the page: every item is in the HTML (so search engines
+// see all links), and only one page of them is shown. The list is the element whose id is `target`.
+import Icon from './Icon.astro';
+
+interface Props {
+  target: string;
+  total: number;
+  perPage: number;
+  label: string;
+}
+
+const { target, total, perPage, label } = Astro.props;
+const pages = Math.ceil(total / perPage);
+const btn =
+  'tap grid h-10 min-w-10 cursor-pointer place-items-center rounded-full border border-[var(--reader-border)] px-3 text-sm tabular-nums text-[var(--reader-muted)] hover:text-[var(--reader-text)] disabled:cursor-default disabled:opacity-40';
+---
+
+{pages > 1 && (
+  <nav class="mt-5 flex flex-wrap items-center justify-center gap-2" aria-label={label} data-pager={target} data-per-page={perPage}>
+    <button type="button" data-step="-1" class={btn} aria-label="පෙර පිටුව" disabled>
+      <Icon name="left" class="h-4 w-4" />
+    </button>
+    {Array.from({ length: pages }, (_, i) => (
+      <button type="button" data-page={i} class={btn} aria-current={i === 0 ? 'page' : undefined}>{i + 1}</button>
+    ))}
+    <button type="button" data-step="1" class={btn} aria-label="ඊළඟ පිටුව">
+      <Icon name="right" class="h-4 w-4" />
+    </button>
+  </nav>
+)}
+
+<script>
+  // One listener for every pager; in-app navigation swaps the page, so elements are looked up per click.
+  document.addEventListener('click', (e) => {
+    const button = (e.target as Element).closest<HTMLButtonElement>('[data-pager] button');
+    const nav = button?.closest<HTMLElement>('[data-pager]');
+    const list = nav && document.getElementById(nav.dataset.pager!);
+    if (!button || !nav || !list) return;
+    const per = Number(nav.dataset.perPage);
+    const pageButtons = [...nav.querySelectorAll<HTMLButtonElement>('[data-page]')];
+    const current = pageButtons.findIndex((b) => b.getAttribute('aria-current') === 'page');
+    const page = button.dataset.page !== undefined ? Number(button.dataset.page) : current + Number(button.dataset.step);
+    if (page < 0 || page >= pageButtons.length || page === current) return;
+    [...list.children].forEach((item, i) => ((item as HTMLElement).hidden = Math.floor(i / per) !== page));
+    pageButtons.forEach((b, i) => (i === page ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')));
+    nav.querySelector<HTMLButtonElement>('[data-step="-1"]')!.disabled = page === 0;
+    nav.querySelector<HTMLButtonElement>('[data-step="1"]')!.disabled = page === pageButtons.length - 1;
+    // Back to the top of the list, so the new page starts where the reader is looking.
+    list.closest('section')?.scrollIntoView({ block: 'start' });
+  });
+</script>
