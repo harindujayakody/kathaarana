@@ -1,9 +1,12 @@
 ---
 import { Image } from 'astro:assets';
-import { coverShareUrl } from '../../../utils/covers';
-import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Icon from '../../../components/Icon.astro';
+import RatingStars from '../../../components/RatingStars.astro';
+import { coverShareUrl } from '../../../utils/covers';
 import { getGenreSlug } from '../../../utils/genres';
+import { buildStats } from '../../../utils/buildStats';
 
 export async function getStaticPaths() {
   const novels = await getCollection('novels');
@@ -13,24 +16,33 @@ export async function getStaticPaths() {
     const chapters = allChapters
       .filter((c) => c.data.novel === novel.id)
       .sort((a, b) => a.data.chapterNumber - b.data.chapterNumber);
+    // Other novels that share a genre come first, then the rest.
+    const related = novels
+      .filter((n) => n.id !== novel.id)
+      .sort(
+        (a, b) =>
+          Number(b.data.genres.some((g) => novel.data.genres.includes(g))) -
+          Number(a.data.genres.some((g) => novel.data.genres.includes(g))),
+      )
+      .slice(0, 4);
 
-    return {
-      params: { novel: novel.id },
-      props: { novel, chapters },
-    };
+    return { params: { novel: novel.id }, props: { novel, chapters, related } };
   });
 }
 
-const { novel, chapters } = Astro.props;
+const { novel, chapters, related } = Astro.props;
 const shareCover = await coverShareUrl(novel.data.coverImage);
-const firstChapterUrl = chapters.length > 0 ? `/novels/${novel.id}/${chapters[0].data.chapterNumber}/` : '#';
-const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 0), 0);
+const firstChapterUrl = chapters.length > 0 ? `/novels/${novel.id}/${chapters[0].data.chapterNumber}/` : undefined;
+const totalWords = chapters.reduce((sum, c) => sum + (c.data.wordCount || 0), 0);
+const rated = (await buildStats())[novel.id];
+const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 ---
 
 <BaseLayout
   title={`${novel.data.title} - සිංහල නවකතාව`}
   description={novel.data.synopsis}
   image={`/og/${novel.id}.jpg`}
+  type="book"
   novel={{
     title: novel.data.title,
     author: novel.data.author,
@@ -38,88 +50,136 @@ const totalWords = chapters.reduce((acc, curr) => acc + (curr.data.wordCount || 
     synopsis: novel.data.synopsis,
     genres: novel.data.genres,
     url: Astro.url.href,
+    rating: rated && { value: rated.rating, count: rated.ratings },
   }}
 >
-  <div class="max-w-4xl mx-auto px-4 py-8 sm:py-12">
-    <!-- Breadcrumb -->
-    <nav class="mb-6 flex items-center gap-2 text-xs text-[var(--reader-muted)]">
-      <a href="/" class="hover:underline">මුල් පිටුව</a>
-      <span>/</span>
-      <span class="text-[var(--reader-text)] font-semibold">{novel.data.title}</span>
-    </nav>
+  <div class="mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_21rem] xl:items-start">
+      <div class="min-w-0 space-y-6">
+        <!-- Novel header -->
+        <section class="surface p-4 sm:p-6" data-stats={novel.id}>
+          <!-- Phones: cover and facts, then actions, then synopsis. Wider: everything beside the cover. -->
+          <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-x-4 gap-y-4 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-x-6">
+            <Image
+              src={novel.data.coverImage}
+              alt={`${novel.data.title} කවරය`}
+              widths={[128, 208, 256, 416]}
+              sizes="(min-width: 640px) 208px, 128px"
+              loading="eager"
+              fetchpriority="high"
+              class="aspect-[2/3] w-full self-start rounded-lg object-cover shadow-[var(--lift-shadow)] sm:row-span-3"
+            />
+            <div class="min-w-0">
+              <h1 class="text-2xl font-bold leading-snug sm:text-3xl">{novel.data.title}</h1>
+              <p class="mt-1 text-[0.9375rem] text-[var(--reader-muted)]">
+                <a href={`/authors/${novel.data.authorSlug}/`} class="font-medium text-[var(--reader-text)] hover:accent-text">{novel.data.author}</a>
+              </p>
 
-    <!-- Novel Header Card -->
-    <div class="bg-[var(--reader-panel)] border border-[var(--reader-border)] rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row gap-8 items-start">
-      <div class="w-full sm:w-60 md:w-64 shrink-0 mx-auto md:mx-0">
-        <div class="rounded-2xl overflow-hidden shadow-xl border border-[var(--reader-border)] aspect-[2/3]">
-          <Image src={novel.data.coverImage} alt={novel.data.title} widths={[256, 384, 512, 720]} sizes="(min-width: 640px) 256px, calc(100vw - 80px)" loading="eager" fetchpriority="high" class="w-full h-full object-cover" />
-        </div>
-      </div>
-
-      <div class="flex-1 space-y-4">
-        <div class="flex flex-wrap gap-1.5">
-          {novel.data.genres.map(g => (
-            <a
-              href={`/genres/${getGenreSlug(g)}/`}
-              class="px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--reader-border)]/30 text-[var(--reader-muted)] hover:accent-text hover:border-[var(--theme-accent)]/40 border border-[var(--reader-border)] transition-colors"
-            >
-              {g}
-            </a>
-          ))}
-        </div>
-
-        <h1 class="text-3xl font-bold font-serif text-[var(--reader-text)]">{novel.data.title}</h1>
-        <p class="text-sm text-[var(--reader-muted)]">
-          කර්තෘ: <a href={`/authors/${novel.data.authorSlug}/`} class="font-semibold accent-text hover:underline">{novel.data.author}</a>
-        </p>
-        <p class="text-sm leading-relaxed text-[var(--reader-text)]/90 italic border-l-2 border-[var(--theme-accent)]/50 pl-3">
-          "{novel.data.synopsis}"
-        </p>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 py-2 border-y border-[var(--reader-border)] text-xs">
-          <div><span class="text-[var(--reader-muted)]">පරිච්ඡේද:</span> <strong class="text-[var(--reader-text)] ml-1">{chapters.length}</strong></div>
-          <div><span class="text-[var(--reader-muted)]">වචන එකතුව:</span> <strong class="text-[var(--reader-text)] ml-1">{totalWords.toLocaleString()}</strong></div>
-          <div><span class="text-[var(--reader-muted)]">තත්ත්වය:</span> <strong class="accent-text ml-1">{novel.data.status === 'Ongoing' ? 'ලියවෙමින් පවතී' : 'සම්පූර්ණයි'}</strong></div>
-        </div>
-
-        <div class="pt-2">
-          <a
-            href={firstChapterUrl}
-            class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl accent-bg font-medium text-sm shadow-md active:scale-95 transition-all"
-          >
-            කියවීම අරඹන්න (1 වන පරිච්ඡේදය) →
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chapter List -->
-    <div class="mt-10 space-y-3">
-      <h2 class="text-xl font-bold text-[var(--reader-text)] pb-2 border-b border-[var(--reader-border)] font-serif">
-        සියලු පරිච්ඡේද
-      </h2>
-
-      <div class="grid gap-2.5">
-        {chapters.map((ch) => (
-          <a
-            href={`/novels/${novel.id}/${ch.data.chapterNumber}/`}
-            class="flex items-center justify-between p-4 rounded-2xl bg-[var(--reader-panel)] border border-[var(--reader-border)] hover:border-[var(--theme-accent)]/50 transition-colors"
-          >
-            <div class="flex items-center gap-3">
-              <span class="w-8 h-8 rounded-xl accent-badge font-bold flex items-center justify-center text-xs">
-                {ch.data.chapterNumber}
-              </span>
-              <div>
-                <span class="font-medium text-sm text-[var(--reader-text)]">
-                  පරිච්ඡේදය {ch.data.chapterNumber}: {ch.data.title}
+              <p class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--reader-muted)]">
+                <span class="inline-flex items-center gap-1">
+                  <Icon name="star" class="h-4 w-4 fill-current text-[var(--star)]" />
+                  <span data-s="rating" class="font-semibold tabular-nums text-[var(--reader-text)]">–</span>
+                  <span data-s="ratings" class="text-xs"></span>
                 </span>
-                <span class="text-xs text-[var(--reader-muted)] ml-2">• වචන {ch.data.wordCount || 850}</span>
-              </div>
+                <span class="inline-flex items-center gap-1"><Icon name="heart" class="h-4 w-4" /><span data-s="likes" class="tabular-nums">0</span></span>
+                <span class="inline-flex items-center gap-1"><Icon name="eye" class="h-4 w-4" /><span data-s="views" class="tabular-nums">0</span></span>
+              </p>
+
+              <ul class="mt-3 flex flex-wrap gap-1.5">
+                {novel.data.genres.map((g) => (
+                  <li>
+                    <a href={`/genres/${getGenreSlug(g)}/`} class="tap inline-block rounded-full border border-[var(--reader-border)] px-3 py-1 text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)]">
+                      {g}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <span class="text-xs font-semibold accent-text">කියවන්න →</span>
-          </a>
-        ))}
+
+            <div class="col-span-2 flex items-center gap-2 sm:order-last sm:col-span-1 sm:col-start-2">
+              {firstChapterUrl && (
+                <a href={firstChapterUrl} class="accent-bg tap inline-flex flex-1 items-center justify-center rounded-lg px-6 py-2.5 font-semibold sm:flex-none">කියවීම අරඹන්න</a>
+              )}
+              <button type="button" data-like={novel.id} aria-pressed="false" aria-label="කැමතියි" class="tap grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-lg border border-[var(--reader-border)] text-[var(--reader-muted)]">
+                <Icon name="heart" />
+              </button>
+            </div>
+
+            <p class="col-span-2 max-w-[42rem] text-[1.0625rem] leading-[1.95] sm:col-span-1 sm:col-start-2">{novel.data.synopsis}</p>
+          </div>
+
+          <dl class="mt-5 grid grid-cols-3 gap-3 border-t border-[var(--reader-border)] pt-4 text-sm">
+            <div>
+              <dt class="text-[var(--reader-muted)]">පරිච්ඡේද</dt>
+              <dd class="mt-0.5 font-semibold tabular-nums">{chapters.length}</dd>
+            </div>
+            <div>
+              <dt class="text-[var(--reader-muted)]">වචන</dt>
+              <dd class="mt-0.5 font-semibold tabular-nums">{totalWords.toLocaleString('en-US')}</dd>
+            </div>
+            <div>
+              <dt class="text-[var(--reader-muted)]">තත්ත්වය</dt>
+              <dd class="mt-0.5 font-semibold">{novel.data.status === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්'}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- Rating -->
+        <section class="surface p-4 sm:p-6" data-stats={novel.id} aria-labelledby="rate-title">
+          <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 id="rate-title" class="text-lg font-bold">මෙම නවකතාව අගයන්න</h2>
+            <span data-s="ratings-long" class="text-sm text-[var(--reader-muted)]"></span>
+          </div>
+          <div class="mt-2">
+            <RatingStars novelId={novel.id} />
+          </div>
+        </section>
+
+        <!-- Chapters -->
+        <section class="surface p-4 sm:p-6" aria-labelledby="chapters-title">
+          <h2 id="chapters-title" class="text-lg font-bold">පරිච්ඡේද {chapters.length}</h2>
+          <ol class="mt-2 divide-y divide-[var(--reader-border)]">
+            {chapters.map((ch) => (
+              <li>
+                <a href={`/novels/${novel.id}/${ch.data.chapterNumber}/`} class="tap flex items-center gap-3 py-3">
+                  <span class="w-7 shrink-0 text-center font-serif text-lg font-bold tabular-nums text-[var(--reader-muted)]">{ch.data.chapterNumber}</span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-medium">{ch.data.title}</span>
+                    <span class="block text-sm text-[var(--reader-muted)]">වචන {(ch.data.wordCount || 0).toLocaleString('en-US')}</span>
+                  </span>
+                  <time datetime={ch.data.publishDate.toISOString()} class="shrink-0 text-xs tabular-nums text-[var(--reader-muted)]">{formatDate(ch.data.publishDate)}</time>
+                  <Icon name="right" class="h-4 w-4 shrink-0 text-[var(--reader-muted)]" />
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
       </div>
+
+      <!-- More novels: links readers and search engines onward -->
+      {related.length > 0 && (
+        <aside class="surface min-w-0 p-4" aria-labelledby="related-title">
+          <h2 id="related-title" class="text-lg font-bold">තවත් නවකතා</h2>
+          <ul class="mt-2 divide-y divide-[var(--reader-border)]">
+            {related.map((n) => (
+              <li data-stats={n.id}>
+                <a href={`/novels/${n.id}/`} class="tap flex items-center gap-3 py-2.5">
+                  <Image src={n.data.coverImage} alt="" width={96} class="h-[4.5rem] w-12 shrink-0 rounded object-cover" />
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-serif font-semibold">{n.data.title}</span>
+                    <span class="block truncate text-sm text-[var(--reader-muted)]">{n.data.author}</span>
+                    <span class="mt-0.5 inline-flex items-center gap-1 text-sm">
+                      <Icon name="star" class="h-3.5 w-3.5 fill-current text-[var(--star)]" />
+                      <span data-s="rating" class="font-semibold tabular-nums">–</span>
+                      <span data-s="ratings" class="text-xs text-[var(--reader-muted)]"></span>
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )}
     </div>
   </div>
 </BaseLayout>

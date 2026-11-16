@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Sitemap <lastmod>: chapter publish dates, read straight from frontmatter because
 // content collections aren't available in the config.
@@ -12,7 +13,8 @@ function chapterLastmods() {
   const bump = (path, date) => {
     if (!dates.has(path) || dates.get(path) < date) dates.set(path, date);
   };
-  const dir = 'src/content/chapters';
+  // Resolved from this file, so it works whatever directory the command runs from.
+  const dir = fileURLToPath(new URL('./src/content/chapters', import.meta.url));
   for (const file of readdirSync(dir, { recursive: true })) {
     if (!/\.mdx?$/.test(file)) continue;
     const text = readFileSync(join(dir, file), 'utf8');

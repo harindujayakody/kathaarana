@@ -72,7 +72,6 @@ const { genre, novels, chapterCounts } = Astro.props;
             author={novel.data.author}
             authorSlug={novel.data.authorSlug}
             coverImage={novel.data.coverImage}
-            synopsis={novel.data.synopsis}
             genres={novel.data.genres}
             status={novel.data.status}
             chapterCount={chapterCounts[novel.id] || 1}

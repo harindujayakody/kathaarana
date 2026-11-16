@@ -1,16 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import NovelCard from '../components/NovelCard.astro';
+import Icon from '../components/Icon.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 
-const novels = await getCollection('novels');
+const novels = (await getCollection('novels')).sort(
+  (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime(),
+);
 const allChapters = await getCollection('chapters');
-
-const sortedNovels = novels.sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime());
-const featuredNovel = sortedNovels[0];
+const featured = novels[0];
 
 const chapterCounts: Record<string, number> = {};
-allChapters.forEach(c => {
+allChapters.forEach((c) => {
   chapterCounts[c.data.novel] = (chapterCounts[c.data.novel] || 0) + 1;
 });
 
@@ -19,131 +21,185 @@ const latestChapters = [...allChapters]
   .slice(0, 6);
 
 const featuredFirst = allChapters
-  .filter(c => c.data.novel === featuredNovel.id)
+  .filter((c) => c.data.novel === featured.id)
   .sort((a, b) => a.data.chapterNumber - b.data.chapterNumber)[0];
 const featuredStartUrl = featuredFirst
-  ? `/novels/${featuredNovel.id}/${featuredFirst.data.chapterNumber}/`
-  : `/novels/${featuredNovel.id}/`;
+  ? `/novels/${featured.id}/${featuredFirst.data.chapterNumber}/`
+  : `/novels/${featured.id}/`;
 
-const statusLabel = (s: string) => (s === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්');
 const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+const charts = [
+  { id: 'trending', label: 'ප්‍රවණතා' },
+  { id: 'rated', label: 'හොඳම ඇගයීම්' },
+  { id: 'liked', label: 'ජනප්‍රියම' },
+  { id: 'viewed', label: 'වැඩිපුරම කියවූ' },
+];
+
+const site = Astro.site ?? new URL('https://kathaarana.com');
+const novelList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'සිංහල නවකතා',
+  itemListElement: novels.map((n, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: n.data.title,
+    url: new URL(`/novels/${n.id}/`, site).toString(),
+  })),
+};
 ---
 
 <BaseLayout
-  title="කතා අරණ | සිංහල නවකතා කියවීමේ නිදහස් අවකාශය"
+  title="කතා අරණ | සිංහල නවකතා නොමිලේ කියවන්න"
   description="ශ්‍රී ලාංකේය ලේඛකයන්ගේ සිංහල නවකතා, අබිරහස්, ත්‍රාසජනක සහ ආදර කතා ජංගම දුරකථනයෙන් පහසුවෙන් කියවන්න. නොමිලේ, ගිණුම් අවශ්‍ය නැත."
+  jsonLd={[novelList]}
 >
-  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+  <div class="mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+    <header>
+      <h1 class="text-2xl font-bold leading-snug sm:text-3xl">සිංහල නවකතා නොමිලේ කියවන්න</h1>
+      <p class="mt-1 text-[0.9375rem] text-[var(--reader-muted)]">පරිච්ඡේදයෙන් පරිච්ඡේදය. ගිණුමක් අවශ්‍ය නැත.</p>
+    </header>
 
-    <!-- Continue reading: filled from the reader's own history, hidden for first-time visitors -->
-    <a id="continue-reading" href="#" class="hidden mt-6 items-center gap-4 py-3 border-b border-[var(--reader-border)] group">
-      <span class="flex-1 min-w-0">
-        <span id="continue-title" class="block font-serif font-semibold truncate group-hover:accent-text transition-colors"></span>
-        <span id="continue-chapter" class="block text-sm text-[var(--reader-muted)]"></span>
-      </span>
-      <span class="text-sm font-semibold accent-text shrink-0">දිගටම කියවන්න</span>
-    </a>
-
-    <!-- Featured novel -->
-    <section class="py-10 sm:py-14 grid sm:grid-cols-[220px_1fr] md:grid-cols-[260px_1fr] gap-8 md:gap-12 items-start">
-      <a href={`/novels/${featuredNovel.id}/`} class="block w-44 sm:w-full mx-auto sm:mx-0">
-        <Image
-          src={featuredNovel.data.coverImage}
-          alt={`${featuredNovel.data.title} කවරය`}
-          widths={[176, 260, 352, 520]}
-          sizes="(min-width: 768px) 260px, (min-width: 640px) 220px, 176px"
-          class="w-full aspect-[2/3] object-cover rounded-md shadow-[0_12px_32px_-12px_rgba(0,0,0,0.45)]"
-          loading="eager"
-          fetchpriority="high"
-        />
-      </a>
-
-      <div class="max-w-[38rem]">
-        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold leading-[1.35] text-balance">
-          <a href={`/novels/${featuredNovel.id}/`} class="font-serif hover:accent-text transition-colors">{featuredNovel.data.title}</a>
-        </h1>
-        <p class="mt-3 text-[var(--reader-muted)]">
-          <a href={`/authors/${featuredNovel.data.authorSlug}/`} class="text-[var(--reader-text)] font-medium hover:accent-text transition-colors">{featuredNovel.data.author}</a>
-          <span aria-hidden="true"> · </span>{featuredNovel.data.genres.join(', ')}
-        </p>
-        <p class="mt-5 text-[1.0625rem] leading-[1.95]">{featuredNovel.data.synopsis}</p>
-        <p class="mt-5 text-sm text-[var(--reader-muted)]">
-          පරිච්ඡේද {chapterCounts[featuredNovel.id] || 0} · {statusLabel(featuredNovel.data.status)}
-        </p>
-        <div class="mt-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-          <a href={featuredStartUrl} class="accent-bg inline-flex justify-center items-center px-6 py-3 rounded-md font-semibold">
-            කියවීම අරඹන්න
-          </a>
-          <a href={`/novels/${featuredNovel.id}/`} class="text-center font-medium text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors">
-            පරිච්ඡේද ලැයිස්තුව
-          </a>
-        </div>
-      </div>
+    <!-- Continue reading: filled from this device's history -->
+    <section data-continue="6" data-continue-style="card" hidden class="mt-6">
+      <h2 class="text-lg font-bold">දිගටම කියවන්න</h2>
+      <div data-continue-list class="rail -mx-4 mt-3 px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0"></div>
     </section>
 
-    <!-- Latest chapters -->
-    <section class="pt-10 border-t border-[var(--reader-border)]">
-      <div class="flex items-baseline justify-between gap-4">
-        <h2 class="text-2xl font-bold">නවතම පරිච්ඡේද</h2>
-        <a href="/rss.xml" class="text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors">RSS</a>
-      </div>
-      <ol class="mt-4">
-        {latestChapters.map(chap => {
-          const novel = novels.find(n => n.id === chap.data.novel);
-          return (
-            <li class="border-b border-[var(--reader-border)] last:border-b-0">
-              <a href={`/novels/${chap.data.novel}/${chap.data.chapterNumber}/`} class="flex items-center gap-4 py-4 group">
-                {novel && <Image src={novel.data.coverImage} alt="" width={80} class="w-10 h-[3.75rem] object-cover rounded-sm shrink-0" />}
-                <span class="flex-1 min-w-0">
-                  <span class="block font-serif font-semibold truncate group-hover:accent-text transition-colors">{novel?.data.title}</span>
-                  <span class="block text-sm text-[var(--reader-muted)] truncate">පරිච්ඡේදය {chap.data.chapterNumber}: {chap.data.title}</span>
-                </span>
-                <time datetime={chap.data.publishDate.toISOString()} class="text-sm text-[var(--reader-muted)] tabular-nums shrink-0">{formatDate(chap.data.publishDate)}</time>
-              </a>
-            </li>
-          );
-        })}
-      </ol>
-    </section>
-
-    <!-- All novels -->
-    <section id="novels-catalog" class="pt-14">
-      <div class="flex items-baseline justify-between gap-4">
-        <h2 class="text-2xl font-bold">සියලුම නවකතා</h2>
-        <a href="/novels/" class="text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)] transition-colors">සියල්ල බලන්න</a>
-      </div>
-      <div class="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-5 gap-y-8">
-        {sortedNovels.map(novel => (
-          <a href={`/novels/${novel.id}/`} class="group block">
+    <!-- Source order is the phone order. On wide screens the sections float into two columns
+         that stack independently: featured and all novels on the left, charts and latest on the right. -->
+    <div class="mt-6 space-y-6 xl:flow-root xl:space-y-0">
+        <!-- Featured: the newest novel -->
+        <section class="surface grid min-w-0 xl:float-left xl:clear-left xl:mb-6 xl:w-[calc(100%-22.5rem)] grid-cols-[6rem_minmax(0,1fr)] gap-x-4 gap-y-3 p-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-x-6 sm:p-5" data-stats={featured.id} aria-labelledby="featured-title">
+          <a href={`/novels/${featured.id}/`} class="sm:row-span-3" tabindex="-1" aria-hidden="true">
             <Image
-              src={novel.data.coverImage}
-              alt={`${novel.data.title} කවරය`}
-              widths={[180, 240, 360, 480]}
-              sizes="(min-width: 1024px) 230px, (min-width: 768px) 22vw, (min-width: 640px) 30vw, 45vw"
-              class="w-full aspect-[2/3] object-cover rounded-md transition-shadow group-hover:shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)]"
+              src={featured.data.coverImage}
+              alt=""
+              widths={[96, 160, 192, 320]}
+              sizes="(min-width: 640px) 160px, 96px"
+              loading="eager"
+              fetchpriority="high"
+              class="aspect-[2/3] w-full rounded-lg object-cover shadow-[var(--lift-shadow)]"
             />
-            <span class="mt-3 block font-serif font-semibold leading-snug group-hover:accent-text transition-colors">{novel.data.title}</span>
-            <span class="mt-0.5 block text-sm text-[var(--reader-muted)]">{novel.data.author}</span>
-            <span class="mt-0.5 block text-sm text-[var(--reader-muted)]">පරිච්ඡේද {chapterCounts[novel.id] || 0} · {statusLabel(novel.data.status)}</span>
           </a>
-        ))}
-      </div>
-    </section>
-  </div>
+          <div class="min-w-0 self-center sm:self-start">
+            <h2 id="featured-title" class="text-xl font-bold leading-snug sm:text-2xl">
+              <a href={`/novels/${featured.id}/`} class="hover:accent-text">{featured.data.title}</a>
+            </h2>
+            <p class="mt-1 text-sm text-[var(--reader-muted)]">
+              <a href={`/authors/${featured.data.authorSlug}/`} class="font-medium text-[var(--reader-text)] hover:accent-text">{featured.data.author}</a>
+              <span aria-hidden="true"> · </span>{featured.data.genres.slice(0, 2).join(', ')}
+            </p>
+            <p class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--reader-muted)]">
+              <span class="inline-flex items-center gap-1">
+                <Icon name="star" class="h-4 w-4 fill-current text-[var(--star)]" />
+                <span data-s="rating" class="font-semibold tabular-nums text-[var(--reader-text)]">–</span>
+                <span data-s="ratings" class="text-xs"></span>
+              </span>
+              <span class="inline-flex items-center gap-1"><Icon name="heart" class="h-4 w-4" /><span data-s="likes" class="tabular-nums">0</span></span>
+              <span class="inline-flex items-center gap-1"><Icon name="eye" class="h-4 w-4" /><span data-s="views" class="tabular-nums">0</span></span>
+              <span>පරිච්ඡේද {chapterCounts[featured.id] || 0}</span>
+            </p>
+          </div>
 
-  <script>
-    try {
-      const last = JSON.parse(localStorage.getItem('katha_history') || '[]')[0];
-      const link = document.getElementById('continue-reading') as HTMLAnchorElement | null;
-      if (last?.url && link) {
-        link.href = last.url;
-        if (last.novelCover) {
-          link.prepend(Object.assign(new Image(), { src: last.novelCover, alt: '', className: 'w-9 h-[3.375rem] object-cover rounded-sm shrink-0' }));
-        }
-        document.getElementById('continue-title')!.textContent = last.novelTitle;
-        document.getElementById('continue-chapter')!.textContent = `පරිච්ඡේදය ${last.chapterNumber} දක්වා කියවා ඇත`;
-        link.classList.replace('hidden', 'flex');
-      }
-    } catch {}
-  </script>
+          <p class="col-span-2 line-clamp-3 text-[0.9375rem] leading-[1.85] sm:col-span-1 sm:col-start-2">{featured.data.synopsis}</p>
+
+          <div class="col-span-2 flex items-center gap-2 sm:col-span-1 sm:col-start-2">
+            <a href={featuredStartUrl} class="accent-bg tap inline-flex flex-1 items-center justify-center rounded-lg px-5 py-2.5 font-semibold sm:flex-none">
+              කියවීම අරඹන්න
+            </a>
+            <button
+              type="button"
+              data-like={featured.id}
+              aria-pressed="false"
+              aria-label="කැමතියි"
+              class="tap grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-lg border border-[var(--reader-border)] text-[var(--reader-muted)]"
+            >
+              <Icon name="heart" />
+            </button>
+          </div>
+        </section>
+
+        <!-- Top charts: one list, re-ranked by the chosen measure -->
+        <section class="surface min-w-0 p-4 xl:float-right xl:clear-right xl:mb-6 xl:w-[21rem]" aria-labelledby="top-novels">
+          <h2 id="top-novels" class="text-lg font-bold">ඉහළම නවකතා</h2>
+          <div class="mt-3 flex flex-wrap gap-2" role="tablist" aria-label="ශ්‍රේණිගත කිරීම">
+            {charts.map((chart, i) => (
+              <button
+                type="button"
+                role="tab"
+                data-chart-tab={chart.id}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                class="tap cursor-pointer rounded-full border border-[var(--reader-border)] px-3.5 py-1.5 text-sm text-[var(--reader-muted)]"
+              >
+                {chart.label}
+              </button>
+            ))}
+          </div>
+          <ol data-chart class="mt-2 divide-y divide-[var(--reader-border)]">
+            {novels.map((novel, i) => (
+              <li data-chart-item={novel.id} hidden={i >= 5}>
+                <a href={`/novels/${novel.id}/`} class="tap flex items-center gap-3 py-2.5">
+                  <span data-rank class="w-5 shrink-0 text-center font-serif text-lg font-bold tabular-nums text-[var(--reader-muted)]">{i + 1}</span>
+                  <Image src={novel.data.coverImage} alt="" width={80} class="h-[3.75rem] w-10 shrink-0 rounded object-cover" />
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-serif font-semibold">{novel.data.title}</span>
+                    <span data-metric class="block truncate text-sm text-[var(--reader-muted)]">{novel.data.author}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <!-- All novels -->
+        <section class="min-w-0 xl:float-left xl:clear-left xl:mb-6 xl:w-[calc(100%-22.5rem)]" aria-labelledby="all-novels">
+          <div class="flex items-baseline justify-between gap-4">
+            <h2 id="all-novels" class="text-lg font-bold">සියලුම නවකතා</h2>
+            <a href="/novels/" class="text-sm font-medium accent-text">සියල්ල බලන්න</a>
+          </div>
+          <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-3 2xl:grid-cols-4">
+            {novels.map((novel, i) => (
+              <NovelCard
+                id={novel.id}
+                title={novel.data.title}
+                author={novel.data.author}
+                authorSlug={novel.data.authorSlug}
+                coverImage={novel.data.coverImage}
+                genres={novel.data.genres}
+                status={novel.data.status}
+                chapterCount={chapterCounts[novel.id] || 0}
+                eager={i < 2}
+              />
+            ))}
+          </div>
+        </section>
+
+        <!-- Latest chapters -->
+        <section class="surface min-w-0 p-4 xl:float-right xl:clear-right xl:mb-6 xl:w-[21rem]" aria-labelledby="latest-chapters">
+          <div class="flex items-baseline justify-between gap-4">
+            <h2 id="latest-chapters" class="text-lg font-bold">නවතම පරිච්ඡේද</h2>
+            <a href="/rss.xml" data-astro-reload class="text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)]">RSS</a>
+          </div>
+          <ol class="mt-2 divide-y divide-[var(--reader-border)]">
+            {latestChapters.map((chap) => {
+              const novel = novels.find((n) => n.id === chap.data.novel);
+              return (
+                <li>
+                  <a href={`/novels/${chap.data.novel}/${chap.data.chapterNumber}/`} class="tap flex items-center gap-3 py-2.5">
+                    {novel && <Image src={novel.data.coverImage} alt="" width={80} class="h-[3.75rem] w-10 shrink-0 rounded object-cover" />}
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate font-serif font-semibold">{novel?.data.title}</span>
+                      <span class="block truncate text-sm text-[var(--reader-muted)]">පරිච්ඡේදය {chap.data.chapterNumber}: {chap.data.title}</span>
+                    </span>
+                    <time datetime={chap.data.publishDate.toISOString()} class="shrink-0 text-xs tabular-nums text-[var(--reader-muted)]">{formatDate(chap.data.publishDate)}</time>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+    </div>
+  </div>
 </BaseLayout>

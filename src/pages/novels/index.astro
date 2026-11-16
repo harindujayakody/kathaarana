@@ -118,7 +118,6 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
           author={novel.data.author}
           authorSlug={novel.data.authorSlug}
           coverImage={novel.data.coverImage}
-          synopsis={novel.data.synopsis}
           genres={novel.data.genres}
           status={novel.data.status}
           chapterCount={novelChapterCounts[novel.id] || 1}
@@ -144,6 +143,10 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
 
   <!-- Client-Side Filter & Live Search Script -->
   <script>
+    // Runs on first load and after every in-app navigation (client router).
+    document.addEventListener('astro:page-load', () => {
+      if (!document.getElementById('novel-search-input')) return;
+
     let activeStatus = 'all';
     let activeGenre = 'all';
     let searchQuery = '';
@@ -219,6 +222,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
       if (searchInput) searchInput.value = '';
       (document.querySelector('.status-btn[data-filter-status="all"]') as HTMLElement)?.click();
       (document.querySelector('.genre-btn[data-filter-genre="all"]') as HTMLElement)?.click();
+    });
     });
   </script>
 </BaseLayout>

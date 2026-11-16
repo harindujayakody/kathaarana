@@ -13,8 +13,10 @@ interface Props {
     synopsis?: string;
     url?: string;
     genres?: string[];
+    rating?: { value: number; count: number };
   };
   noindex?: boolean;
+  jsonLd?: object[];
   chapter?: {
     number: number;
     title: string;
@@ -32,6 +34,7 @@ const {
   novel,
   chapter,
   noindex = false,
+  jsonLd = [],
 } = Astro.props;
 
 const siteName = 'කතා අරණ';
@@ -66,6 +69,20 @@ if (novel && !chapter) {
     url: novel.url ?? canonicalUrl,
     inLanguage: 'si',
     genre: novel.genres,
+    // Only when readers have actually rated it; the same numbers are shown on the page.
+    aggregateRating: novel.rating && novel.rating.count > 0
+      ? { '@type': 'AggregateRating', ratingValue: novel.rating.value, ratingCount: novel.rating.count, bestRating: 5, worstRating: 1 }
+      : undefined,
+  });
+
+  jsonLdSchemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: siteName, item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'නවකතා', item: new URL('/novels/', siteUrl).toString() },
+      { '@type': 'ListItem', position: 3, name: novel.title, item: novel.url ?? canonicalUrl },
+    ],
   });
 }
 
@@ -103,10 +120,10 @@ if (novel && chapter) {
 <title>{pageTitle}</title>
 <meta name="description" content={description} />
 {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonicalUrl} />}
+{!noindex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
 <link rel="alternate" type="application/rss+xml" title="කතා අරණ - නවතම පරිච්ඡේද" href="/rss.xml" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-<meta name="theme-color" content="#fcfbf9" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#0b0f17" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#ffffff" />
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content={type === 'book' || chapter ? 'article' : 'website'} />
@@ -127,6 +144,6 @@ if (novel && chapter) {
 <meta name="twitter:image" content={fullImageUrl} />
 
 <!-- Structured Data (JSON-LD) for Search Engines -->
-{jsonLdSchemas.map(schema => (
+{[...jsonLdSchemas, ...jsonLd].map(schema => (
   <script type="application/ld+json" set:html={JSON.stringify(schema)} />
 ))}

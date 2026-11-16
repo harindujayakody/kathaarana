@@ -1,43 +1,70 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-08T00:00:00Z",
+  "generatedAt": "2026-11-16T00:00:00Z",
   "title": "Design System: Katha Arana (කතා අරණ)",
   "extensions": {
     "colorMeta": {
       "accent": { "role": "primary", "displayName": "Reading-Room Teal", "canonical": "var(--theme-accent) light/sepia", "tonalRamp": ["#042f2e", "#134e4a", "#115e59", "#0f766e", "#0d9488", "#14b8a6", "#5eead4", "#ccfbf1"] },
-      "accent-night": { "role": "primary", "displayName": "Lamplight Teal", "canonical": "var(--theme-accent) dark/amoled", "tonalRamp": ["#042f2e", "#134e4a", "#115e59", "#0f766e", "#0d9488", "#14b8a6", "#2dd4bf", "#99f6e4"] },
-      "accent-soft": { "role": "primary", "displayName": "Teal Wash", "canonical": "var(--theme-accent-soft)" },
-      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "var(--reader-bg) light", "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#fcfbf9"] },
+      "accent-hover": { "role": "primary", "displayName": "Reading-Room Teal, pressed", "canonical": "var(--theme-accent-hover) light/sepia" },
+      "accent-text": { "role": "primary", "displayName": "On Teal", "canonical": "var(--theme-accent-text) light/sepia" },
+      "accent-soft": { "role": "primary", "displayName": "Teal Wash", "canonical": "var(--theme-accent-soft) light" },
+      "dark-accent": { "role": "primary", "displayName": "Lamplight Teal", "canonical": "var(--theme-accent) dark", "tonalRamp": ["#00201c", "#134e4a", "#115e59", "#0f766e", "#14b8a6", "#2dd4bf", "#5eead4", "#ccfbf1"] },
+      "dark-accent-hover": { "role": "primary", "displayName": "Lamplight Teal, pressed", "canonical": "var(--theme-accent-hover) dark" },
+      "dark-accent-text": { "role": "primary", "displayName": "On Lamplight", "canonical": "var(--theme-accent-text) dark" },
+      "dark-accent-soft": { "role": "primary", "displayName": "Teal Wash on black", "canonical": "var(--theme-accent-soft) dark" },
+      "sepia-accent-soft": { "role": "primary", "displayName": "Teal Wash on sepia", "canonical": "var(--theme-accent-soft) sepia" },
+      "star": { "role": "secondary", "displayName": "Star Amber", "canonical": "var(--star) light", "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#d97706", "#f59e0b", "#fbbf24", "#fef3c7"] },
+      "dark-star": { "role": "secondary", "displayName": "Star Amber on black", "canonical": "var(--star) dark" },
+      "sepia-star": { "role": "secondary", "displayName": "Star Amber on sepia", "canonical": "var(--star) sepia" },
+      "like": { "role": "secondary", "displayName": "Like Rose", "canonical": "var(--like) light", "tonalRamp": ["#4c0519", "#881337", "#9f1239", "#be123c", "#e11d48", "#f43f5e", "#fb7185", "#ffe4e6"] },
+      "dark-like": { "role": "secondary", "displayName": "Like Rose on black", "canonical": "var(--like) dark" },
+      "sepia-like": { "role": "secondary", "displayName": "Like Rose on sepia", "canonical": "var(--like) sepia" },
+      "ground": { "role": "neutral", "displayName": "App Ground", "canonical": "var(--reader-bg) light", "tonalRamp": ["#16181d", "#2c3038", "#454a54", "#5f6570", "#8b919c", "#c3c7cf", "#e3e5ea", "#f4f5f7"] },
+      "panel": { "role": "neutral", "displayName": "Panel", "canonical": "var(--reader-panel) light" },
       "ink": { "role": "neutral", "displayName": "Ink", "canonical": "var(--reader-text) light" },
       "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "canonical": "var(--reader-muted) light" },
-      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "var(--reader-border) light" },
-      "sepia-paper": { "role": "neutral", "displayName": "Sepia Paper", "canonical": "var(--reader-bg) sepia", "tonalRamp": ["#2a2016", "#433422", "#5e4a33", "#796650", "#a8957a", "#ded2b9", "#ece2c8", "#f4ecd8"] },
-      "night-ground": { "role": "neutral", "displayName": "Night Ground", "canonical": "var(--reader-bg) dark", "tonalRamp": ["#0b0f17", "#131b26", "#1e293b", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0"] },
-      "amoled-ground": { "role": "neutral", "displayName": "True Black", "canonical": "var(--reader-bg) amoled", "tonalRamp": ["#000000", "#09090b", "#18181b", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7"] }
+      "border": { "role": "neutral", "displayName": "Border", "canonical": "var(--reader-border) light" },
+      "dark-ground": { "role": "neutral", "displayName": "Pure Black", "canonical": "var(--reader-bg) dark", "tonalRamp": ["#000000", "#0c0c0c", "#161616", "#222222", "#555555", "#a0a0a0", "#cfcfcf", "#ececec"] },
+      "dark-panel": { "role": "neutral", "displayName": "Black Panel", "canonical": "var(--reader-panel) dark" },
+      "dark-ink": { "role": "neutral", "displayName": "Ink on black", "canonical": "var(--reader-text) dark" },
+      "dark-ink-muted": { "role": "neutral", "displayName": "Muted on black", "canonical": "var(--reader-muted) dark" },
+      "dark-border": { "role": "neutral", "displayName": "Border on black", "canonical": "var(--reader-border) dark" },
+      "sepia-ground": { "role": "neutral", "displayName": "Sepia Ground", "canonical": "var(--reader-bg) sepia", "tonalRamp": ["#2a2016", "#433422", "#5a4832", "#6f5d48", "#a8957a", "#dccfb4", "#efe6d0", "#f7f0de"] },
+      "sepia-panel": { "role": "neutral", "displayName": "Sepia Panel", "canonical": "var(--reader-panel) sepia" },
+      "sepia-ink": { "role": "neutral", "displayName": "Sepia Ink", "canonical": "var(--reader-text) sepia" },
+      "sepia-ink-muted": { "role": "neutral", "displayName": "Sepia Muted", "canonical": "var(--reader-muted) sepia" },
+      "sepia-border": { "role": "neutral", "displayName": "Sepia Border", "canonical": "var(--reader-border) sepia" }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "Featured novel title on the home page only; 1.875rem mobile, 2.25rem sm, 3rem md." },
-      "headline": { "displayName": "Headline", "purpose": "Section heads." },
-      "title": { "displayName": "Title", "purpose": "Novel titles in lists, grids and the continue strip; accent on hover." },
-      "wordmark": { "displayName": "Wordmark", "purpose": "Site name in header, drawer and footer." },
-      "body": { "displayName": "Body", "purpose": "Default UI text." },
-      "synopsis": { "displayName": "Synopsis", "purpose": "Novel synopsis, ~38rem measure." },
-      "prose": { "displayName": "Prose", "purpose": "Chapter reading text; size user-adjustable via --reader-font-size; justified desktop, left-aligned 16.5px/2.1 under 640px." },
-      "label": { "displayName": "Label", "purpose": "Muted metadata, dates (tabular figures), quiet links." }
+      "headline": { "displayName": "Headline", "purpose": "The one page title: 1.5rem, 1.875rem from 640px. Featured novel title on home is 1.25rem / 1.5rem." },
+      "title": { "displayName": "Title", "purpose": "Heading of each card or section." },
+      "card-title": { "displayName": "Card title", "purpose": "Novel titles in cover cards and list rows; rank and chapter numbers use the same serif at 1.125rem bold, muted." },
+      "wordmark": { "displayName": "Wordmark", "purpose": "Site name: 1.25rem in the sidebar, 1.125rem in the top bar." },
+      "body": { "displayName": "Body", "purpose": "Default text." },
+      "ui": { "displayName": "UI", "purpose": "Sidebar items, sub-headings under a page title, sheet list rows; 600 when current." },
+      "synopsis": { "displayName": "Synopsis", "purpose": "Novel page synopsis, max 42rem. Home teaser is 0.9375rem at 1.85." },
+      "prose": { "displayName": "Prose", "purpose": "Chapter text; size adjustable through --reader-font-size, 1.6em between paragraphs, 40rem measure; reader may switch to serif." },
+      "label": { "displayName": "Label", "purpose": "Muted metadata, chips, counts, secondary links, small group headings (600)." },
+      "caption": { "displayName": "Caption", "purpose": "Dates, rating counts, chapter counts, footer." },
+      "tab-label": { "displayName": "Tab label", "purpose": "Bottom tab captions; 600 when active." }
     },
     "shadows": [
-      { "name": "book-rest", "value": "0 12px 32px -12px rgba(0,0,0,0.45)", "purpose": "Featured cover at rest." },
-      { "name": "book-lifted", "value": "0 10px 24px -10px rgba(0,0,0,0.5)", "purpose": "Grid cover on hover only." }
+      { "name": "card-shadow", "value": "0 1px 2px rgba(16, 24, 40, 0.04)", "purpose": "Every card at rest in light; none in dark and sepia. var(--card-shadow)." },
+      { "name": "lift-shadow", "value": "0 12px 28px -12px rgba(16, 24, 40, 0.28)", "purpose": "Cover card on hover; large covers at rest. Dark: rgba(0,0,0,0.9); sepia: rgba(67,52,34,0.35). var(--lift-shadow)." },
+      { "name": "sheet-scrim", "value": "rgba(0, 0, 0, 0.55)", "purpose": "Backdrop behind the reader sheet." }
     ],
     "motion": [
-      { "name": "theme-swap", "value": "background-color 0.25s ease, color 0.25s ease", "purpose": "Body colour change between themes." },
-      { "name": "hover-color", "value": "color 0.2s ease", "purpose": "Link and title hover." },
-      { "name": "drawer-slide", "value": "transform 300ms ease-out", "purpose": "Mobile menu panel." },
-      { "name": "scrim-fade", "value": "opacity 200ms", "purpose": "Mobile menu scrim." }
+      { "name": "tap", "value": "transform 0.12s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease", "purpose": "Press feedback on every tappable control; scale(0.97) while active. Off under prefers-reduced-motion." },
+      { "name": "cover-zoom", "value": "transform 300ms ease-out", "purpose": "Cover scales to 1.03 when its card is hovered." },
+      { "name": "reader-bar-slide", "value": "transform 200ms", "purpose": "Reader bar hide and show." },
+      { "name": "page-transition", "value": "Astro ClientRouter default", "purpose": "In-app navigation; the shell persists." }
     ],
     "breakpoints": [
       { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" }
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
     ]
   },
   "components": [
@@ -45,71 +72,113 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one filled accent action per view, e.g. start reading.",
+      "description": "The one filled accent action in a card, e.g. start reading.",
       "html": "<a href=\"#\" class=\"ds-btn-primary\">කියවීම අරඹන්න</a>",
-      "css": ".ds-btn-primary { display: inline-flex; justify-content: center; align-items: center; padding: 12px 24px; border-radius: 6px; font-family: 'Noto Sans Sinhala', 'Inter', system-ui, sans-serif; font-weight: 600; text-decoration: none; background: var(--theme-accent, #0F766E); color: var(--theme-accent-text, #ffffff); transition: background-color 0.2s ease; } .ds-btn-primary:hover { background: var(--theme-accent-hover, #115E59); } .ds-btn-primary:focus-visible { outline: 2px solid var(--theme-accent, #0F766E); outline-offset: 2px; }"
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; padding: 10px 20px; border-radius: 8px; font-family: var(--font-si-sans, 'Noto Sans Sinhala', system-ui, sans-serif); font-weight: 600; text-decoration: none; background: var(--theme-accent, #0f766e); color: var(--theme-accent-text, #ffffff); transition: transform 0.12s ease, background-color 0.15s ease; } .ds-btn-primary:hover { background: var(--theme-accent-hover, #115e59); } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; }"
     },
     {
-      "name": "Quiet Link",
+      "name": "Like Button",
       "kind": "button",
-      "refersTo": "link-quiet",
-      "description": "Secondary action beside the primary button, and section-level links.",
-      "html": "<a href=\"#\" class=\"ds-link-quiet\">පරිච්ඡේද ලැයිස්තුව</a>",
-      "css": ".ds-link-quiet { font-family: 'Noto Sans Sinhala', 'Inter', system-ui, sans-serif; font-weight: 500; color: var(--reader-muted, #64748b); text-decoration: none; transition: color 0.2s ease; } .ds-link-quiet:hover { color: var(--reader-text, #22252a); } .ds-link-quiet:focus-visible { outline: 2px solid var(--theme-accent, #0F766E); outline-offset: 2px; border-radius: 2px; }"
+      "refersTo": "icon-button-outlined",
+      "description": "44px outlined icon button beside a primary button; the heart fills rose when pressed.",
+      "html": "<button type=\"button\" class=\"ds-like\" aria-pressed=\"true\" aria-label=\"කැමතියි\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.2 4.3 4.3 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z\"/></svg></button>",
+      "css": ".ds-like { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--reader-border, #e3e5ea); border-radius: 8px; background: transparent; color: var(--reader-muted, #5f6570); cursor: pointer; transition: transform 0.12s ease, color 0.15s ease; } .ds-like:hover { color: var(--reader-text, #16181d); } .ds-like:active { transform: scale(0.97); } .ds-like[aria-pressed=true] { color: var(--like, #e11d48); } .ds-like[aria-pressed=true] svg { fill: currentColor; } .ds-like:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; }"
     },
     {
-      "name": "Header",
-      "kind": "nav",
-      "refersTo": "header",
-      "description": "Sticky slim header: serif wordmark, plain nav, icon actions right, bottom hairline.",
-      "html": "<header class=\"ds-header\"><a href=\"#\" class=\"ds-wordmark\">කතා අරණ</a><nav class=\"ds-nav\"><a href=\"#\" aria-current=\"page\">නවකතා</a><a href=\"#\">ප්‍රභේද</a><a href=\"#\">කතුවරුන්</a></nav><button class=\"ds-icon-btn\" aria-label=\"theme\"><svg width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z\"/></svg></button></header>",
-      "css": ".ds-header { height: 56px; display: flex; align-items: center; gap: 32px; padding: 0 24px; background: var(--reader-bg, #fcfbf9); border-bottom: 1px solid var(--reader-border, #e2e8f0); color: var(--reader-text, #22252a); } .ds-wordmark { font-family: 'Noto Serif Sinhala', 'Lora', Georgia, serif; font-weight: 700; font-size: 1.25rem; color: inherit; text-decoration: none; transition: color 0.2s ease; } .ds-wordmark:hover { color: var(--theme-accent, #0F766E); } .ds-nav { display: flex; gap: 24px; font-family: 'Noto Sans Sinhala', 'Inter', system-ui, sans-serif; font-size: 0.9375rem; } .ds-nav a { color: var(--reader-muted, #64748b); text-decoration: none; transition: color 0.2s ease; } .ds-nav a:hover { color: var(--reader-text, #22252a); } .ds-nav a[aria-current=page] { color: var(--reader-text, #22252a); font-weight: 600; } .ds-icon-btn { margin-left: auto; padding: 8px; border: 0; border-radius: 6px; background: transparent; color: var(--reader-muted, #64748b); cursor: pointer; transition: color 0.2s ease; } .ds-icon-btn:hover { color: var(--reader-text, #22252a); } .ds-header a:focus-visible, .ds-icon-btn:focus-visible { outline: 2px solid var(--theme-accent, #0F766E); outline-offset: 2px; border-radius: 2px; }"
+      "name": "Filter Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Chart tabs: outlined pills; the selected one inverts to ink fill with panel text.",
+      "html": "<div class=\"ds-chips\" role=\"tablist\"><button type=\"button\" role=\"tab\" aria-selected=\"true\" class=\"ds-chip\">ප්‍රවණතා</button><button type=\"button\" role=\"tab\" aria-selected=\"false\" class=\"ds-chip\">හොඳම ඇගයීම්</button><button type=\"button\" role=\"tab\" aria-selected=\"false\" class=\"ds-chip\">ජනප්‍රියම</button></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 8px; } .ds-chip { padding: 6px 14px; border: 1px solid var(--reader-border, #e3e5ea); border-radius: 9999px; background: transparent; color: var(--reader-muted, #5f6570); font-family: var(--font-si-sans, 'Noto Sans Sinhala', system-ui, sans-serif); font-size: 0.875rem; cursor: pointer; transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease; } .ds-chip:hover { color: var(--reader-text, #16181d); } .ds-chip:active { transform: scale(0.97); } .ds-chip[aria-selected=true] { background: var(--reader-text, #16181d); color: var(--reader-panel, #ffffff); border-color: var(--reader-text, #16181d); } .ds-chip:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; }"
     },
     {
-      "name": "Cover Tile",
+      "name": "Reaction Buttons",
+      "kind": "chip",
+      "refersTo": "reaction",
+      "description": "Chapter reactions: an emoji the reader picks plus a count; chosen state takes an accent border and soft fill.",
+      "html": "<div class=\"ds-reactions\"><button type=\"button\" class=\"ds-reaction\" aria-pressed=\"true\" title=\"ආදරෙයි\"><span class=\"ds-reaction-face\" role=\"img\" aria-label=\"ආදරෙයි\">❤️</span><span class=\"ds-reaction-count\">12</span></button><button type=\"button\" class=\"ds-reaction\" aria-pressed=\"false\" title=\"පුදුමයි\"><span class=\"ds-reaction-face\" role=\"img\" aria-label=\"පුදුමයි\">😮</span><span class=\"ds-reaction-count\">3</span></button></div>",
+      "css": ".ds-reactions { display: flex; flex-wrap: wrap; gap: 8px; } .ds-reaction { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid var(--reader-border, #e3e5ea); border-radius: 9999px; background: transparent; color: var(--reader-text, #16181d); cursor: pointer; transition: transform 0.12s ease, background-color 0.15s ease, border-color 0.15s ease; } .ds-reaction:hover { border-color: var(--reader-muted, #5f6570); } .ds-reaction:active { transform: scale(0.97); } .ds-reaction[aria-pressed=true] { border-color: var(--theme-accent, #0f766e); background: var(--theme-accent-soft, rgba(15, 118, 110, 0.1)); } .ds-reaction-face { font-size: 1.25rem; line-height: 1; } .ds-reaction-count { font-family: var(--font-si-sans, 'Noto Sans Sinhala', system-ui, sans-serif); font-size: 0.875rem; font-weight: 600; font-variant-numeric: tabular-nums; } .ds-reaction:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; }"
+    },
+    {
+      "name": "Novel Card",
       "kind": "card",
-      "refersTo": "cover-tile",
-      "description": "Frameless 2:3 cover with serif title and muted metadata; the shadow appears only on hover.",
-      "html": "<a href=\"#\" class=\"ds-cover-tile\"><span class=\"ds-cover\"></span><span class=\"ds-cover-title\">නවකතාවේ නම</span><span class=\"ds-cover-meta\">කතුවරයා</span><span class=\"ds-cover-meta\">පරිච්ඡේද 12 · ලියවෙමින්</span></a>",
-      "css": ".ds-cover-tile { display: block; width: 160px; text-decoration: none; color: var(--reader-text, #22252a); } .ds-cover { display: block; width: 100%; aspect-ratio: 2 / 3; border-radius: 6px; background: linear-gradient(160deg, #3b5b6b, #1d2b33); transition: box-shadow 0.2s ease; } .ds-cover-tile:hover .ds-cover { box-shadow: 0 10px 24px -10px rgba(0,0,0,0.5); } .ds-cover-title { display: block; margin-top: 12px; font-family: 'Noto Serif Sinhala', 'Lora', Georgia, serif; font-weight: 600; line-height: 1.375; transition: color 0.2s ease; } .ds-cover-tile:hover .ds-cover-title { color: var(--theme-accent, #0F766E); } .ds-cover-meta { display: block; margin-top: 2px; font-family: 'Noto Sans Sinhala', 'Inter', system-ui, sans-serif; font-size: 0.875rem; color: var(--reader-muted, #64748b); } .ds-cover-tile:focus-visible { outline: 2px solid var(--theme-accent, #0F766E); outline-offset: 2px; }"
+      "refersTo": "novel-card",
+      "description": "Cover card: 2:3 cover, round like button on the cover, serif title, author, caption, rating and chapter count.",
+      "html": "<article class=\"ds-novel-card\"><a href=\"#\" class=\"ds-novel-cover\" tabindex=\"-1\" aria-hidden=\"true\"><span class=\"ds-novel-art\"></span></a><button type=\"button\" class=\"ds-novel-like\" aria-pressed=\"false\" aria-label=\"කැමති ලැයිස්තුවට\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.2 4.3 4.3 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10z\"/></svg></button><div class=\"ds-novel-body\"><h3 class=\"ds-novel-title\"><a href=\"#\">නවකතාවේ නම</a></h3><span class=\"ds-novel-author\">කතුවරයා</span><span class=\"ds-novel-caption\">අබිරහස් · ලියවෙමින්</span><div class=\"ds-novel-foot\"><span class=\"ds-novel-rating\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linejoin=\"round\"><path d=\"M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8L12 3.5z\"/></svg><b>–</b></span><span class=\"ds-novel-caption\">පරිච්ඡේද 12</span></div></div></article>",
+      "css": ".ds-novel-card { position: relative; display: flex; flex-direction: column; width: 180px; overflow: hidden; background: var(--reader-panel, #ffffff); color: var(--reader-text, #16181d); border: 1px solid var(--reader-border, #e3e5ea); border-radius: 14px; box-shadow: var(--card-shadow, 0 1px 2px rgba(16, 24, 40, 0.04)); font-family: var(--font-si-sans, 'Noto Sans Sinhala', system-ui, sans-serif); transition: box-shadow 0.15s ease; } .ds-novel-card:hover { box-shadow: var(--lift-shadow, 0 12px 28px -12px rgba(16, 24, 40, 0.28)); } .ds-novel-cover { display: block; aspect-ratio: 2 / 3; overflow: hidden; background: var(--reader-border, #e3e5ea); } .ds-novel-art { display: block; width: 100%; height: 100%; background: linear-gradient(160deg, #3b5b6b, #1d2b33); transition: transform 300ms ease-out; } .ds-novel-card:hover .ds-novel-art { transform: scale(1.03); } .ds-novel-like { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 9999px; background: rgba(0, 0, 0, 0.5); color: #ffffff; cursor: pointer; transition: transform 0.12s ease, color 0.15s ease; } .ds-novel-like:active { transform: scale(0.97); } .ds-novel-like[aria-pressed=true] { color: var(--like, #e11d48); } .ds-novel-like[aria-pressed=true] svg { fill: currentColor; } .ds-novel-body { display: flex; flex: 1; flex-direction: column; padding: 12px; } .ds-novel-title { margin: 0; font-family: var(--font-si-serif, 'Noto Serif Sinhala', Georgia, serif); font-size: 17px; font-weight: 600; line-height: 1.375; } .ds-novel-title a { font-family: inherit; color: inherit; text-decoration: none; } .ds-novel-title a:hover { color: var(--theme-accent, #0f766e); } .ds-novel-author { margin-top: 4px; font-size: 0.875rem; color: var(--reader-muted, #5f6570); } .ds-novel-caption { margin-top: 2px; font-size: 0.75rem; color: var(--reader-muted, #5f6570); } .ds-novel-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 12px; font-size: 0.875rem; } .ds-novel-rating { display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; } .ds-novel-rating svg { color: var(--star, #d97706); } .ds-novel-like:focus-visible, .ds-novel-title a:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; }"
     },
     {
-      "name": "Chapter Row",
+      "name": "Chart Card",
+      "kind": "card",
+      "refersTo": "list-row",
+      "description": "A card with a serif heading and ranked rows divided by borders: rank, thumbnail, serif title, muted sub-line.",
+      "html": "<section class=\"ds-chart\"><h2 class=\"ds-chart-title\">ඉහළම නවකතා</h2><ol class=\"ds-chart-list\"><li><a href=\"#\" class=\"ds-chart-row\"><span class=\"ds-chart-rank\">1</span><span class=\"ds-chart-thumb\"></span><span class=\"ds-chart-text\"><span class=\"ds-chart-name\">නවකතාවේ නම</span><span class=\"ds-chart-sub\">කතුවරයා</span></span></a></li><li><a href=\"#\" class=\"ds-chart-row\"><span class=\"ds-chart-rank\">2</span><span class=\"ds-chart-thumb\"></span><span class=\"ds-chart-text\"><span class=\"ds-chart-name\">තවත් නවකතාවක්</span><span class=\"ds-chart-sub\">කතුවරයා</span></span></a></li></ol></section>",
+      "css": ".ds-chart { width: 21rem; max-width: 100%; padding: 16px; background: var(--reader-panel, #ffffff); color: var(--reader-text, #16181d); border: 1px solid var(--reader-border, #e3e5ea); border-radius: 14px; box-shadow: var(--card-shadow, 0 1px 2px rgba(16, 24, 40, 0.04)); } .ds-chart-title { margin: 0; font-family: var(--font-si-serif, 'Noto Serif Sinhala', Georgia, serif); font-size: 1.125rem; font-weight: 700; } .ds-chart-list { list-style: none; margin: 8px 0 0; padding: 0; } .ds-chart-list li + li { border-top: 1px solid var(--reader-border, #e3e5ea); } .ds-chart-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; color: inherit; text-decoration: none; transition: transform 0.12s ease; } .ds-chart-row:active { transform: scale(0.97); } .ds-chart-rank { width: 20px; flex-shrink: 0; text-align: center; font-family: var(--font-si-serif, 'Noto Serif Sinhala', Georgia, serif); font-size: 1.125rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--reader-muted, #5f6570); } .ds-chart-thumb { width: 40px; height: 60px; flex-shrink: 0; border-radius: 4px; background: linear-gradient(160deg, #6b4a3b, #2b1d16); } .ds-chart-text { flex: 1; min-width: 0; } .ds-chart-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-si-serif, 'Noto Serif Sinhala', Georgia, serif); font-weight: 600; } .ds-chart-row:hover .ds-chart-name { color: var(--theme-accent, #0f766e); } .ds-chart-sub { display: block; font-family: var(--font-si-sans, 'Noto Sans Sinhala', system-ui, sans-serif); font-size: 0.875rem; color: var(--reader-muted, #5f6570); } .ds-chart-row:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; }"
+    },
+    {
+      "name": "Rating Stars",
       "kind": "custom",
-      "refersTo": "chapter-row",
-      "description": "Hairline-separated latest-chapter row: thumbnail, serif title, muted chapter line, tabular date.",
-      "html": "<ol class=\"ds-rows\"><li><a href=\"#\" class=\"ds-row\"><span class=\"ds-thumb\"></span><span class=\"ds-row-text\"><span class=\"ds-row-title\">නවකතාවේ නම</span><span class=\"ds-row-sub\">පරිච්ඡේදය 4: මාතෘකාව</span></span><time class=\"ds-row-date\">නොවැ 8</time></a></li><li><a href=\"#\" class=\"ds-row\"><span class=\"ds-thumb\"></span><span class=\"ds-row-text\"><span class=\"ds-row-title\">තවත් නවකතාවක්</span><span class=\"ds-row-sub\">පරිච්ඡේදය 9: මාතෘකාව</span></span><time class=\"ds-row-date\">නොවැ 6</time></a></li></ol>",
-      "css": ".ds-rows { list-style: none; margin: 0; padding: 0; } .ds-rows li { border-bottom: 1px solid var(--reader-border, #e2e8f0); } .ds-rows li:last-child { border-bottom: 0; } .ds-row { display: flex; align-items: center; gap: 16px; padding: 16px 0; text-decoration: none; color: var(--reader-text, #22252a); } .ds-thumb { width: 40px; height: 60px; flex-shrink: 0; border-radius: 4px; background: linear-gradient(160deg, #6b4a3b, #2b1d16); } .ds-row-text { flex: 1; min-width: 0; } .ds-row-title { display: block; font-family: 'Noto Serif Sinhala', 'Lora', Georgia, serif; font-weight: 600; transition: color 0.2s ease; } .ds-row:hover .ds-row-title { color: var(--theme-accent, #0F766E); } .ds-row-sub, .ds-row-date { display: block; font-family: 'Noto Sans Sinhala', 'Inter', system-ui, sans-serif; font-size: 0.875rem; color: var(--reader-muted, #64748b); } .ds-row-date { flex-shrink: 0; font-variant-numeric: tabular-nums; } .ds-row:focus-visible { outline: 2px solid var(--theme-accent, #0F766E); outline-offset: 2px; }"
+      "refersTo": "icon-button-outlined",
+      "description": "Five tappable 32px stars, muted until pressed, then filled star amber, with a status line.",
+      "html": "<div class=\"ds-rate\"><div class=\"ds-rate-stars\" role=\"group\" aria-label=\"තරු ඇගයීම\"><button type=\"button\" class=\"ds-star\" aria-pressed=\"true\" aria-label=\"තරු 1\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linejoin=\"round\"><path d=\"M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8L12 3.5z\"/></svg></button><button type=\"button\" class=\"ds-star\" aria-pressed=\"true\" aria-label=\"තරු 2\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linejoin=\"round\"><path d=\"M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8L12 3.5z\"/></svg></button><button type=\"button\" class=\"ds-star\" aria-pressed=\"false\" aria-label=\"තරු 3\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linejoin=\"round\"><path d=\"M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9L3.5 9.7l5.9-.8L12 3.5z\"/></svg></button></div><span class=\"ds-rate-msg\">ඔබේ ඇගයීම දෙන්න</span></div>",
+      "css": ".ds-rate { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; } .ds-rate-stars { display: flex; margin-left: -6px; } .ds-star { padding: 6px; border: 0; background: transparent; color: var(--reader-muted, #5f6570); cursor: pointer; transition: transform 0.12s ease, color 0.15s ease; } .ds-star:hover { color: var(--star, #d97706); } .ds-star:active { transform: scale(0.97); } .ds-star[aria-pressed=true] { color: var(--star, #d97706); } .ds-star[aria-pressed=true] svg { fill: currentColor; } .ds-star:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; } .ds-rate-msg { font-family: var(--font-si-sans, 'Noto Sans Sinhala', system-ui, sans-serif); font-size: 0.875rem; color: var(--reader-muted, #5f6570); }"
+    },
+    {
+      "name": "Bottom Tabs",
+      "kind": "nav",
+      "refersTo": "bottom-tab",
+      "description": "Phone and tablet navigation: five equal tabs on the panel colour; the current tab is accent and semibold.",
+      "html": "<nav class=\"ds-tabs\"><a href=\"#\" class=\"ds-tab\" aria-current=\"page\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1v-8z\"/></svg><span>මුල</span></a><a href=\"#\" class=\"ds-tab\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4zM5 17a3 3 0 0 1 3-3h10\"/></svg><span>නවකතා</span></a><a href=\"#\" class=\"ds-tab\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 4h7l9 9-7 7-9-9V4zM8.5 8.5h.01\"/></svg><span>ප්‍රභේද</span></a><a href=\"#\" class=\"ds-tab\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 6.5M18 14.5a6.5 6.5 0 0 1 3.5 5.5\"/></svg><span>කතුවරු</span></a><a href=\"#\" class=\"ds-tab\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 4h12v16l-6-4-6 4V4z\"/></svg><span>පුස්තකාලය</span></a></nav>",
+      "css": ".ds-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; max-width: 420px; background: var(--reader-panel, #ffffff); border-top: 1px solid var(--reader-border, #e3e5ea); } .ds-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; padding: 8px 4px 6px; font-family: var(--font-si-sans, 'Noto Sans Sinhala', system-ui, sans-serif); font-size: 0.6875rem; color: var(--reader-muted, #5f6570); text-decoration: none; transition: transform 0.12s ease, color 0.15s ease; } .ds-tab span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-tab:hover { color: var(--reader-text, #16181d); } .ds-tab:active { transform: scale(0.97); } .ds-tab[aria-current=page] { color: var(--theme-accent, #0f766e); font-weight: 600; } .ds-tab:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; }"
+    },
+    {
+      "name": "Sidebar Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Desktop sidebar destinations: muted by default, ground fill with ink text on hover and when current.",
+      "html": "<nav class=\"ds-side\"><a href=\"#\" class=\"ds-side-item\" aria-current=\"page\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1v-8z\"/></svg><span>මුල් පිටුව</span></a><a href=\"#\" class=\"ds-side-item\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 4h12v16l-6-4-6 4V4z\"/></svg><span>මගේ පුස්තකාලය</span><b class=\"ds-side-badge\">3</b></a></nav>",
+      "css": ".ds-side { width: 16rem; max-width: 100%; padding: 12px; background: var(--reader-panel, #ffffff); border-right: 1px solid var(--reader-border, #e3e5ea); } .ds-side-item { display: flex; align-items: center; gap: 12px; margin-bottom: 2px; padding: 10px 12px; border-radius: 8px; font-family: var(--font-si-sans, 'Noto Sans Sinhala', system-ui, sans-serif); font-size: 0.9375rem; color: var(--reader-muted, #5f6570); text-decoration: none; transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease; } .ds-side-item span { flex: 1; } .ds-side-item:hover, .ds-side-item[aria-current=page] { background: var(--reader-bg, #f4f5f7); color: var(--reader-text, #16181d); } .ds-side-item[aria-current=page] { font-weight: 600; } .ds-side-item:active { transform: scale(0.97); } .ds-side-badge { padding: 2px 8px; border-radius: 9999px; background: var(--theme-accent-soft, rgba(15, 118, 110, 0.1)); color: var(--theme-accent, #0f766e); font-size: 0.75rem; font-weight: 600; font-variant-numeric: tabular-nums; } .ds-side-item:focus-visible { outline: 2px solid var(--theme-accent, #0f766e); outline-offset: 2px; }"
     }
   ],
   "narrative": {
-    "northStar": "The Quiet Shelf",
-    "overview": "The category standard, executed cleanly: reading-platform patterns from Webnovel and Wattpad (featured novel, latest chapters, a cover grid) held in the text-first quiet of Medium and Substack. Everything sits directly on the page ground. Structure comes from hairline dividers and whitespace, never from boxes. The interface is near-monochrome so the novel covers can carry all the colour; a single teal accent marks the one action that matters.\n\nDensity is calm and editorial: one centred 64rem column, generous vertical rhythm, Sinhala text with tall line heights. The same page must read correctly in four themes (light, sepia, dark, AMOLED), so every surface colour comes from the theme variables, not from fixed values.",
+    "northStar": "The Pocket Library",
+    "overview": "The site behaves like an installed reading app. A fixed shell (sidebar on desktop, top bar and five bottom tabs on phones) holds a grey ground on which white cards sit: a featured novel, a ranked chart, latest chapters, a grid of cover cards, and on chapter pages one large reading card. Ratings, likes, views and reactions are first-class content, shown as small counts beside a star, a heart or an eye rather than as decoration.\n\nDensity is app-like but not crowded: 16px card padding, 24px between cards, lists divided by hairlines inside their card. Everything interactive answers a touch (a 3% press-in) and the reading surface keeps tall Sinhala line heights. Light is the default theme; dark is pure black with neutral greys; sepia is a reading option. Every colour comes from the theme variables so the three themes stay in step.",
     "keyCharacteristics": [
-      "Page ground only; no cards, panels, pills or stat grids.",
-      "1px hairline dividers in the theme border colour separate sections and list rows.",
-      "One accent, on the primary button, hover/active title states, focus rings and the bookmark count.",
-      "Serif (Noto Serif Sinhala) for titles and the wordmark; sans (Noto Sans Sinhala) for UI, synopsis and reading prose.",
-      "Covers at 2:3 are the only colourful objects on the page."
+      "Two-tone grounding: a tinted app ground with panel-coloured cards, bars and sidebar on top.",
+      "One card class for every container (14px corners, 1px border, a near-invisible shadow in light only).",
+      "App shell: 16rem sidebar from 1024px; sticky top bar plus five bottom tabs below it; a reader bar replaces the tabs while reading.",
+      "Teal accent for the primary action, the current tab and the next step; amber for stars and rose for likes are the only other colours in the chrome.",
+      "Serif (Noto Serif Sinhala) names things; sans (Noto Sans Sinhala) is for everything operated or read at length.",
+      "Phone order is source order; wide screens rearrange the same sections into a main column and a 21rem side column."
     ],
     "rules": [
-      { "name": "The Covers Carry Colour Rule", "body": "Chrome stays ink-on-paper. Colour on the page comes from cover art and the single accent; no tinted section backgrounds, coloured badges or gradient fills.", "section": "colors" },
-      { "name": "The One Accent Rule", "body": "The accent appears on at most one filled element per view (the primary button). Everywhere else it is text colour on hover or active, or a focus outline.", "section": "colors" },
-      { "name": "The Serif Names Things Rule", "body": "Serif is for titles of works and section heads; never for buttons, nav or metadata.", "section": "typography" },
-      { "name": "The Only Books Lift Rule", "body": "Shadows belong to cover images. Text, buttons, lists and navigation stay flat.", "section": "elevation" }
+      { "name": "The Pure Black Rule", "body": "Dark means #000000 ground and neutral greys. No navy, slate or blue-tinted grey anywhere in the dark theme, including borders and muted text.", "section": "colors" },
+      { "name": "The Three Signals Rule", "body": "Teal means act or you-are-here, amber means rating, rose means liked. Nothing else in the chrome takes a colour; covers supply the rest.", "section": "colors" },
+      { "name": "The Inverted Chip Rule", "body": "A selected filter chip is ink on panel reversed (ink fill, panel text), not accent. The accent stays free for actions.", "section": "colors" },
+      { "name": "The Serif Names Things Rule", "body": "Serif is for titles of works, page and card headings, rank numbers and the wordmark. Buttons, navigation, metadata and small group headings stay sans.", "section": "typography" },
+      { "name": "The Border Before Shadow Rule", "body": "A card must read as a card with its shadow removed, because in dark and sepia it is. Never rely on a shadow alone to separate a surface from the ground.", "section": "elevation" },
+      { "name": "The Covers Lift Rule", "body": "The lift shadow belongs to covers and to cover cards under a pointer. Bars, the sidebar, buttons and list cards stay flat.", "section": "elevation" }
     ],
     "dos": [
-      "Do place content directly on the page ground and separate it with 1px hairlines in the theme border colour.",
-      "Do use the theme variables (`--reader-*`, `--theme-accent*`) for every colour so all four themes work.",
-      "Do keep the accent to the primary button, hover and active title states, focus rings and the bookmark count.",
-      "Do set titles of works in Noto Serif Sinhala and everything else in Noto Sans Sinhala, with tall Sinhala line heights (1.95 for synopsis, 2.15 for prose).",
-      "Do show covers at 2:3 and let them be the colour on the page."
+      "Do put content in cards on the app ground: panel background, 1px theme border, 14px corners, 16px padding.",
+      "Do use the theme variables (`--reader-*`, `--theme-accent*`, `--star`, `--like`, `--card-shadow`, `--lift-shadow`) for every colour and shadow so light, dark and sepia all work.",
+      "Do keep dark at pure black ground with neutral greys.",
+      "Do design the phone layout first and let source order be the phone order; add the side column at 1280px.",
+      "Do give every tappable control the press feedback and a hit area of at least 36px, 44px for standalone buttons.",
+      "Do draw icons from the single icon set at 1.8 stroke in the current text colour, and fill them only to show a pressed state or a rating.",
+      "Do show real numbers only: a dash for an unrated novel, zero for no likes.",
+      "Do keep bars clear of device edges with the safe-area inset and reserve room so the bottom bar never covers content."
     ],
     "donts": [
-      "Don't wrap content in bordered or rounded panels, cards, genre or status pills, or stat grids (the bookmark count is the only badge).",
-      "Don't add a second accent colour, tinted section backgrounds or gradients.",
-      "Don't put shadows on anything except cover images.",
-      "Don't hard-code hex colours in markup; they break sepia, dark and AMOLED."
+      "Don't use navy, slate or any blue-tinted grey in the dark theme.",
+      "Don't hard-code colours in markup; the reader-sheet theme swatches are the single exception because they preview other themes.",
+      "Don't colour anything in the chrome except with teal (action, current), amber (rating) and rose (liked).",
+      "Don't use the accent for selected filter chips or the current sidebar item; those use ink and ground.",
+      "Don't separate a card from the ground by shadow alone, or add shadows to bars, the sidebar or buttons.",
+      "Don't use emoji as icons. Emoji appear only as the chapter reaction choices.",
+      "Don't set buttons, navigation or metadata in the serif.",
+      "Don't introduce a second card style, radius or border weight for containers."
     ]
   }
 }

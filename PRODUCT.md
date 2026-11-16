@@ -20,10 +20,13 @@ Mostly a home for the owner's own novels, with occasional guest writers, rather 
 
 ## Operating Context
 
-- Content is Markdown in Git (`src/content/novels`, `src/content/chapters`); publishing is a git push. No admin panel, no database, no accounts.
+- Content is Markdown in Git (`src/content/novels`, `src/content/chapters`); publishing is a git push. No admin panel and no accounts; the only database holds ratings, reactions and view counts.
 - Static Astro site on GitHub Pages at kathaarana.com.
-- Reader page has 4 themes (light, sepia, dark, AMOLED), font size and font family controls, keyboard chapter navigation, progress bar.
+- Reader page has 3 themes (light, sepia, pure-black dark), font size and font family controls, keyboard chapter navigation, progress bar.
 - Bookmarks and reading history are stored in the reader's browser (localStorage).
+- Ratings (1–5 stars per novel), likes, chapter reactions and view counts are shared across readers through a small Cloudflare Worker + D1 API at `/api/*` (`worker/`). There are still no accounts: a random device id gives one vote per device.
+- Home page rankings come from that data: trending (ratings + reactions in the last 7 days), best rated, most liked, most viewed.
+- The site behaves like an installed app: sidebar on desktop, bottom tabs on phones, in-app page transitions, web manifest for "add to home screen".
 - RSS feed at `/rss.xml`.
 
 ## Capabilities and Constraints
@@ -37,11 +40,11 @@ Mostly a home for the owner's own novels, with occasional guest writers, rather 
 
 - Name: Katha Arana / කතා අරණ ("forest of stories").
 - Footer credit "Developed by Infiax 360" (infiax.com) stays.
-- Owner chose the category-standard look (2026-11-07): clean and conventional, matching the polish of Webnovel/Wattpad (reading-platform patterns) and Medium/Substack (text-first, quiet). No themed costume.
+- Owner asked for an app-style redesign (2026-11-16) after a community-platform reference: card-based layout, native-app feel, responsive first. Light is the default theme; dark must be pure black with neutral greys, never grey-blue or navy.
 
 ## Evidence on Hand
 
-- Three novels with cover images in `public/images/`; current author names in content are sample data. No reader counts, reviews, or testimonials exist; do not invent any.
+- Three novels with cover images in `src/assets/covers/`; current author names in content are sample data. No reader counts, reviews, or testimonials exist; do not invent any.
 
 ## Product Principles
 

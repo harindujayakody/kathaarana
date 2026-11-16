@@ -87,6 +87,35 @@ This commit triggers the automated Cloudflare Pages deployment pipeline.
 
 ---
 
+## ⭐ Ratings, Likes and Views (Cloudflare Worker)
+
+Shared numbers live in a small Cloudflare Worker with a D1 database, in [`worker/`](worker/). The site calls it at `/api/*` on the same domain. Readers need no account: a random device id stored in the browser gives one vote per device.
+
+| Endpoint | What it does |
+|---|---|
+| `GET /api/stats` | Rating, likes, views and this week's activity for every novel |
+| `GET /api/reactions?novel=<id>` | Reaction counts per chapter |
+| `POST /api/rate` | `{ novel, stars, device }` |
+| `POST /api/react` | `{ novel, chapter, kind, device }` (`chapter: 0` is the novel's like) |
+| `POST /api/view` | `{ novel, chapter, device }`, counted once per device per chapter per day |
+
+The Worker only accepts novels and chapters listed in the site's `/catalog.json`.
+
+```bash
+# First deploy (once)
+cd worker
+npx wrangler d1 create kathaarana          # put the printed database_id into wrangler.jsonc
+npx wrangler d1 execute kathaarana --remote --file schema.sql
+npx wrangler deploy
+
+# Local testing: run the API, then build the site against it
+npx wrangler d1 execute kathaarana --local --env dev --file schema.sql
+npx wrangler dev --env dev --port 8787
+PUBLIC_API_BASE=http://localhost:8787/api npm run build && npm run preview
+```
+
+---
+
 ## 💻 Local Development
 
 ```bash

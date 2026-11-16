@@ -110,6 +110,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </div>
 
   <script>
+    // Runs on first load and after every in-app navigation (client router).
+    document.addEventListener('astro:page-load', () => {
+      if (!document.getElementById('page-history-container')) return;
+
     let activeTab: 'history' | 'bookmarks' = 'history';
 
     const tabHistory = document.getElementById('tab-history');
@@ -302,5 +306,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     window.addEventListener('katha-stats-updated', renderPageContent);
     renderPageContent();
+    });
   </script>
 </BaseLayout>

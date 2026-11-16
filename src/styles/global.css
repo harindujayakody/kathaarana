@@ -1,146 +1,74 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, [data-theme="amoled"], [data-theme="amoled"] *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @layer base {
+  /* Light is the default. Names keep the --reader-* prefix because every page already uses them. */
   :root {
-    --background: 30 20% 98%;
-    --foreground: 220 20% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 12%;
-    --primary: 174 77% 26%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 35 25% 92%;
-    --secondary-foreground: 220 20% 15%;
-    --muted: 35 15% 94%;
-    --muted-foreground: 220 10% 45%;
-    --accent: 174 40% 92%;
-    --accent-foreground: 174 77% 26%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 35 15% 88%;
-    --input: 35 15% 88%;
-    --ring: 174 77% 26%;
-    --radius: 0.75rem;
+    --reader-bg: #f4f5f7;      /* app ground */
+    --reader-panel: #ffffff;   /* cards, sidebar, bars */
+    --reader-text: #16181d;
+    --reader-muted: #5f6570;
+    --reader-border: #e3e5ea;
 
-    /* Theme Accent Colors (Light Mode) */
-    --theme-accent: #0F766E;
-    --theme-accent-hover: #115E59;
+    --theme-accent: #0f766e;
+    --theme-accent-hover: #115e59;
+    --theme-accent-text: #ffffff;
+    --theme-accent-soft: rgba(15, 118, 110, 0.1);
+
+    --star: #d97706;
+    --like: #e11d48;
+    --card-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    --lift-shadow: 0 12px 28px -12px rgba(16, 24, 40, 0.28);
+  }
+
+  /* Dark is pure black with neutral greys: no navy, no slate. */
+  [data-theme="dark"] {
+    --reader-bg: #000000;
+    --reader-panel: #0c0c0c;
+    --reader-text: #ececec;
+    --reader-muted: #a0a0a0;
+    --reader-border: #222222;
+
+    --theme-accent: #2dd4bf;
+    --theme-accent-hover: #5eead4;
+    --theme-accent-text: #00201c;
+    --theme-accent-soft: rgba(45, 212, 191, 0.14);
+
+    --star: #fbbf24;
+    --like: #fb7185;
+    --card-shadow: none;
+    --lift-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.9);
+  }
+
+  /* Sepia is a reading option on chapter pages. */
+  [data-theme="sepia"] {
+    --reader-bg: #efe6d0;
+    --reader-panel: #f7f0de;
+    --reader-text: #433422;
+    --reader-muted: #6f5d48;
+    --reader-border: #dccfb4;
+
+    --theme-accent: #0f766e;
+    --theme-accent-hover: #115e59;
     --theme-accent-text: #ffffff;
     --theme-accent-soft: rgba(15, 118, 110, 0.12);
 
-    /* Reader specific variables */
-    --reader-bg: #fcfbf9;
-    --reader-text: #22252a;
-    --reader-muted: #64748b;
-    --reader-border: #e2e8f0;
-    --reader-panel: #ffffff;
-    --reader-accent: #0F766E;
+    --star: #b45309;
+    --like: #be123c;
+    --card-shadow: none;
+    --lift-shadow: 0 12px 28px -12px rgba(67, 52, 34, 0.35);
   }
+}
 
-  /* Dark Theme */
-  [data-theme="dark"] {
-    --background: 222 30% 9%;
-    --foreground: 210 20% 95%;
-    --card: 222 30% 12%;
-    --card-foreground: 210 20% 95%;
-    --popover: 222 30% 12%;
-    --popover-foreground: 210 20% 95%;
-    --primary: 171 67% 50%;
-    --primary-foreground: 174 77% 10%;
-    --secondary: 222 25% 18%;
-    --secondary-foreground: 210 20% 92%;
-    --muted: 222 25% 16%;
-    --muted-foreground: 215 15% 65%;
-    --accent: 171 40% 20%;
-    --accent-foreground: 171 67% 50%;
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 222 25% 18%;
-    --input: 222 25% 18%;
-    --ring: 171 67% 50%;
-
-    /* Theme Accent Colors (Dark Mode) */
-    --theme-accent: #2DD4BF;
-    --theme-accent-hover: #14B8A6;
-    --theme-accent-text: #042f2e;
-    --theme-accent-soft: rgba(45, 212, 191, 0.16);
-
-    --reader-bg: #0b0f17;
-    --reader-text: #e2e8f0;
-    --reader-muted: #94a3b8;
-    --reader-border: #1e293b;
-    --reader-panel: #131b26;
-    --reader-accent: #2DD4BF;
-  }
-
-  /* Sepia Theme */
-  [data-theme="sepia"] {
-    --background: 39 45% 91%;
-    --foreground: 25 35% 18%;
-    --card: 39 42% 88%;
-    --card-foreground: 25 35% 18%;
-    --popover: 39 42% 88%;
-    --popover-foreground: 25 35% 18%;
-    --primary: 174 77% 26%;
-    --primary-foreground: 39 45% 95%;
-    --secondary: 38 35% 85%;
-    --secondary-foreground: 25 35% 20%;
-    --muted: 38 30% 84%;
-    --muted-foreground: 28 20% 40%;
-    --accent: 38 40% 82%;
-    --accent-foreground: 174 77% 26%;
-    --border: 37 30% 80%;
-    --input: 37 30% 80%;
-    --ring: 174 77% 26%;
-
-    --theme-accent: #0F766E;
-    --theme-accent-hover: #115E59;
-    --theme-accent-text: #ffffff;
-    --theme-accent-soft: rgba(15, 118, 110, 0.15);
-
-    --reader-bg: #f4ecd8;
-    --reader-text: #433422;
-    --reader-muted: #796650;
-    --reader-border: #ded2b9;
-    --reader-panel: #ece2c8;
-    --reader-accent: #0F766E;
-  }
-
-  /* AMOLED Black Theme */
-  [data-theme="amoled"] {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 90%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 90%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 90%;
-    --primary: 171 67% 50%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 90%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 0 0% 14%;
-    --accent-foreground: 171 67% 50%;
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 171 67% 50%;
-
-    --theme-accent: #2DD4BF;
-    --theme-accent-hover: #14B8A6;
-    --theme-accent-text: #042f2e;
-    --theme-accent-soft: rgba(45, 212, 191, 0.16);
-
-    --reader-bg: #000000;
-    --reader-text: #d4d4d8;
-    --reader-muted: #71717a;
-    --reader-border: #18181b;
-    --reader-panel: #09090b;
-    --reader-accent: #2DD4BF;
-  }
+html {
+  color-scheme: light;
+  /* Keep focused or scrolled-to items clear of the fixed top bar and bottom tabs. */
+  scroll-padding: 4.5rem 0 5.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
@@ -148,100 +76,148 @@ body {
   color: var(--reader-text);
   font-family: var(--font-si-sans);
   font-size: 17px;
-  transition: background-color 0.25s ease, color 0.25s ease;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Headings & Title Typography: Noto Serif Sinhala */
+::selection {
+  background: var(--theme-accent-soft);
+  color: var(--reader-text);
+}
+
 h1, h2, h3, h4, h5, h6, .font-serif {
   font-family: var(--font-si-serif);
-  letter-spacing: -0.01em;
 }
 
-/* Body & Content Typography: Noto Sans Sinhala */
 p, span, a, li, input, button, .font-sans {
   font-family: var(--font-si-sans);
 }
 
-.font-novel-serif {
-  font-family: var(--font-si-serif);
+/* A link or span inside a serif title keeps the title's face. */
+:is(h1, h2, h3, h4, h5, h6, .font-serif) :is(a, span) {
+  font-family: inherit;
 }
 
-.font-novel-sans {
-  font-family: var(--font-si-sans);
-}
+.font-novel-serif { font-family: var(--font-si-serif); }
+.font-novel-sans { font-family: var(--font-si-sans); }
 
-/* Reader Typography Engine - 17px base with comfortable Sinhala line height */
+/* Chapter text: generous line height for Sinhala script. */
 .novel-prose {
   line-height: 2.15;
-  letter-spacing: 0.01em;
   font-size: var(--reader-font-size, 17px);
   font-family: var(--font-si-sans);
-  word-break: normal;
   overflow-wrap: break-word;
 }
-
 .novel-prose p {
-  margin-bottom: 1.7em;
-  text-align: justify;
-  text-justify: inter-word;
+  margin-bottom: 1.6em;
 }
 
-@media (max-width: 640px) {
-  .novel-prose {
-    font-size: var(--reader-font-size, 16.5px);
+/* In the components layer so Tailwind utilities (rounded-none, gap-2...) can override them. */
+@layer components {
+  /* Cards */
+  .surface {
+    background: var(--reader-panel);
+    border: 1px solid var(--reader-border);
+    border-radius: 14px;
+    box-shadow: var(--card-shadow);
   }
-  .novel-prose p {
-    text-align: left;
-    margin-bottom: 1.5em;
-    line-height: 2.1;
+
+  /* Horizontal rails: swipe on touch, snap to cards, no visible scrollbar. */
+  .rail {
+    display: flex;
+    gap: 0.875rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail > * {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  /* Things you tap give feedback the way a native control does. */
+  .tap {
+    transition: transform 0.12s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .tap:active {
+    transform: scale(0.97);
   }
 }
 
-.novel-prose p:first-of-type {
-  font-size: 1.02em;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--reader-muted);
+  background: var(--reader-border);
   border-radius: 9999px;
-  opacity: 0.35;
 }
 
-/* Dynamic Accent Utility Classes */
 .accent-bg {
   background-color: var(--theme-accent);
   color: var(--theme-accent-text);
-  transition: background-color 0.2s ease, transform 0.15s ease;
 }
-.accent-bg:hover {
-  background-color: var(--theme-accent-hover);
-}
-
-.accent-text {
-  color: var(--theme-accent);
-  transition: color 0.2s ease;
-}
-
+.accent-bg:hover { background-color: var(--theme-accent-hover); }
+.accent-text { color: var(--theme-accent); }
 .accent-badge {
   background-color: var(--theme-accent-soft);
   color: var(--theme-accent);
 }
+.accent-border { border-color: var(--theme-accent); }
 
-.accent-border {
-  border-color: var(--theme-accent);
-}
-
-/* Keyboard focus, themed from the accent */
 :focus-visible {
   outline: 2px solid var(--theme-accent);
   outline-offset: 2px;
-  border-radius: 2px;
+}
+
+/* Bottom sheet on phones, centred dialog on larger screens. */
+dialog.sheet {
+  margin: auto auto 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 85dvh;
+  padding: 0;
+  color: var(--reader-text);
+  background: var(--reader-panel);
+  border: 1px solid var(--reader-border);
+  border-bottom: 0;
+  border-radius: 20px 20px 0 0;
+}
+dialog.sheet::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+@media (min-width: 640px) {
+  dialog.sheet {
+    margin: auto;
+    max-width: 28rem;
+    border-bottom: 1px solid var(--reader-border);
+    border-radius: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tap, .tap:active { transition: none; transform: none; }
+}
+
+/* Pressed states for likes, stars, reactions and chart tabs. */
+[data-like][aria-pressed="true"] { color: var(--like); }
+[data-like][aria-pressed="true"] svg,
+[data-star][aria-pressed="true"] svg { fill: currentColor; }
+[data-star] { color: var(--reader-muted); }
+[data-star][aria-pressed="true"] { color: var(--star); }
+[data-kind][aria-pressed="true"] {
+  border-color: var(--theme-accent);
+  background: var(--theme-accent-soft);
+}
+[data-chart-tab][aria-selected="true"] {
+  background: var(--reader-text);
+  color: var(--reader-panel);
+  border-color: var(--reader-text);
+}
+[data-bookmark][aria-pressed="true"] { color: var(--theme-accent); }
+[data-bookmark][aria-pressed="true"] svg { fill: currentColor; }
+[data-set-theme][aria-pressed="true"],
+[data-font][aria-pressed="true"] {
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 1px var(--theme-accent);
 }
