@@ -73,7 +73,7 @@
 <body>
 <header>
   <div class="bar">
-    <div class="brand">කතා අරණ <small>Publishing · this computer only</small></div>
+    <div class="brand">කතා අරණ <small id="mode-note">Publishing · this computer only</small></div>
     <nav role="tablist">
       <button role="tab" data-tab="story" aria-selected="true">නව කතාව</button>
       <button role="tab" data-tab="chapter">පරිච්ඡේදයක්</button>
@@ -200,7 +200,9 @@
 <div id="toast" role="status" hidden></div>
 
 <script>
-const KEY = '__ADMIN_KEY__';
+// Filled in by the server: local (`npm run admin`) or online (kathaarana.com/admin/).
+const CONFIG = __ADMIN_CONFIG__;
+const ONLINE = CONFIG.mode === 'online';
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const today = () => new Date().toLocaleDateString('en-CA');
@@ -212,9 +214,9 @@ let cover = { dataUrl: null, path: null };
 let lastSaved = '';
 
 async function api(path, body) {
-  const res = await fetch(path, {
+  const res = await fetch(CONFIG.api + path.replace(/^\/api/, ''), {
     method: body ? 'POST' : 'GET',
-    headers: { 'X-Admin-Key': KEY, ...(body ? { 'Content-Type': 'application/json' } : {}) },
+    headers: { ...(CONFIG.key ? { 'X-Admin-Key': CONFIG.key } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) },
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
@@ -262,6 +264,7 @@ async function load() {
 }
 
 async function refreshCount() {
+  if (ONLINE) return;
   try {
     const { files } = await api('/api/changes');
     const badge = $('#change-count');
@@ -294,12 +297,19 @@ function setCover(dataUrl, path = null) {
   $('#cover-preview').style.backgroundImage = dataUrl ? `url("${dataUrl}")` : '';
   $('#drop-text').textContent = dataUrl ? (path ? `Using ${path.split('/').pop()}` : 'Cover ready. Drop or click to change.') : 'Drop an image here, or click to choose';
 }
-function readFile(file) {
+// Resized here to a JPEG at most 1200px wide, so uploads stay small even from a phone.
+async function readFile(file) {
   if (!file || !/^image\/(png|jpeg|webp|avif)$/.test(file.type)) return toast('Choose a PNG, JPEG, WebP or AVIF image', true);
-  if (file.size > 15 * 1024 * 1024) return toast('That image is over 15 MB', true);
-  const r = new FileReader();
-  r.onload = () => setCover(r.result);
-  r.readAsDataURL(file);
+  if (file.size > 25 * 1024 * 1024) return toast('That image is over 25 MB', true);
+  try {
+    const img = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const scale = Math.min(1, 1200 / img.width);
+    const canvas = Object.assign(document.createElement('canvas'), { width: Math.round(img.width * scale), height: Math.round(img.height * scale) });
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    setCover(canvas.toDataURL('image/jpeg', 0.88));
+  } catch {
+    toast('Could not read that image', true);
+  }
 }
 const drop = $('#drop');
 drop.onclick = () => $('#cover-file').click();
@@ -379,7 +389,7 @@ function resetStory() {
   f.slug.disabled = false;
   $('#first-chapter').hidden = false;
   $('#story-heading').textContent = 'නව කතාව';
-  $('#story-save').textContent = 'Save story';
+  $('#story-save').textContent = ONLINE ? 'Publish story' : 'Save story';
   $('#paste-box').hidden = false;
   setCover(null);
   renderGenres([]);
@@ -402,11 +412,13 @@ $('#story-form').onsubmit = (e) => {
         ? { title: f.chTitle.value.trim() || f.title.value.replace(/\s*\(කෙටිකතාව\)\s*$/, '').replace(/[.]+$/, '').trim(), body: f.chBody.value, linesAreParagraphs: f.chLines.checked }
         : null,
     };
-    await api('/api/story', body);
+    if (ONLINE && !confirm(`${storyMode.isNew ? 'Publish' : 'Update'} "${f.title.value.trim()}" on kathaarana.com now?`)) return;
+    const r = await api('/api/story', body);
     lastSaved = `Publish ${f.title.value.trim()}`;
-    toast(storyMode.isNew ? 'Story saved. Publish it when you are ready.' : 'Story updated.');
     await load();
     resetStory();
+    if (ONLINE) return published(r);
+    toast(storyMode.isNew ? 'Story saved. Publish it when you are ready.' : 'Story updated.');
     showTab('publish');
   });
 };
@@ -431,7 +443,7 @@ function resetChapter() {
   f.chapterNumber.disabled = false;
   f.publishDate.value = today();
   $('#chapter-heading').textContent = 'පරිච්ඡේදයක් එක් කරන්න';
-  $('#chapter-save').textContent = 'Save chapter';
+  $('#chapter-save').textContent = ONLINE ? 'Publish chapter' : 'Save chapter';
   $('#chapter-cancel').hidden = true;
   suggestChapterNumber();
 }
@@ -442,15 +454,17 @@ $('#chapter-form').onsubmit = (e) => {
   const f = e.target;
   busy($('#chapter-save'), async () => {
     const story = stories.find((s) => s.slug === f.novel.value);
-    await api('/api/chapter', {
+    if (ONLINE && !confirm(`${chapterMode.isNew ? 'Publish' : 'Update'} part ${f.chapterNumber.value} of "${story?.title ?? f.novel.value}" now?`)) return;
+    const r = await api('/api/chapter', {
       isNew: chapterMode.isNew, novel: f.novel.value, chapterNumber: Number(f.chapterNumber.value),
       title: f.title.value, publishDate: f.publishDate.value, source: f.source.value,
       body: f.body.value, linesAreParagraphs: f.lines.checked,
     });
     lastSaved = `Publish ${story?.title ?? f.novel.value} part ${f.chapterNumber.value}`;
-    toast(chapterMode.isNew ? 'Chapter saved. Publish it when you are ready.' : 'Chapter updated.');
     await load();
     resetChapter();
+    if (ONLINE) return published(r);
+    toast(chapterMode.isNew ? 'Chapter saved. Publish it when you are ready.' : 'Chapter updated.');
     showTab('publish');
   });
 };
@@ -496,7 +510,7 @@ async function editStory(s) {
   $('#first-chapter').hidden = true;
   $('#paste-box').hidden = true;
   $('#story-heading').textContent = `සංස්කරණය: ${s.title}`;
-  $('#story-save').textContent = 'Save changes';
+  $('#story-save').textContent = ONLINE ? 'Publish changes' : 'Save changes';
   const coverName = String(s.coverImage || '').split('/').pop();
   if (coverName) {
     try { const { dataUrl } = await api(`/api/cover?name=${encodeURIComponent(coverName)}`); setCover(dataUrl); cover = { dataUrl: null, path: null }; } catch {}
@@ -519,7 +533,7 @@ async function editChapter(slug, number) {
   f.body.value = body;
   f.lines.checked = false; // already formatted
   $('#chapter-heading').textContent = `සංස්කරණය: පරිච්ඡේදය ${number}`;
-  $('#chapter-save').textContent = 'Save changes';
+  $('#chapter-save').textContent = ONLINE ? 'Publish changes' : 'Save changes';
   $('#chapter-cancel').hidden = false;
   showTab('chapter');
 }
@@ -575,6 +589,18 @@ $('#publish-btn').onclick = () => {
     }
   });
 };
+
+// Online, saving is publishing: one commit to GitHub, then the usual build and deploy.
+function published(r) {
+  toast(`Published (${r.sha}). kathaarana.com updates in about 3–5 minutes.`);
+}
+if (ONLINE) {
+  $('#mode-note').textContent = `Publishing · ${CONFIG.user}`;
+  $('[data-tab="publish"]').hidden = true;
+  $('#story-hint').textContent = 'Fill this in, or paste your template below. Publishing commits to GitHub and the site updates a few minutes later.';
+  $('#story-save').textContent = 'Publish story';
+  $('#chapter-save').textContent = 'Publish chapter';
+}
 
 resetStory();
 load().then(() => resetChapter()).catch((e) => toast(e.message, true));

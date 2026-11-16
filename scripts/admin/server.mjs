@@ -9,6 +9,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import sharp from 'sharp';
+import { bad, genreNames, listStories, planChapter, planStory, readChapter } from './content.mjs';
 
 const run = promisify(execFile);
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
@@ -22,188 +23,54 @@ const KEY = randomBytes(24).toString('hex');
 const HOSTS = new Set([`localhost:${PORT}`, `127.0.0.1:${PORT}`]);
 const ORIGINS = new Set([...HOSTS].map((h) => `http://${h}`));
 
-const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const NOVEL_KEYS = ['title', 'titleEn', 'author', 'authorSlug', 'source', 'synopsis', 'coverImage', 'genres', 'status', 'language', 'publishDate'];
-const CHAPTER_KEYS = ['novel', 'chapterNumber', 'title', 'publishDate', 'wordCount', 'source'];
+/* ---------- reading and writing this folder ---------- */
 
-/* ---------- front matter: the flat `key: value` lines these files use ---------- */
+const read = (path) => readFileSync(path, 'utf8');
+const mdIn = (dir) => (existsSync(dir) ? readdirSync(dir).filter((f) => /\.mdx?$/.test(f)) : []);
 
-function parseValue(raw) {
-  const v = raw.trim();
-  if (v.startsWith('"')) {
-    for (let i = 1; i < v.length; i++) {
-      if (v[i] === '\\') i++;
-      else if (v[i] === '"') return JSON.parse(v.slice(0, i + 1));
-    }
+// Everything the shared rules need, read fresh for each request.
+function snapshot() {
+  const novels = Object.fromEntries(mdIn(NOVELS).map((f) => [f.replace(/\.mdx?$/, ''), read(join(NOVELS, f))]));
+  const chapters = {};
+  for (const dir of existsSync(CHAPTERS) ? readdirSync(CHAPTERS) : []) {
+    chapters[dir] = Object.fromEntries(mdIn(join(CHAPTERS, dir)).map((f) => [f, read(join(CHAPTERS, dir, f))]));
   }
-  if (v.startsWith('[')) return JSON.parse(v.slice(0, v.indexOf(']') + 1));
-  const bare = v.replace(/\s+#.*$/, '').trim();
-  return /^-?\d+$/.test(bare) ? Number(bare) : bare;
+  return { novels, chapters, genresTs: read(join(ROOT, 'src/utils/genres.ts')) };
 }
 
-function parseDoc(text) {
-  const m = text.replace(/^﻿/, '').match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!m) throw new Error('No front matter');
-  const data = {};
-  for (const line of m[1].split(/\r?\n/)) {
-    const kv = line.match(/^([A-Za-z]+):\s*(.*)$/);
-    if (kv && kv[2] !== '') data[kv[1]] = parseValue(kv[2]);
-  }
-  return { data, body: m[2].replace(/\r\n/g, '\n').trim() };
-}
-
-function writeDoc(file, data, order, body = '') {
-  const keys = [...order.filter((k) => k in data), ...Object.keys(data).filter((k) => !order.includes(k))];
-  const lines = keys
-    .filter((k) => data[k] !== undefined && data[k] !== null && data[k] !== '')
-    .map((k) => {
-      const v = data[k];
-      if (k === 'publishDate' || typeof v === 'number') return `${k}: ${v}`;
-      // JSON strings and arrays are valid YAML; arrays spaced like the hand-written files.
-      if (Array.isArray(v)) return `${k}: [${v.map((x) => JSON.stringify(x)).join(', ')}]`;
-      return `${k}: ${JSON.stringify(v)}`;
-    });
-  mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, `---\n${lines.join('\n')}\n---\n${body ? `\n${body}\n` : ''}`);
-}
-
-/* ---------- reading ---------- */
-
-const novelFile = (slug) => join(NOVELS, `${slug}.md`);
-const chapterFiles = (slug) =>
-  existsSync(join(CHAPTERS, slug)) ? readdirSync(join(CHAPTERS, slug)).filter((f) => /\.mdx?$/.test(f)) : [];
-
-function chaptersOf(slug) {
-  return chapterFiles(slug)
-    .map((file) => {
-      const { data } = parseDoc(readFileSync(join(CHAPTERS, slug, file), 'utf8'));
-      return { file, number: data.chapterNumber, title: data.title, publishDate: data.publishDate };
-    })
-    .sort((a, b) => a.number - b.number);
-}
-
-function listStories() {
-  return readdirSync(NOVELS)
-    .filter((f) => /\.mdx?$/.test(f))
-    .map((f) => {
-      const slug = f.replace(/\.mdx?$/, '');
-      const { data } = parseDoc(readFileSync(join(NOVELS, f), 'utf8'));
-      return { slug, ...data, chapters: chaptersOf(slug) };
-    })
-    .sort((a, b) => String(b.publishDate).localeCompare(String(a.publishDate)));
-}
-
-function genreNames() {
-  const text = readFileSync(join(ROOT, 'src/utils/genres.ts'), 'utf8');
-  const names = [...text.matchAll(/name:\s*'([^']+)'/g)].map((m) => m[1]);
-  for (const s of listStories()) for (const g of s.genres ?? []) if (!names.includes(g)) names.push(g);
-  return names;
-}
-
-/* ---------- writing ---------- */
-
-const bad = (msg) => Object.assign(new Error(msg), { status: 400 });
-const text = (v, name, required = true) => {
-  const s = typeof v === 'string' ? v.trim() : '';
-  if (required && !s) throw bad(`${name} is required`);
-  return s;
-};
-
-// Pasted stories often put one paragraph per line; the site needs a blank line between paragraphs.
-function normaliseBody(body, linesAreParagraphs) {
-  const t = text(body, 'Chapter text').replace(/\r\n/g, '\n');
-  if (!linesAreParagraphs) return t;
-  return t
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .join('\n\n');
-}
-
-async function saveCover(slug, dataUrl) {
+async function coverBytes(dataUrl) {
   const m = /^data:image\/(png|jpe?g|webp|avif);base64,(.+)$/.exec(dataUrl || '');
   if (!m) throw bad('Cover must be a PNG, JPEG, WebP or AVIF image');
-  const out = join(COVERS, `${slug}.jpg`);
-  mkdirSync(COVERS, { recursive: true });
-  await sharp(Buffer.from(m[2], 'base64'))
+  const bytes = await sharp(Buffer.from(m[2], 'base64'))
     .rotate()
     .resize({ width: 1200, withoutEnlargement: true })
     .jpeg({ quality: 88, mozjpeg: true })
-    .toFile(out);
-  return `../../assets/covers/${slug}.jpg`;
+    .toBuffer();
+  return { bytes };
+}
+
+function writeFiles(files) {
+  for (const { path, content } of files) {
+    const file = join(ROOT, path);
+    mkdirSync(dirname(file), { recursive: true });
+    // Keep a text file's line endings (Windows checkouts use CRLF), so an unchanged save isn't a change.
+    const crlf = typeof content === 'string' && existsSync(file) && read(file).includes('\r\n');
+    writeFileSync(file, crlf ? content.replace(/\n/g, '\r\n') : content);
+  }
 }
 
 async function saveStory(b) {
-  const slug = text(b.slug, 'Web address');
-  if (!SLUG_RE.test(slug)) throw bad('Web address: lowercase English letters, numbers and hyphens only');
-  const file = novelFile(slug);
-  const exists = existsSync(file);
-  if (b.isNew && exists) throw bad(`A story at /novels/${slug}/ already exists`);
-  if (!b.isNew && !exists) throw bad('Story not found');
-  const old = exists ? parseDoc(readFileSync(file, 'utf8')) : { data: {}, body: '' };
-
-  const publishDate = text(b.publishDate, 'Publish date');
-  if (!DATE_RE.test(publishDate)) throw bad('Publish date must be YYYY-MM-DD');
-  // Ongoing is the default; it is only written if the file already spelled it out.
-  const status = b.completed ? 'Completed' : old.data.status ? 'Ongoing' : undefined;
-  const genres = Array.isArray(b.genres) ? b.genres.map((g) => String(g).trim()).filter(Boolean) : [];
-
-  let coverImage = old.data.coverImage;
-  if (b.cover) coverImage = await saveCover(slug, b.cover);
-  // A cover already in src/assets/covers (e.g. named in a pasted template) can be used as it is.
-  else if (b.coverPath) {
-    const name = /^\.\.\/\.\.\/assets\/covers\/([\w.-]+\.(?:png|jpe?g|webp|avif))$/i.exec(b.coverPath)?.[1];
-    if (!name || !existsSync(join(COVERS, name))) throw bad(`Cover not found in src/assets/covers: ${b.coverPath}`);
-    coverImage = `../../assets/covers/${name}`;
-  }
-  if (!coverImage) throw bad('A cover image is required');
-
-  const data = {
-    ...old.data,
-    title: text(b.title, 'Title'),
-    author: text(b.author, 'Author'),
-    source: text(b.source, 'Source', false) || undefined,
-    synopsis: text(b.synopsis, 'Synopsis'),
-    coverImage,
-    genres: genres.length ? genres : undefined,
-    status,
-    publishDate,
-  };
-  if (!status) delete data.status;
-  writeDoc(file, data, NOVEL_KEYS, old.body);
-
-  if (b.firstChapter?.body?.trim()) {
-    await saveChapter({ ...b.firstChapter, novel: slug, chapterNumber: 1, publishDate, isNew: true });
-  }
+  const { slug, files } = await planStory(snapshot(), b, {
+    cover: b.cover ? await coverBytes(b.cover) : null,
+    coverExists: (name) => existsSync(join(COVERS, name)),
+  });
+  writeFiles(files);
   return { slug };
 }
 
-async function saveChapter(b) {
-  const novel = text(b.novel, 'Story');
-  if (!SLUG_RE.test(novel) || !existsSync(novelFile(novel))) throw bad('Story not found');
-  const number = Number(b.chapterNumber);
-  if (!Number.isInteger(number) || number < 1) throw bad('Chapter number must be 1 or more');
-  const publishDate = text(b.publishDate, 'Publish date');
-  if (!DATE_RE.test(publishDate)) throw bad('Publish date must be YYYY-MM-DD');
-
-  const existing = chaptersOf(novel).find((c) => c.number === number);
-  if (b.isNew && existing) throw bad(`Chapter ${number} already exists`);
-  // Keep an existing chapter's file name (older ones are chapter-01.md); new ones are 01.md.
-  const name = existing?.file ?? `${String(number).padStart(2, '0')}.md`;
-  const file = join(CHAPTERS, novel, name);
-  const old = existing ? parseDoc(readFileSync(file, 'utf8')).data : {};
-
-  const data = {
-    ...old,
-    novel,
-    chapterNumber: number,
-    title: text(b.title, 'Chapter title'),
-    publishDate,
-    source: text(b.source, 'Source', false) || undefined,
-  };
-  writeDoc(file, data, CHAPTER_KEYS, normaliseBody(b.body, b.linesAreParagraphs !== false));
-  return { novel, chapterNumber: number };
+function saveChapter(b) {
+  writeFiles(planChapter(snapshot(), b));
+  return { novel: b.novel, chapterNumber: Number(b.chapterNumber) };
 }
 
 /* ---------- checking and publishing ---------- */
@@ -276,13 +143,11 @@ function readBody(req, limit = 20 << 20) {
 }
 
 const routes = {
-  'GET /api/stories': () => ({ stories: listStories(), genres: genreNames() }),
-  'GET /api/chapter': (_b, url) => {
-    const novel = url.searchParams.get('novel') ?? '';
-    const c = chaptersOf(SLUG_RE.test(novel) ? novel : '-').find((x) => x.number === Number(url.searchParams.get('n')));
-    if (!c) throw bad('Chapter not found');
-    return parseDoc(readFileSync(join(CHAPTERS, novel, c.file), 'utf8'));
+  'GET /api/stories': () => {
+    const snap = snapshot();
+    return { stories: listStories(snap), genres: genreNames(snap) };
   },
+  'GET /api/chapter': (_b, url) => readChapter(snapshot(), url.searchParams.get('novel') ?? '', Number(url.searchParams.get('n'))),
   'GET /api/changes': () => changes(),
   'GET /api/cover': (_b, url) => {
     const name = /^[\w.-]+\.(?:png|jpe?g|webp|avif)$/i.exec(url.searchParams.get('name') ?? '')?.[0];
@@ -305,7 +170,9 @@ const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (req.method === 'GET' && url.pathname === '/') {
-    return send(200, readFileSync(PAGE, 'utf8').replace('__ADMIN_KEY__', KEY), 'text/html; charset=utf-8');
+    const config = { mode: 'local', api: '/api', key: KEY };
+    const json = JSON.stringify(config).replace(/</g, '\\u003c');
+    return send(200, readFileSync(PAGE, 'utf8').replace('__ADMIN_CONFIG__', () => json), 'text/html; charset=utf-8');
   }
   const route = routes[`${req.method} ${url.pathname}`];
   if (!route) return send(404, { error: 'Not found' });
@@ -327,13 +194,3 @@ server.listen(PORT, '127.0.0.1', () => {
     execFile(...opener, () => {});
   }
 });
-
-// For the quick self-check: node scripts/admin/server.mjs --self-test
-if (process.argv.includes('--self-test')) {
-  const doc = parseDoc('---\ntitle: "අ \\"x\\" #1"\ngenres: ["ආ", "ඇ"]\nchapterNumber: 3\npublishDate: 2026-11-16 # note\n---\n\nබ\n');
-  console.assert(doc.data.title === 'අ "x" #1' && doc.data.genres[1] === 'ඇ' && doc.data.chapterNumber === 3 && doc.data.publishDate === '2026-11-16' && doc.body === 'බ', 'parseDoc');
-  console.assert(normaliseBody('a\n\n b \nc', true) === 'a\n\nb\n\nc', 'normaliseBody');
-  console.assert(!SLUG_RE.test('Bad Slug') && SLUG_RE.test('good-slug-2'), 'slug');
-  console.log('self-test done');
-  server.close();
-}
