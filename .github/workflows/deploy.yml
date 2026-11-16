@@ -15,9 +15,12 @@ permissions:
   pages: write
   id-token: write
 
+# Deploys of main queue in "pages" (the newest waiting one wins, which already has every change).
+# Pull-request builds never deploy, so they get their own group per PR: otherwise a PR build
+# waiting in "pages" would replace, and so cancel, a waiting deploy of main.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
