@@ -96,6 +96,17 @@ const navClass = 'tap flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-2 te
       </div>
 
       <div>
+        <h3 id="size-title" class="font-sans text-sm font-semibold text-[var(--reader-muted)]">අකුරු ප්‍රමාණය</h3>
+        <div class="mt-2 flex items-center gap-2" role="group" aria-labelledby="size-title">
+          <button type="button" data-size-step="-1" aria-label="A− අකුරු කුඩා කරන්න" class="tap cursor-pointer whitespace-nowrap rounded-lg border border-[var(--reader-border)] px-4 py-2.5 text-sm font-semibold">A−</button>
+          <output data-size-value aria-live="polite" class="flex-1 text-center text-sm font-semibold tabular-nums">100%</output>
+          <button type="button" data-size-step="1" aria-label="A+ අකුරු විශාල කරන්න" class="tap cursor-pointer whitespace-nowrap rounded-lg border border-[var(--reader-border)] px-4 py-2.5 text-base font-semibold">A+</button>
+          <!-- Back to the normal size; greyed out while already there. -->
+          <button type="button" data-size-reset class="tap cursor-pointer whitespace-nowrap rounded-lg border border-[var(--reader-border)] px-3 py-2.5 text-sm disabled:cursor-default disabled:opacity-40">සාමාන්‍ය</button>
+        </div>
+      </div>
+
+      <div>
         <h3 class="font-sans text-sm font-semibold text-[var(--reader-muted)]">පරිච්ඡේද {chapters.length}</h3>
         <ol class="mt-1 divide-y divide-[var(--reader-border)]">
           {chapters.map((ch) => (
