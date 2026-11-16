@@ -7,7 +7,7 @@
   </picture>
 </a>
 
-### රසවත් සිංහල නවකතා සහ කෙටිකතා නොමිලේ කියවන්න
+### Read Free Sinhala Novels & Short Stories Online
 
 A fast, free Sinhala web-novel library. Read chapter by chapter, no account needed.
 
