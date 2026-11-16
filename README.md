@@ -1,107 +1,99 @@
-# Katha Arana (කතා අරණ) — SEO-First Web Novel Platform
+<div align="center">
 
-An edge-native, distraction-free reading platform for serialized novels and fiction. Built with **Astro**, **Tailwind CSS**, and **Shadcn design tokens**, tailored according to **Impeccable** design principles.
+<a href="https://kathaarana.com">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/logo-white.png">
+    <img src="public/brand/logo.png" alt="කතා අරණ (Katha Arana)" width="265">
+  </picture>
+</a>
 
-Designed specifically to be deployed on **Cloudflare Pages** with **zero database/admin overhead** and a pure **Git-Push / API publishing workflow**.
+### රසවත් සිංහල නවකතා සහ කෙටිකතා නොමිලේ කියවන්න
+
+A fast, free Sinhala web-novel library. Read chapter by chapter, no account needed.
+
+[![Deploy](https://github.com/harindujayakody/kathaarana/actions/workflows/deploy.yml/badge.svg)](https://github.com/harindujayakody/kathaarana/actions/workflows/deploy.yml)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fkathaarana.com&label=kathaarana.com)](https://kathaarana.com)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+<br>
+[![Astro](https://img.shields.io/badge/Astro-7-BC52EE?logo=astro&logoColor=white)](https://astro.build)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers_%2B_D1-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
+[![GitHub Pages](https://img.shields.io/badge/hosted_on-GitHub_Pages-222?logo=github)](https://pages.github.com)
+
+[**Visit the site**](https://kathaarana.com) · [Publish a story](#-publishing) · [Ratings API](#-ratings-likes-and-views-api) · [Local development](#-local-development)
+
+</div>
 
 ---
 
-## 🌟 Key Features
+## ✨ Features
 
-* **⚡ Static rendering**: Astro pre-renders novel prose as HTML without client-side hydration. Performance scores vary by page and device and are not currently tracked in CI.
-* **📱 Immersive Mobile Reader**:
-  * **4 Display Themes**: Light (Paper), Warm Sepia (Evening reading), Dark Slate, and pure AMOLED Black (OLED battery saver).
-  * **Dynamic Font Scaling**: Real-time `A-` / `A+` font size scaler persisted to `localStorage`.
-  * **Typography Toggle**: Switch between Classic Book Serif (*Lora*) and Modern Clean (*Inter*).
-  * **Mobile Floating Dock & Table of Contents Drawer**: Jump to any chapter with one tap.
-  * **Top Progress Bar**: Subtly indicates reading progress through long chapters.
-  * **Keyboard Navigation**: Press `←` (Previous) and `→` (Next) to flip chapters.
-* **🔍 SEO First & Structured Data**:
-  * Automated **`schema.org/Book`** JSON-LD metadata on novel landing pages.
-  * Automated **`schema.org/Chapter`** with `isPartOf` and `position` indexing.
-  * Automated **`schema.org/BreadcrumbList`** schemas.
-  * Auto-generated **`sitemap-index.xml`** and **`robots.txt`**.
-  * Auto-generated **`rss.xml`** feed for reader syndication.
+**Reading**
+- Chapter reader with light, sepia and dark themes, A−/A+ text size, and sans or book (serif) Sinhala fonts. Settings are saved in the browser.
+- Reading progress bar, chapter list sheet, bookmarks and reading history. No sign-up.
+- Works on any screen size, from 320px phones up.
 
----
+**Library**
+- Novels, short stories (කෙටිකතා), author pages, genre pages and a book shop catalogue (details only, no online ordering yet).
+- Star ratings, reactions and view counts shared across readers, with "top novels" rankings.
 
-## 🚀 Publishing Workflow (No Admin Panel Needed)
+**SEO and speed**
+- Static HTML from Astro: no client framework, self-hosted Noto Sinhala fonts, optimised WebP covers.
+- `schema.org` data: `Book`, `Chapter`, `AggregateRating`, `Person`, `BreadcrumbList`, `WebSite`.
+- Sitemap with chapter dates, RSS feed, Open Graph share images, web app manifest.
 
-### Starting files
+## 🧱 Tech stack
 
-Copy these and fill them in, rather than writing the front matter from scratch:
+| Part | Tool |
+|---|---|
+| Site | [Astro 7](https://astro.build) with content collections, Markdown chapters |
+| Styling | [Tailwind CSS 4](https://tailwindcss.com) |
+| Hosting | GitHub Pages behind Cloudflare (CDN, cache rules) |
+| Ratings, reactions, views | Cloudflare Worker + D1 (SQLite), in [`worker/`](worker/) |
+| Deploys | GitHub Actions: type check, build, publish on every push to `main`, plus a daily rebuild |
+
+## 📁 Project structure
+
+```text
+src/
+  content/
+    novels/            one Markdown file per novel or short story
+    chapters/<novel>/  one Markdown file per chapter (1.md, 2.md, ...)
+    books/             book shop entries
+  assets/covers/       novel covers (2:3 portrait)
+  assets/books/        book covers
+  pages/               routes: /novels/, /authors/, /genres/, /books/, /bookmarks/, rss.xml ...
+  components/  layouts/  scripts/  styles/  utils/
+templates/             starting files for a novel, chapter and book
+worker/                Cloudflare Worker for the /api/* endpoints
+```
+
+## ✍️ Publishing
+
+No admin panel: a story is a few Markdown files. Copy a template, fill it in and push to `main`. The site rebuilds and goes live in a couple of minutes.
 
 | Template | Copy it to |
 |---|---|
-| [`templates/novel.md`](templates/novel.md) | `src/content/novels/<novel-slug>.md` (plus a 2:3 cover in `src/assets/covers/`) |
+| [`templates/novel.md`](templates/novel.md) | `src/content/novels/<novel-slug>.md`, plus a 2:3 cover in `src/assets/covers/` |
 | [`templates/chapter.md`](templates/chapter.md) | `src/content/chapters/<novel-slug>/<number>.md` |
-| [`templates/book.md`](templates/book.md) | `src/content/books/<book-slug>.md` (plus a 2:3 cover in `src/assets/books/`). Shown in the book shop; no online ordering yet. |
+| [`templates/book.md`](templates/book.md) | `src/content/books/<book-slug>.md`, plus a cover in `src/assets/books/` |
 
-A novel needs only a name, an author, a source (මුලාශ්‍රය), a short summary, a cover and a date. The author's page address is made from the author's name, and genres and status are optional. The build stops with a clear message if a required field is missing or wrong.
-
-### 1. Adding a New Chapter via Git Push
-
-To publish a new chapter, simply create a new Markdown file inside `src/content/chapters/[novel-slug]/`:
-
-Example: `src/content/chapters/the-shadow-throne/chapter-04.md`:
+A novel needs only a title, an author, a source (මුලාශ්‍රය), a short summary, a cover and a date. Genres and a "Completed" status are optional. The file name becomes the web address, so use lowercase English letters, numbers and hyphens. The build stops with a clear message if a required field is missing.
 
 ```markdown
 ---
-novel: "the-shadow-throne"
+novel: "my-novel"
 chapterNumber: 4
-title: "The Gates of Val-Aran"
-publishDate: 2026-10-15
-wordCount: 1250
+title: "පරිච්ඡේදයේ නම"
+publishDate: 2026-11-16
 ---
 
-The vortex of silver stardust settled upon the valley floor...
+Chapter text...
 ```
 
-Then push to your repository:
-```bash
-git add src/content/chapters/the-shadow-throne/chapter-04.md
-git commit -m "feat: Publish Chapter 4"
-git push origin main
-```
-Cloudflare Pages will automatically rebuild and deploy globally in ~20 seconds.
+## ⭐ Ratings, likes and views API
 
----
-
-### 2. Adding Content via API (Headless / Webhook)
-
-Because your content lives as Markdown in Git, you can push new chapters directly using the **GitHub REST API** without using the command line:
-
-```bash
-curl -X PUT \
-  -H "Authorization: token YOUR_GITHUB_TOKEN" \
-  -H "Accept: application/vnd.github.v3+json" \
-  https://api.github.com/repos/harindujayakody/kathaarana/contents/src/content/chapters/the-shadow-throne/chapter-04.md \
-  -d '{
-    "message": "feat: Publish Chapter 4 via API",
-    "content": "LS0tCm5vdmVsOiAidGhlLXNoYWRvdy10aHJvbmUiCmNoYXB0ZXJOdW1iZXI6IDQKdGl0bGU6ICJUaGUgR2F0ZXMgb2YgVmFsLUFyYW4iCnB1Ymxpc2hEYXRlOiAyMDI2LTEwLTE1CndvcmRDb3VudDogMTI1MAotLS0KClRoZSB2b3J0ZXggb2Ygc2lsdmVyIHN0YXJkdXN0..."
-  }'
-```
-This commit triggers the automated Cloudflare Pages deployment pipeline.
-
----
-
-## 🛠️ Deploying to Cloudflare Pages
-
-1. Push this project to GitHub or GitLab.
-2. In the [Cloudflare Dashboard](https://dash.cloudflare.com/):
-   * Navigate to **Workers & Pages** > **Create application** > **Pages** > **Connect to Git**.
-   * Select your repository.
-   * Build settings:
-     * **Framework preset**: `Astro`
-     * **Build command**: `npm run build`
-     * **Build output directory**: `dist`
-3. Click **Save and Deploy**. Your site will be live at `https://your-project.pages.dev` with free SSL, global CDN edge caching, and automated builds.
-
----
-
-## ⭐ Ratings, Likes and Views (Cloudflare Worker)
-
-Shared numbers live in a small Cloudflare Worker with a D1 database, in [`worker/`](worker/). The site calls it at `/api/*` on the same domain. Readers need no account: a random device id stored in the browser gives one vote per device.
+A small Cloudflare Worker with a D1 database, served on the same domain at `/api/*`. Readers need no account: a random device id stored in the browser gives one vote per device, and writes are rate-limited per IP.
 
 | Endpoint | What it does |
 |---|---|
@@ -119,25 +111,34 @@ cd worker
 npx wrangler d1 create kathaarana          # put the printed database_id into wrangler.jsonc
 npx wrangler d1 execute kathaarana --remote --file schema.sql
 npx wrangler deploy
+```
 
-# Local testing: run the API, then build the site against it
+## 💻 Local development
+
+Needs Node.js 22.12 or newer.
+
+```bash
+npm install
+npm run dev        # http://localhost:4321
+npm run build      # static site in dist/
+npm run preview    # serve the build
+```
+
+To test against a local API:
+
+```bash
+cd worker
 npx wrangler d1 execute kathaarana --local --env dev --file schema.sql
 npx wrangler dev --env dev --port 8787
+# in another terminal, from the project root:
 PUBLIC_API_BASE=http://localhost:8787/api npm run build && npm run preview
 ```
 
----
+## 📄 License
 
-## 💻 Local Development
+Code is under the [MIT License](LICENSE). Stories belong to their authors and are credited on every page with a link to the original source.
 
-```bash
-# Run local development server
-npm run dev
-
-# Build production static bundle
-npm run build
-
-# Preview production build locally
-npm run preview
-```
-
+<div align="center">
+<br>
+Made with ❤️ by <a href="https://infiax.com">Infiax 360</a>
+</div>
