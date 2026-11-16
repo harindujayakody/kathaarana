@@ -64,6 +64,7 @@ const { genre, novels, chapterCounts } = Astro.props;
 
     <!-- Novels Grid -->
     {novels.length > 0 ? (
+      <h2 class="sr-only">නවකතා ලැයිස්තුව</h2>
       <div class="grid gap-3 sm:gap-4 md:grid-cols-2 2xl:grid-cols-3">
         {novels.map(novel => (
           <NovelCard

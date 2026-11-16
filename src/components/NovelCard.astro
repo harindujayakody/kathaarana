@@ -41,12 +41,14 @@ const { id, title, author, authorSlug, coverImage, synopsis, genres, status, cha
   </a>
 
   <div class="flex min-w-0 flex-1 flex-col">
-    <h3 class="line-clamp-2 font-serif text-[1.0625rem] font-semibold leading-snug">
-      <a href={`/novels/${id}/`} class="hover:accent-text">{title}</a>
+    <h3 class="font-serif text-[1.0625rem] font-semibold leading-snug">
+      <!-- Clamped on the link, not the heading, so its tap area stops at the visible two lines. -->
+      <a href={`/novels/${id}/`} class="line-clamp-2 hover:accent-text">{title}</a>
     </h3>
-    <p class="mt-0.5 truncate text-sm text-[var(--reader-muted)]">
-      <a href={`/authors/${authorSlug}/`} class="hover:text-[var(--reader-text)]">{author}</a>
-      {genres[0] && <><span aria-hidden="true"> · </span>{genres[0]}</>}
+    <!-- py-1 on the link: a 24px+ tap target that doesn't crowd the title link above. -->
+    <p class="mt-1 flex min-w-0 items-center text-sm text-[var(--reader-muted)]">
+      <a href={`/authors/${authorSlug}/`} class="truncate py-1 hover:text-[var(--reader-text)]">{author}</a>
+      {genres[0] && <span class="shrink-0 whitespace-pre"><span aria-hidden="true"> · </span>{genres[0]}</span>}
     </p>
     {synopsis && <p class="mt-2 line-clamp-2 text-sm leading-relaxed">{synopsis}</p>}
 

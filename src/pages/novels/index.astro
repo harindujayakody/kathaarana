@@ -107,6 +107,8 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
     </div>
 
     <!-- Novel Grid Container: 2 on Mobile, 3 on Tablet, 4 on Desktop -->
+    <!-- The cards' titles are h3, so the list gets an h2 for screen readers. -->
+    <h2 class="sr-only">නවකතා ලැයිස්තුව</h2>
     <div
       id="novels-catalog-grid"
       class="grid gap-3 sm:gap-4 md:grid-cols-2 2xl:grid-cols-3"

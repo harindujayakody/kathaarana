@@ -93,7 +93,8 @@ const novelList = {
                 <a href={`/authors/${featured.data.authorSlug}/`} class="font-medium text-[var(--reader-text)] hover:accent-text">{featured.data.author}</a>
                 {featured.data.genres.length > 0 && <><span aria-hidden="true"> · </span>{featured.data.genres.slice(0, 2).join(', ')}</>}
               </p>
-              <p class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--reader-muted)]">
+              <!-- Two lines reserved on phones: the numbers arrive after load and would otherwise wrap and shift the page. -->
+              <p class="mt-2 flex min-h-11 flex-wrap content-start items-center gap-x-4 gap-y-1 text-sm text-[var(--reader-muted)] sm:min-h-0">
                 <span class="inline-flex items-center gap-1">
                   <Icon name="star" class="h-4 w-4 fill-current text-[var(--star)]" />
                   <span data-s="rating" class="font-semibold tabular-nums text-[var(--reader-text)]">–</span>
