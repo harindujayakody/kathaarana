@@ -1,6 +1,6 @@
 // node scripts/admin/content.test.mjs
 import assert from 'node:assert/strict';
-import { normaliseBody, parseDoc, planChapter, planStory, SLUG_RE } from './content.mjs';
+import { listBooks, normaliseBody, parseDoc, planBook, planChapter, planStory, readBook, SLUG_RE } from './content.mjs';
 
 const doc = parseDoc('---\ntitle: "අ \\"x\\" #1"\ngenres: ["ආ", "ඇ"]\nchapterNumber: 3\npublishDate: 2026-11-16 # note\n---\n\nබ\n');
 assert.deepEqual(doc, { data: { title: 'අ "x" #1', genres: ['ආ', 'ඇ'], chapterNumber: 3, publishDate: '2026-11-16' }, body: 'බ' });
@@ -32,5 +32,22 @@ await assert.rejects(planStory(snap, { ...same, slug: 'constructor' }, { cover: 
 
 // Pasted HTML can't run on the site.
 assert.equal(normaliseBody('<script>alert(1)</script> <3', true), '&lt;script>alert(1)&lt;/script> &lt;3');
+
+// Books: a new book is a cover plus a file; an unchanged edit writes the same file back; bad input is refused.
+const noBooks = { novels: {}, chapters: {}, books: {} };
+const newBook = planBook(noBooks, { isNew: true, slug: 'my-book', title: 'පොත', author: 'අ', publisher: 'ප', pages: '240', addedDate: '2026-11-16', about: 'එක\nදෙක <b>' }, { cover: { bytes: new Uint8Array([1]) } });
+assert.deepEqual(newBook.files.map((f) => f.path), ['src/assets/books/my-book.jpg', 'src/content/books/my-book.md']);
+const bookMd = newBook.files[1].content;
+assert.equal(bookMd, '---\ntitle: "පොත"\nauthor: "අ"\npublisher: "ප"\ncoverImage: "../../assets/books/my-book.jpg"\npages: 240\naddedDate: 2026-11-16\n---\n\nඑක\n\nදෙක &lt;b>\n');
+const withBook = { ...noBooks, books: { 'my-book': bookMd } };
+assert.equal(listBooks(withBook)[0].title, 'පොත');
+const stored = readBook(withBook, 'my-book');
+const sameBook = planBook(withBook, { isNew: false, slug: 'my-book', title: 'පොත', author: 'අ', publisher: 'ප', pages: stored.data.pages, addedDate: stored.data.addedDate, about: stored.body, linesAreParagraphs: false }, { cover: null });
+assert.equal(sameBook.files.length, 1);
+assert.equal(sameBook.files[0].content, bookMd);
+assert.throws(() => planBook(withBook, { isNew: true, slug: 'my-book', title: 't', author: 'a' }, { cover: null }), /already exists/);
+assert.throws(() => planBook(noBooks, { isNew: true, slug: 'x', title: 't', author: 'a', pages: '2.5' }, { cover: { bytes: new Uint8Array() } }), /whole number/);
+assert.throws(() => planBook(noBooks, { isNew: true, slug: 'x', title: 't', author: 'a' }, { cover: null }), /cover image/);
+assert.throws(() => readBook(withBook, 'constructor'), /Book not found/);
 
 console.log('content rules: all checks passed');

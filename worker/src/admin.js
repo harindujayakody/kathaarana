@@ -7,7 +7,7 @@
 // ACCESS_TEAM, ACCESS_AUD and ADMIN_EMAILS are set. All four settings, GITHUB_TOKEN included, are
 // Worker secrets so the email and token never sit in this public repository.
 import page from '../../scripts/admin/index.html';
-import { bad, coverFileName, genreNames, listStories, planChapter, planStory, readChapter } from '../../scripts/admin/content.mjs';
+import { bad, bookCoverFileName, coverFileName, genreNames, listBooks, listStories, planBook, planChapter, planStory, readBook, readChapter } from '../../scripts/admin/content.mjs';
 
 const MAX_BODY = 6 * 1024 * 1024; // a resized cover is well under this
 const SECURITY_HEADERS = {
@@ -97,13 +97,14 @@ async function snapshot(env) {
   const { owner, name, branch } = repo(env);
   const data = await gql(
     env,
-    `query($owner: String!, $name: String!, $ref: String!, $novels: String!, $chapters: String!, $covers: String!, $genres: String!) {
+    `query($owner: String!, $name: String!, $ref: String!, $novels: String!, $chapters: String!, $covers: String!, $genres: String!, $books: String!) {
       repository(owner: $owner, name: $name) {
         ref(qualifiedName: $ref) { target { oid } }
         novels: object(expression: $novels) { ... on Tree { entries { name object { ... on Blob { text } } } } }
         chapters: object(expression: $chapters) { ... on Tree { entries { name object { ... on Tree { entries { name object { ... on Blob { text } } } } } } } }
         covers: object(expression: $covers) { ... on Tree { entries { name } } }
         genres: object(expression: $genres) { ... on Blob { text } }
+        books: object(expression: $books) { ... on Tree { entries { name object { ... on Blob { text } } } } }
       }
     }`,
     {
@@ -114,6 +115,7 @@ async function snapshot(env) {
       chapters: `${branch}:src/content/chapters`,
       covers: `${branch}:src/assets/covers`,
       genres: `${branch}:src/utils/genres.ts`,
+      books: `${branch}:src/content/books`,
     },
   );
   const r = data.repository;
@@ -126,6 +128,7 @@ async function snapshot(env) {
     ),
     covers: new Set((r.covers?.entries ?? []).map((e) => e.name)),
     genresTs: r.genres?.text ?? '',
+    books: Object.fromEntries(md(r.books?.entries).map((e) => [e.name.replace(/\.mdx?$/, ''), e.object.text])),
   };
 }
 
@@ -148,10 +151,12 @@ async function commit(env, snap, files, headline) {
   return { sha: c.oid.slice(0, 7), url: c.url };
 }
 
-async function coverPreview(env, name) {
-  if (!coverFileName(`../../assets/covers/${name}`)) throw bad('Cover not found');
+async function coverPreview(env, name, kind) {
+  const folder = kind === 'books' ? 'books' : 'covers';
+  const valid = folder === 'books' ? bookCoverFileName(`../../assets/books/${name}`) : coverFileName(`../../assets/covers/${name}`);
+  if (!valid) throw bad('Cover not found');
   const { owner, name: repoName, branch } = repo(env);
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repoName}/contents/src/assets/covers/${encodeURIComponent(name)}?ref=${branch}`, {
+  const res = await fetch(`https://api.github.com/repos/${owner}/${repoName}/contents/src/assets/${folder}/${encodeURIComponent(name)}?ref=${branch}`, {
     headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github.raw+json', 'User-Agent': 'kathaarana-admin' },
   });
   if (!res.ok) throw bad('Cover not found');
@@ -271,15 +276,16 @@ export async function handleAdmin(request, env) {
     const route = `${request.method} ${url.pathname}`;
     if (route === 'GET /admin/api/stories') {
       const snap = await snapshot(env);
-      return reply({ stories: listStories(snap), genres: genreNames(snap) });
+      return reply({ stories: listStories(snap), genres: genreNames(snap), books: listBooks(snap) });
     }
     if (route === 'GET /admin/api/chapter') {
       return reply(readChapter(await snapshot(env), url.searchParams.get('novel') ?? '', Number(url.searchParams.get('n'))));
     }
-    if (route === 'GET /admin/api/cover') return reply(await coverPreview(env, url.searchParams.get('name') ?? ''));
+    if (route === 'GET /admin/api/cover') return reply(await coverPreview(env, url.searchParams.get('name') ?? '', url.searchParams.get('kind')));
+    if (route === 'GET /admin/api/book') return reply(readBook(await snapshot(env), url.searchParams.get('slug') ?? ''));
     if (route === 'GET /admin/api/stats') return reply(await stats(env, url.searchParams.get('period') ?? '7'));
 
-    if (request.method === 'POST' && (url.pathname === '/admin/api/story' || url.pathname === '/admin/api/chapter')) {
+    if (request.method === 'POST' && ['/admin/api/story', '/admin/api/chapter', '/admin/api/book'].includes(url.pathname)) {
       const raw = await request.text();
       if (raw.length > MAX_BODY) throw bad('Upload too large');
       const b = JSON.parse(raw);
@@ -290,6 +296,10 @@ export async function handleAdmin(request, env) {
           coverExists: (name) => snap.covers.has(name),
         });
         return reply(await commit(env, snap, files, `${b.isNew ? 'Publish' : 'Update'} ${String(b.title).trim()}`));
+      }
+      if (url.pathname === '/admin/api/book') {
+        const { files } = planBook(snap, b, { cover: b.cover ? coverFromBrowser(b.cover) : null });
+        return reply(await commit(env, snap, files, `${b.isNew ? 'Add' : 'Update'} book ${String(b.title).trim()}`));
       }
       const files = planChapter(snap, b);
       const story = listStories(snap).find((s) => s.slug === b.novel);
