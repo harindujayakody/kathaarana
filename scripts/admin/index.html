@@ -114,7 +114,7 @@
   .btn.small { padding: 6px 12px; font-size: 13.5px; border-radius: 8px; }
   .btn.ghost { border-color: transparent; background: none; }
   .btn:disabled { opacity: .5; cursor: progress; }
-  .seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--soft); }
+  .seg { display: inline-flex; flex-wrap: wrap; padding: 3px; border-radius: 10px; background: var(--soft); }
   .seg button { border: 0; background: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; color: var(--muted); }
   .seg button[aria-pressed="true"] { background: var(--panel); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
   .notice { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--raised); font-size: 14px; }
@@ -195,6 +195,9 @@
   .bars li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; font-size: 14px; }
   .bars .name { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bars .name > span { overflow: hidden; text-overflow: ellipsis; }
+  .bars a.name { text-decoration: none; }
+  .bars a.name:hover > span:first-child { text-decoration: underline; text-underline-offset: 3px; }
+  .bars .ext { color: var(--faint); font-size: 12px; flex: none; }
   .flag { width: 22px; height: 16px; flex: none; border-radius: 3px; object-fit: cover; box-shadow: 0 0 0 1px var(--border); background: var(--soft); }
   .bars .num { color: var(--muted); font-variant-numeric: tabular-nums; }
   .bars .track { grid-column: 1 / -1; height: 6px; border-radius: 4px; background: var(--soft); overflow: hidden; }
@@ -259,8 +262,10 @@
         <div class="head">
           <div><h1>Stats</h1><p id="stats-range">Visitors and readers</p></div>
           <div class="seg" role="group" aria-label="Period">
-            <button type="button" data-days="7" aria-pressed="true">7 days</button>
-            <button type="button" data-days="30" aria-pressed="false">30 days</button>
+            <button type="button" data-period="today" aria-pressed="false">Today</button>
+            <button type="button" data-period="yesterday" aria-pressed="false">Yesterday</button>
+            <button type="button" data-period="7" aria-pressed="true">7 days</button>
+            <button type="button" data-period="30" aria-pressed="false">30 days</button>
           </div>
         </div>
         <div id="stats-local" class="notice" hidden>
@@ -447,7 +452,7 @@ let storyMode = { isNew: true, slug: null };
 let chapterMode = { isNew: true };
 let cover = { dataUrl: null, path: null };
 let lastSaved = '';
-let statsDays = 7;
+let statsPeriod = '7';
 
 async function api(path, body) {
   const res = await fetch(CONFIG.api + path.replace(/^\/api/, ''), {
@@ -868,7 +873,9 @@ function barList(title, rows, unit) {
       ? el('ul', { className: 'bars' }, ...rows.map((r) => {
           const fill = el('div', { className: 'fill' });
           fill.style.width = `${(r.count / max) * 100}%`;
-          const name = el('span', { className: 'name', title: r.name }, ...(r.flag ? [r.flag] : []), el('span', { textContent: r.name }));
+          const name = r.href
+            ? el('a', { className: 'name link', href: r.href, target: '_blank', rel: 'noopener', title: `Open ${r.name}` }, el('span', { textContent: r.name }), el('span', { className: 'ext', textContent: '↗' }))
+            : el('span', { className: 'name', title: r.name }, ...(r.flag ? [r.flag] : []), el('span', { textContent: r.name }));
           return el('li', {}, name, el('span', { className: 'num', textContent: fmt(r.count) }), el('div', { className: 'track' }, fill));
         }))
       : el('p', { className: 'empty', textContent: 'Nothing yet.' }));
@@ -878,10 +885,11 @@ async function loadStats() {
   if (!ONLINE) { $('#stats-local').hidden = false; $('#stats-body').hidden = true; return; }
   $('#tiles').replaceChildren(el('p', { className: 'empty', textContent: 'Loading…' }));
   let s;
-  try { s = await api(`/api/stats?days=${statsDays}`); } catch (e) { $('#tiles').replaceChildren(el('p', { className: 'empty', textContent: e.message })); return; }
+  try { s = await api(`/api/stats?period=${statsPeriod}`); } catch (e) { $('#tiles').replaceChildren(el('p', { className: 'empty', textContent: e.message })); return; }
   const { range, web, site } = s;
   const d = (v) => new Date(`${v}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-  $('#stats-range').textContent = `${d(range.since)} – ${d(range.until)} · last ${range.days} days`;
+  const label = { today: 'Today', yesterday: 'Yesterday' }[range.period];
+  $('#stats-range').textContent = label ? `${label} · ${d(range.since)} (UTC day)` : `${d(range.since)} – ${d(range.until)} · last ${range.days} days`;
   $('#cf-setup').hidden = s.cloudflare;
 
   const w = web.ok ? web.data : null, st = site.ok ? site.data : null;
@@ -902,19 +910,21 @@ async function loadStats() {
   if (st) readers.push(tile('Chapter reads', compact(sum(st.daily, 'reads')), 'Unique daily'), tile('PDF downloads', compact(novels.reduce((n, [, v]) => n + (v.downloadsRecent || 0), 0)), `${compact(novels.reduce((n, [, v]) => n + v.downloads, 0))} all time`));
   $('#tiles').replaceChildren(...(readers.length ? [group('Readers', readers)] : []));
 
+  // A single day has nothing to chart day by day.
+  $('#chart').closest('.card').hidden = range.days === 1;
   // Prefer real page views; without Cloudflare, show the site's own chapter reads.
   if (w) { $('#chart-title').textContent = 'Page views per day'; $('#chart-sub').textContent = 'From Cloudflare Web Analytics. Hover a day for its number.'; barChart($('#chart'), allDays(w.daily, 'views'), 'views', 'Page views'); }
   else { $('#chart-title').textContent = 'Chapter reads per day'; $('#chart-sub').textContent = 'From the site’s own counter. Hover a day for its number.'; barChart($('#chart'), allDays(st?.daily, 'reads'), 'reads', 'Reads'); }
 
   $('#lists').replaceChildren(...(w ? [
-    barList('Top pages', w.pages.map((p) => ({ ...p, name: pageName(p.name) })), 'Home, stories and chapters'),
+    barList('Top pages', w.pages.map((p) => ({ ...p, name: pageName(p.name), href: `https://kathaarana.com${p.name}` })), 'Home, stories and chapters · click to open'),
     barList('Countries', w.countries.map((c) => ({ ...c, ...country(c.name) })), 'page views'),
     barList('Referrers', w.referrers, 'where visitors came from'),
     barList('Devices', w.devices, 'page views'),
   ] : []));
 
   const title = (slug) => stories.find((x) => x.slug === slug)?.title ?? slug;
-  const head = el('tr', {}, ...['Story', `Reads (${range.days}d)`, 'Reads (all)', '❤️', '😢', 'Rating', 'PDF'].map((h) => el('th', { scope: 'col', textContent: h })));
+  const head = el('tr', {}, ...['Story', `Reads (${label ?? `${range.days}d`})`, 'Reads (all)', '❤️', '😢', 'Rating', 'PDF'].map((h) => el('th', { scope: 'col', textContent: h })));
   const rows = novels.sort((a, b) => b[1].readsRecent - a[1].readsRecent || b[1].reads - a[1].reads).map(([slug, v]) => el('tr', {},
     el('td', { title: title(slug), textContent: title(slug) }),
     el('td', { textContent: fmt(v.readsRecent) }), el('td', { textContent: fmt(v.reads) }),
@@ -928,9 +938,9 @@ async function loadStats() {
   $('#stats-errors').hidden = !problems.length;
   $('#stats-errors').replaceChildren(...(problems.length ? [el('div', {}, el('b', { textContent: 'Some numbers didn’t load. ' }), problems.join(' · '))] : []));
 }
-$$('[data-days]').forEach((b) => (b.onclick = () => {
-  statsDays = Number(b.dataset.days);
-  $$('[data-days]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+$$('[data-period]').forEach((b) => (b.onclick = () => {
+  statsPeriod = b.dataset.period;
+  $$('[data-period]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
   loadStats();
 }));
 

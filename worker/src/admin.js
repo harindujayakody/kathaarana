@@ -209,14 +209,15 @@ async function webAnalytics(env, since, until) {
 }
 
 // The site's own numbers from D1: reads, likes, ratings and PDF downloads per story.
-async function siteNumbers(env, since) {
+async function siteNumbers(env, since, until) {
   const sinceMs = Date.parse(`${since}T00:00:00Z`);
+  const untilMs = Date.parse(`${until}T00:00:00Z`) + 86400000; // end of the last day
   const [views, ratings, reactions, downloads, daily] = await env.DB.batch([
-    env.DB.prepare('SELECT novel, SUM(count) AS total, SUM(CASE WHEN day >= ?1 THEN count ELSE 0 END) AS recent FROM views_daily GROUP BY novel').bind(since),
+    env.DB.prepare('SELECT novel, SUM(count) AS total, SUM(CASE WHEN day BETWEEN ?1 AND ?2 THEN count ELSE 0 END) AS recent FROM views_daily GROUP BY novel').bind(since, until),
     env.DB.prepare('SELECT novel, AVG(stars) AS avg, COUNT(*) AS n FROM ratings GROUP BY novel'),
     env.DB.prepare("SELECT novel, SUM(kind = 'like') AS likes, SUM(kind = 'sad') AS sad, COUNT(*) AS total FROM reactions GROUP BY novel"),
-    env.DB.prepare('SELECT novel, COUNT(*) AS total, SUM(created_at >= ?1) AS recent FROM downloads GROUP BY novel').bind(sinceMs),
-    env.DB.prepare('SELECT day, SUM(count) AS reads FROM views_daily WHERE day >= ?1 GROUP BY day ORDER BY day').bind(since),
+    env.DB.prepare('SELECT novel, COUNT(*) AS total, SUM(created_at >= ?1 AND created_at < ?2) AS recent FROM downloads GROUP BY novel').bind(sinceMs, untilMs),
+    env.DB.prepare('SELECT day, SUM(count) AS reads FROM views_daily WHERE day BETWEEN ?1 AND ?2 GROUP BY day ORDER BY day').bind(since, until),
   ]);
   const novels = {};
   const row = (id) => (novels[id] ??= { reads: 0, readsRecent: 0, rating: 0, ratings: 0, likes: 0, sad: 0, reactions: 0, downloads: 0, downloadsRecent: 0 });
@@ -227,15 +228,18 @@ async function siteNumbers(env, since) {
   return { novels, daily: daily.results.map((r) => ({ date: r.day, reads: r.reads })) };
 }
 
-async function stats(env, days) {
-  const until = new Date();
+// Periods: today, yesterday, or the last 7 / 30 days. Days are UTC dates, as Cloudflare counts them.
+const PERIODS = { today: [0, 1], yesterday: [1, 1], 7: [0, 7], 30: [0, 30] };
+async function stats(env, period) {
+  const [back, days] = PERIODS[period] ?? PERIODS[7];
+  const until = new Date(Date.now() - back * 86400000);
   const since = new Date(until.getTime() - (days - 1) * 86400000);
-  const range = { since: ymd(since), until: ymd(until), days };
+  const range = { since: ymd(since), until: ymd(until), days, period: period in PERIODS ? period : '7' };
   const ready = Boolean(env.CF_ANALYTICS_TOKEN && env.CF_ACCOUNT_ID && env.SITE_HOST);
   // Loaded separately, so if Cloudflare fails the site's own numbers still show.
   const [web, site] = await Promise.allSettled([
     ready ? webAnalytics(env, range.since, range.until) : Promise.reject(new Error('not set up')),
-    siteNumbers(env, range.since),
+    siteNumbers(env, range.since, range.until),
   ]);
   const part = (r) => (r.status === 'fulfilled' ? { ok: true, data: r.value } : { ok: false, error: String(r.reason?.message || r.reason).slice(0, 300) });
   return { range, cloudflare: ready, web: part(web), site: part(site) };
@@ -273,7 +277,7 @@ export async function handleAdmin(request, env) {
       return reply(readChapter(await snapshot(env), url.searchParams.get('novel') ?? '', Number(url.searchParams.get('n'))));
     }
     if (route === 'GET /admin/api/cover') return reply(await coverPreview(env, url.searchParams.get('name') ?? ''));
-    if (route === 'GET /admin/api/stats') return reply(await stats(env, url.searchParams.get('days') === '30' ? 30 : 7));
+    if (route === 'GET /admin/api/stats') return reply(await stats(env, url.searchParams.get('period') ?? '7'));
 
     if (request.method === 'POST' && (url.pathname === '/admin/api/story' || url.pathname === '/admin/api/chapter')) {
       const raw = await request.text();
