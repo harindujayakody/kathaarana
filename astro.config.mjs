@@ -37,6 +37,9 @@ export default defineConfig({
   site: 'https://kathaarana.com',
   // GitHub Pages serves /x/ and 301s /x, so links and canonicals all use the slash form.
   trailingSlash: 'always',
+  // Instant page changes: the client router fetches each link's page as it scrolls into view
+  // (phones have no hover). Astro skips this on Save-Data and 2G connections.
+  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
   // Built images, styles and scripts live under /assets/ (default is /_astro/).
   // The file names keep their content hash, so browsers can cache them for a year.
   // Old /_astro/ links are 301-redirected to /assets/ by the Worker (worker/src/legacy-assets.json).
