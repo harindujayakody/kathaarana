@@ -89,7 +89,7 @@ const novelList = {
             </h2>
             <p class="mt-1 text-sm text-[var(--reader-muted)]">
               <a href={`/authors/${featured.data.authorSlug}/`} class="font-medium text-[var(--reader-text)] hover:accent-text">{featured.data.author}</a>
-              <span aria-hidden="true"> · </span>{featured.data.genres.slice(0, 2).join(', ')}
+              {featured.data.genres.length > 0 && <><span aria-hidden="true"> · </span>{featured.data.genres.slice(0, 2).join(', ')}</>}
             </p>
             <p class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--reader-muted)]">
               <span class="inline-flex items-center gap-1">

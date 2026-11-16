@@ -68,7 +68,7 @@ if (novel && !chapter) {
     image: new URL(novel.coverImage, siteUrl).toString(),
     url: novel.url ?? canonicalUrl,
     inLanguage: 'si',
-    genre: novel.genres,
+    genre: novel.genres?.length ? novel.genres : undefined,
     // Only when readers have actually rated it; the same numbers are shown on the page.
     aggregateRating: novel.rating && novel.rating.count > 0
       ? { '@type': 'AggregateRating', ratingValue: novel.rating.value, ratingCount: novel.rating.count, bestRating: 5, worstRating: 1 }

@@ -86,8 +86,8 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
         </button>
       </div>
 
-      <!-- Quick Genre Filter Bar -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none max-w-full">
+      <!-- Quick Genre Filter Bar: only when some novel has genres -->
+      {allGenres.length > 0 && <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs scrollbar-none max-w-full">
         <button
           data-filter-genre="all"
           class="genre-btn px-3.5 py-1.5 rounded-lg accent-bg font-semibold text-white shrink-0 transition-all shadow-xs cursor-pointer"
@@ -102,7 +102,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
             {g}
           </button>
         ))}
-      </div>
+      </div>}
 
     </div>
 

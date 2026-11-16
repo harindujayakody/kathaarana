@@ -36,7 +36,7 @@ Copy these and fill them in, rather than writing the front matter from scratch:
 | [`templates/novel.md`](templates/novel.md) | `src/content/novels/<novel-slug>.md` (plus a 2:3 cover in `src/assets/covers/`) |
 | [`templates/chapter.md`](templates/chapter.md) | `src/content/chapters/<novel-slug>/<number>.md` |
 
-Both files explain each field in comments. The build stops with a clear message if a field is missing or wrong.
+A novel needs only a name, an author, a source (මුලාශ්‍රය), a short summary, a cover and a date. The author's page address is made from the author's name, and genres and status are optional. The build stops with a clear message if a required field is missing or wrong.
 
 ### 1. Adding a New Chapter via Git Push
 

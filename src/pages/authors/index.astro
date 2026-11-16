@@ -73,13 +73,13 @@ const authorDetails = uniqueAuthors.map(author => {
             </div>
 
             <!-- Genre Pills -->
-            <div class="flex flex-wrap gap-1.5 pt-1">
+            {author.genres.length > 0 && <div class="flex flex-wrap gap-1.5 pt-1">
               {author.genres.map((g: string) => (
                 <span class="text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--reader-bg)] border border-[var(--reader-border)] text-[var(--reader-muted)]">
                   {g}
                 </span>
               ))}
-            </div>
+            </div>}
 
             <!-- Novel Covers Thumbnails -->
             <div class="pt-2">
