@@ -55,13 +55,28 @@ const emptyStats = (): NovelStats => ({ rating: 0, ratings: 0, likes: 0, views: 
 
 /* ---------- theme ---------- */
 
+const systemTheme = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+// Applies a theme and saves it, or forgets the choice (null) to follow the device again.
+// Raw string, not JSON: the inline head script in BaseLayout reads it before this module loads.
+export function setTheme(theme: string | null) {
+  try {
+    if (theme) localStorage.setItem('katha_theme', theme);
+    else localStorage.removeItem('katha_theme');
+  } catch {}
+  const shown = theme ?? systemTheme();
+  document.documentElement.dataset.theme = shown;
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
+  if (meta) meta.content = theme ? (shown === 'dark' ? 'dark' : 'light') : 'light dark';
+}
+
+// Sidebar/header toggle: switch to the opposite of what's shown. Landing back on the device's own
+// setting forgets the choice instead of pinning it.
 function initTheme() {
   document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
     btn.onclick = () => {
       const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-      document.documentElement.dataset.theme = next;
-      // Raw string, not JSON: the inline head script reads it before this module loads.
-      localStorage.setItem('katha_theme', next);
+      setTheme(next === systemTheme() ? null : next);
     };
   });
 }

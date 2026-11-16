@@ -209,6 +209,12 @@ dialog.sheet {
 }
 dialog.sheet::backdrop {
   background: rgba(0, 0, 0, 0.55);
+  /* With overscroll-behavior on the sheet: scrolling the chapter list doesn't scroll the page behind. */
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+dialog.sheet:modal {
+  overscroll-behavior: contain;
 }
 @media (min-width: 640px) {
   dialog.sheet {
