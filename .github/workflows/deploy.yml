@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  # Daily rebuild: refreshes the ratings baked into each page's structured data.
+  schedule:
+    - cron: '30 0 * * *'
 
 permissions:
   contents: read
