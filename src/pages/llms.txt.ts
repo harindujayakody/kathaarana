@@ -41,5 +41,6 @@ ${stories.join('\n')}
 - [Sitemap](${url('/sitemap-index.xml')})
 `;
 
-  return new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  // Static hosts may send .txt as text/plain with no charset; the byte-order mark makes browsers read UTF-8.
+  return new Response('﻿' + text, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 };
