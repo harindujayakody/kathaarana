@@ -16,7 +16,7 @@ const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'same-origin',
   'Content-Security-Policy':
-    "default-src 'self'; img-src 'self' data: blob:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+    "default-src 'self'; img-src 'self' data: blob: https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
 };
 
 const reply = (body, status = 200, type = 'application/json; charset=utf-8') =>
@@ -172,8 +172,7 @@ function coverFromBrowser(dataUrl) {
 
 const ymd = (d) => d.toISOString().slice(0, 10);
 
-// Cloudflare's analytics API. Needs the CF_ANALYTICS_TOKEN secret (Account Analytics: Read and
-// Zone Analytics: Read). Each part is asked for separately so one failing doesn't hide the others.
+// Cloudflare's analytics API. Needs the CF_ANALYTICS_TOKEN secret (Account Analytics: Read).
 async function cfQuery(env, query, variables) {
   const res = await fetch('https://api.cloudflare.com/client/v4/graphql', {
     method: 'POST',
@@ -201,27 +200,12 @@ async function webAnalytics(env, since, until) {
   const top = (rows = [], key, n = 8) => rows.slice(0, n).map((r) => ({ name: r.dimensions[key] || '(direct)', count: r.count }));
   return {
     daily: (a.daily ?? []).map((r) => ({ date: r.dimensions.date, views: r.count, visits: r.sum?.visits ?? 0 })),
-    pages: top(a.pages, 'requestPath', 10),
+    // Only the home page, story pages and chapters; bookmarks, author pages, assets etc. are left out.
+    pages: top((a.pages ?? []).filter((r) => /^\/(novels\/[a-z0-9-]+\/(\d+\/)?)?$/.test(r.dimensions.requestPath)), 'requestPath', 10),
     countries: top(a.countries, 'countryName'),
     referrers: top(a.referrers, 'refererHost'),
     devices: top(a.devices, 'deviceType', 4),
   };
-}
-
-// Zone traffic: every request Cloudflare served for kathaarana.com, bots included.
-async function zoneTraffic(env, since, until) {
-  const data = await cfQuery(
-    env,
-    `query($zone: String!, $since: Date!, $until: Date!) {
-      viewer { zones(filter: { zoneTag: $zone }) {
-        httpRequests1dGroups(limit: 40, filter: { date_geq: $since, date_leq: $until }, orderBy: [date_ASC]) {
-          dimensions { date } sum { requests bytes cachedBytes threats } uniq { uniques }
-        }
-      } }
-    }`,
-    { zone: env.CF_ZONE_ID, since, until },
-  );
-  return (data.viewer.zones[0]?.httpRequests1dGroups ?? []).map((r) => ({ date: r.dimensions.date, ...r.sum, uniques: r.uniq.uniques }));
 }
 
 // The site's own numbers from D1: reads, likes, ratings and PDF downloads per story.
@@ -247,14 +231,14 @@ async function stats(env, days) {
   const until = new Date();
   const since = new Date(until.getTime() - (days - 1) * 86400000);
   const range = { since: ymd(since), until: ymd(until), days };
-  const ready = Boolean(env.CF_ANALYTICS_TOKEN && env.CF_ACCOUNT_ID && env.CF_ZONE_ID && env.SITE_HOST);
-  const [web, zone, site] = await Promise.allSettled([
+  const ready = Boolean(env.CF_ANALYTICS_TOKEN && env.CF_ACCOUNT_ID && env.SITE_HOST);
+  // Loaded separately, so if Cloudflare fails the site's own numbers still show.
+  const [web, site] = await Promise.allSettled([
     ready ? webAnalytics(env, range.since, range.until) : Promise.reject(new Error('not set up')),
-    ready ? zoneTraffic(env, range.since, range.until) : Promise.reject(new Error('not set up')),
     siteNumbers(env, range.since),
   ]);
   const part = (r) => (r.status === 'fulfilled' ? { ok: true, data: r.value } : { ok: false, error: String(r.reason?.message || r.reason).slice(0, 300) });
-  return { range, cloudflare: ready, web: part(web), zone: part(zone), site: part(site) };
+  return { range, cloudflare: ready, web: part(web), site: part(site) };
 }
 
 /* ---------- routes ---------- */
