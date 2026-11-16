@@ -10,6 +10,8 @@ pages: 240                        # optional: පිටු ගණන
 print: "මුද්‍රණයේ ඇත"              # optional: මුද්‍රණ තත්වය
 binding: "කඩදාසි කවරය"             # optional: බන්ධනය
 addedDate: 2026-11-16             # optional: newest books are listed first
+genres: ["නවකතා"]                # optional: ප්‍රභේදය
+price: 1250                       # optional: මිල, රුපියල් (e.g. 1250 or 1250.50)
 ---
 
 මෙම පොත ගැන ලියන්න. මෙය "මෙම පොත ගැන" කොටසේ පෙන්වයි. ඡේද හිස් පේළියකින් වෙන් කරන්න.

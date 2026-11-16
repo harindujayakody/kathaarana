@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import { formatPrice } from '../utils/price';
 
 interface Props {
   id: string;
@@ -8,11 +9,12 @@ interface Props {
   author: string;
   publisher?: string;
   coverImage: ImageMetadata;
+  price?: number;
   /** First cards on a page load eagerly; the rest are lazy. */
   eager?: boolean;
 }
 
-const { id, title, author, publisher, coverImage, eager = false } = Astro.props;
+const { id, title, author, publisher, coverImage, price, eager = false } = Astro.props;
 ---
 
 <!-- Shop card: the cover leads, the whole card opens the book page -->
@@ -31,5 +33,6 @@ const { id, title, author, publisher, coverImage, eager = false } = Astro.props;
     <h2 class="line-clamp-2 font-serif text-base font-semibold leading-snug group-hover:accent-text">{title}</h2>
     <p class="mt-1 truncate text-sm text-[var(--reader-muted)]">{author}</p>
     {publisher && <p class="mt-0.5 truncate text-xs text-[var(--reader-muted)]">{publisher}</p>}
+    {price !== undefined && <p class="mt-auto pt-2 font-semibold tabular-nums">{formatPrice(price)}</p>}
   </div>
 </a>

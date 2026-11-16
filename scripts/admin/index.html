@@ -452,6 +452,14 @@
             <div class="card">
               <h2>Details</h2><p class="sub">All optional.</p>
               <div class="grid">
+                <label class="f" style="max-width:16rem">Price
+                  <div class="prefix"><span>රු.</span><input type="text" name="price" inputmode="decimal" placeholder="1250.00" style="padding-left:6px" /></div>
+                </label>
+                <div class="grid" style="gap:8px">
+                  <span class="f" style="font-weight:600;font-size:14px">Genres <span class="opt">optional</span></span>
+                  <div class="chips" id="book-genres"></div>
+                  <div class="inline-add"><input type="text" id="book-new-genre" placeholder="Add another genre" /><button type="button" class="btn small" id="book-add-genre">Add</button></div>
+                </div>
                 <div class="two">
                   <label class="f">ISBN <input type="text" name="isbn" placeholder="978-955-0000-00-0" /></label>
                   <label class="f">Pages <input type="number" name="pages" min="1" step="1" inputmode="numeric" /></label>
@@ -695,6 +703,8 @@ $('#paste-fill').onclick = async () => {
   // The cover's file name usually holds the story's English name: papuwak-nathi-ganiyek-cover-9x16.png
   const coverName = typeof data.coverImage === 'string' ? data.coverImage.split('/').pop() : '';
   f.slug.value = coverName.replace(/\.[a-z]+$/i, '').replace(/[-_](cover|redesigned).*$/i, '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  f.slug.dataset.edited = f.slug.value ? '1' : '';
+  if (!f.slug.value) f.slug.value = slugify(f.title.value);
   if (coverName) {
     try {
       const { dataUrl } = await api(`/api/cover?name=${encodeURIComponent(coverName)}`);
@@ -715,6 +725,7 @@ function resetStory() {
   f.reset();
   f.publishDate.value = today();
   f.slug.disabled = false;
+  f.slug.dataset.edited = '';
   $('#first-chapter').hidden = false;
   $('#paste-box').hidden = false;
   $('#story-heading').textContent = 'New story';
@@ -729,8 +740,8 @@ $('#story-form').onsubmit = (e) => {
   e.preventDefault();
   const f = e.target;
   busy($('#story-save'), async () => {
-    const slug = storyMode.isNew ? f.slug.value.trim() : storyMode.slug;
-    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error('Web address: lowercase English letters, numbers and hyphens, e.g. papuwak-nathi-ganiyek');
+    const slug = storyMode.isNew ? slugFor(f) : storyMode.slug;
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error('Add a web address (e.g. papuwak-nathi-ganiyek): the title has no letters to make one from.');
     if (storyMode.isNew && !cover.dataUrl && !cover.path) throw new Error('Choose a cover image');
     const body = {
       isNew: storyMode.isNew, slug,
@@ -1114,7 +1125,7 @@ function renderBookList() {
     const edit = el('button', { type: 'button', className: 'btn small', textContent: 'Edit' });
     edit.onclick = () => editBook(b.slug);
     const view = el('a', { className: 'btn small ghost', href: `https://kathaarana.com/books/${b.slug}/`, target: '_blank', rel: 'noopener', textContent: 'View ↗' });
-    const facts = [b.publisher, b.pages && `${b.pages} pages`, b.binding].filter(Boolean).join(' · ');
+    const facts = [b.price !== undefined && rupees(b.price), b.publisher, (b.genres ?? []).join(', '), b.pages && `${b.pages} pages`].filter(Boolean).join(' · ');
     return el('article', { className: 'card story' }, art,
       el('div', { className: 'body' },
         el('h3', { textContent: b.title, title: b.title }),
@@ -1125,6 +1136,19 @@ function renderBookList() {
   }));
   if (!books.length) $('#book-list').append(el('p', { className: 'empty', textContent: 'No books yet. Add the first one with “+ New book”.' }));
 }
+
+const selectedBookGenres = () => $$('#book-genres input:checked').map((i) => i.value);
+function renderBookGenres(selected = selectedBookGenres()) {
+  const all = [...new Set([...genres, ...books.flatMap((b) => b.genres ?? []), ...selected])];
+  $('#book-genres').replaceChildren(...all.map((g) => el('label', {}, el('input', { type: 'checkbox', value: g, checked: selected.includes(g) }), g)));
+}
+$('#book-add-genre').onclick = () => {
+  const g = $('#book-new-genre').value.trim();
+  if (!g) return;
+  renderBookGenres([...selectedBookGenres(), g]);
+  $('#book-new-genre').value = '';
+};
+const rupees = (n) => `රු. ${Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function setBookCover(dataUrl, label) {
   bookCover = dataUrl && !label ? dataUrl : null;
@@ -1147,10 +1171,12 @@ function resetBook() {
   const f = $('#book-form');
   f.reset();
   f.slug.disabled = false;
+  f.slug.dataset.edited = '';
   f.addedDate.value = today();
   $('#book-heading').textContent = 'New book';
   $('#book-save').textContent = ONLINE ? 'Publish book' : 'Save book';
   setBookCover(null);
+  renderBookGenres([]);
   fitStoryBoxes();
 }
 $('#new-book').onclick = () => { resetBook(); showView('book'); };
@@ -1163,6 +1189,8 @@ async function editBook(slug) {
   const f = $('#book-form');
   for (const k of ['title', 'author', 'publisher', 'isbn', 'print', 'binding']) f[k].value = data[k] ?? '';
   f.pages.value = data.pages ?? '';
+  f.price.value = data.price ?? '';
+  renderBookGenres(data.genres ?? []);
   f.addedDate.value = data.addedDate ?? '';
   f.slug.value = slug;
   f.slug.disabled = true;
@@ -1181,13 +1209,14 @@ $('#book-form').onsubmit = (e) => {
   e.preventDefault();
   const f = e.target;
   busy($('#book-save'), async () => {
-    const slug = bookMode.isNew ? f.slug.value.trim() : bookMode.slug;
-    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error('Web address: lowercase English letters, numbers and hyphens, e.g. my-book');
+    const slug = bookMode.isNew ? slugFor(f) : bookMode.slug;
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error('Add a web address (e.g. my-book): the title has no letters to make one from.');
     if (bookMode.isNew && !bookCover) throw new Error('Choose a cover image');
     if (ONLINE && !confirm(`${bookMode.isNew ? 'Add' : 'Update'} "${f.title.value.trim()}" in the book shop now?`)) return;
     const r = await api('/api/book', {
       isNew: bookMode.isNew, slug,
       title: f.title.value, author: f.author.value, publisher: f.publisher.value,
+      genres: selectedBookGenres(), price: f.price.value,
       isbn: f.isbn.value, pages: f.pages.value, print: f.print.value, binding: f.binding.value,
       addedDate: f.addedDate.value, about: f.about.value, linesAreParagraphs: f.aboutLines.checked,
       cover: bookCover,
@@ -1201,6 +1230,57 @@ $('#book-form').onsubmit = (e) => {
     showView('publish');
   });
 };
+
+/* ---------- web addresses ---------- */
+// Sinhala letters to English letters, simply: enough for a readable web address, not a full romanisation.
+const SI_VOWELS = { 'අ': 'a', 'ආ': 'aa', 'ඇ': 'ae', 'ඈ': 'aae', 'ඉ': 'i', 'ඊ': 'ii', 'උ': 'u', 'ඌ': 'uu', 'ඍ': 'ru', 'එ': 'e', 'ඒ': 'ee', 'ඓ': 'ai', 'ඔ': 'o', 'ඕ': 'oo', 'ඖ': 'au' };
+const SI_CONSONANTS = { 'ක': 'k', 'ඛ': 'kh', 'ග': 'g', 'ඝ': 'gh', 'ඞ': 'ng', 'ඟ': 'ng', 'ච': 'ch', 'ඡ': 'chh', 'ජ': 'j', 'ඣ': 'jh', 'ඤ': 'ny', 'ඥ': 'gn', 'ඦ': 'nj', 'ට': 't', 'ඨ': 'th', 'ඩ': 'd', 'ඪ': 'dh', 'ණ': 'n', 'ඬ': 'nd', 'ත': 'th', 'ථ': 'th', 'ද': 'd', 'ධ': 'dh', 'න': 'n', 'ඳ': 'nd', 'ප': 'p', 'ඵ': 'ph', 'බ': 'b', 'භ': 'bh', 'ම': 'm', 'ඹ': 'mb', 'ය': 'y', 'ර': 'r', 'ල': 'l', 'ව': 'w', 'ශ': 'sh', 'ෂ': 'sh', 'ස': 's', 'හ': 'h', 'ළ': 'l', 'ෆ': 'f' };
+const SI_SIGNS = { 'ා': 'aa', 'ැ': 'ae', 'ෑ': 'aae', 'ි': 'i', 'ී': 'ii', 'ු': 'u', 'ූ': 'uu', 'ෘ': 'ru', 'ෙ': 'e', 'ේ': 'ee', 'ෛ': 'ai', 'ො': 'o', 'ෝ': 'oo', 'ෞ': 'au', '්': '' };
+function romanise(text) {
+  const chars = [...text.replace(/\u200d/g, '')];
+  let out = '';
+  for (let i = 0; i < chars.length; i++) {
+    const c = chars[i];
+    if (SI_CONSONANTS[c] !== undefined) {
+      const next = chars[i + 1];
+      out += SI_CONSONANTS[c] + (SI_SIGNS[next] !== undefined ? SI_SIGNS[next] : 'a');
+      if (SI_SIGNS[next] !== undefined) i++;
+    } else if (SI_VOWELS[c] !== undefined) out += SI_VOWELS[c];
+    else if (c === 'ං') out += 'm';
+    else if (c === 'ඃ') out += 'h';
+    else if (SI_SIGNS[c] === undefined) out += c;
+  }
+  return out;
+}
+// Lower case, "-" between words, only a-z 0-9; Sinhala is romanised first. "My New Book!" -> "my-new-book".
+const slugify = (text) =>
+  romanise(String(text || ''))
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80)
+    .replace(/-+$/, '');
+
+// While typing: tidy the address as it goes (keeps a trailing "-" so words can still be typed).
+// Until the address is edited by hand, it follows the title.
+function wireSlug(form) {
+  const field = form.slug;
+  field.addEventListener('input', () => {
+    field.dataset.edited = field.value ? '1' : '';
+    const tidy = romanise(field.value).toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-{2,}/g, '-');
+    if (tidy !== field.value) field.value = tidy;
+  });
+  field.addEventListener('blur', () => (field.value = slugify(field.value)));
+  form.title.addEventListener('input', () => {
+    if (!field.disabled && !field.dataset.edited) field.value = slugify(form.title.value);
+  });
+}
+// The address to save: what's typed, tidied, or else made from the title.
+const slugFor = (form) => slugify(form.slug.value) || slugify(form.title.value);
+wireSlug($('#story-form'));
+wireSlug($('#book-form'));
 
 /* ---------- long text ---------- */
 function fitStoryBox(t) {
