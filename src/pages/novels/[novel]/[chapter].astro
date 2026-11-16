@@ -49,6 +49,9 @@ const thumbCover = await coverThumbUrl(novel.data.coverImage);
 // A source that is a web address is shown as a link; anything else as plain text.
 const source = chapter.data.source ?? novel.data.source;
 const sourceIsLink = !!source && /^https?:\/\//.test(source);
+// The button shows the site's name, not the whole address: facebook.com -> Facebook.
+const sourceHost = sourceIsLink ? new URL(source).hostname.replace(/^(www|m|web)\./, '') : '';
+const sourceLabel = /(^|\.)(facebook\.com|fb\.com|fb\.me)$/.test(sourceHost) ? 'Facebook' : sourceHost;
 
 const words = chapterWords(chapter);
 const readTimeMinutes = Math.max(1, Math.ceil(words / 180));
@@ -136,14 +139,23 @@ const reactions = [
       </div>
 
       {source && (
-        <p class="mx-auto mt-10 max-w-[46rem] border-t border-[var(--reader-border)] pt-4 text-sm text-[var(--reader-muted)]">
-          මුලාශ්‍රය:
+        <div class="mx-auto mt-10 flex max-w-[46rem] flex-wrap items-center gap-x-3 gap-y-2 border-t border-[var(--reader-border)] pt-5 text-sm">
+          <span class="text-[var(--reader-muted)]">මුලාශ්‍රය</span>
           {sourceIsLink ? (
-            <a href={source} target="_blank" rel="noopener noreferrer" class="accent-text break-all underline underline-offset-2">{source}</a>
+            <a
+              href={source}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              title={source}
+              class="tap inline-flex items-center gap-1.5 rounded-full border border-[var(--reader-border)] px-3.5 py-1.5 font-medium hover:border-[var(--reader-text)]"
+            >
+              {sourceLabel}
+              <Icon name="external" class="h-3.5 w-3.5 text-[var(--reader-muted)]" />
+            </a>
           ) : (
-            <span>{source}</span>
+            <span class="font-medium">{source}</span>
           )}
-        </p>
+        </div>
       )}
     </div>
 
