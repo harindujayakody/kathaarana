@@ -91,7 +91,9 @@
   input[type=text], input[type=date], input[type=number], textarea, select {
     width: 100%; background: var(--raised); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
   textarea { resize: vertical; min-height: 6rem; }
-  textarea.story { min-height: 20rem; line-height: 1.95; }
+  textarea.story { min-height: 20rem; line-height: 1.95; overflow: hidden; resize: none; }
+  #to-top { position: fixed; right: 24px; bottom: 24px; z-index: 30; box-shadow: var(--shadow); }
+  @media (max-width: 900px) { #to-top { right: 16px; bottom: calc(84px + env(safe-area-inset-bottom)); } }
   input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible, .drop:focus-visible {
     outline: 2px solid var(--accent); outline-offset: 2px; }
   .prefix { display: flex; align-items: center; background: var(--raised); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
@@ -431,6 +433,7 @@
   </div>
 </div>
 
+<button type="button" class="btn" id="to-top" hidden aria-label="Back to top">↑ Top</button>
 <div id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
@@ -487,6 +490,7 @@ function showView(name) {
   if (name === 'publish') loadChanges();
   if (name === 'chapter' && chapterMode.isNew) suggestChapterNumber();
   if (name === 'stats') loadStats();
+  fitStoryBoxes();
   scrollTo({ top: 0 });
 }
 $$('.nav [data-view]').forEach((b) => (b.onclick = () => {
@@ -593,6 +597,7 @@ $('#paste-fill').onclick = async () => {
     f.source.value = data.source || '';
     f.body.value = body;
     showChapterStory();
+    fitStoryBoxes();
     return toast('Chapter form filled. Check it, then save.');
   }
   resetStory();
@@ -613,6 +618,7 @@ $('#paste-fill').onclick = async () => {
     } catch { toast(`Cover ${coverName} isn't in src/assets/covers yet. Choose it on the right.`, true); }
   }
   if (body) { f.chTitle.value = ''; f.chBody.value = body; }
+  fitStoryBoxes();
   $('#paste-box').open = false;
   toast('Form filled. Check the web address and cover, then save.');
 };
@@ -783,6 +789,7 @@ async function editChapter(slug, number) {
   f.publishDate.value = data.publishDate || today();
   f.source.value = data.source || '';
   f.body.value = body;
+  fitStoryBoxes();
   f.lines.checked = false; // already formatted
   $('#chapter-heading').textContent = `Chapter ${number}`;
   $('#chapter-save').textContent = saveLabel(false);
@@ -988,6 +995,19 @@ $('#publish-btn').onclick = () => {
     }
   });
 };
+
+/* ---------- long text ---------- */
+function fitStoryBox(t) {
+  t.style.height = 'auto';
+  t.style.height = `${t.scrollHeight + 2}px`;
+}
+const fitStoryBoxes = () => requestAnimationFrame(() => $$('textarea.story').forEach((t) => t.offsetParent && fitStoryBox(t)));
+document.addEventListener('input', (e) => e.target.matches?.('textarea.story') && fitStoryBox(e.target));
+addEventListener('resize', fitStoryBoxes);
+
+const toTop = $('#to-top');
+addEventListener('scroll', () => (toTop.hidden = scrollY < 600), { passive: true });
+toTop.onclick = () => scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 
 /* ---------- start ---------- */
 // Online, saving is publishing: one commit to GitHub, then the usual build and deploy.
