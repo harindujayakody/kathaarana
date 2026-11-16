@@ -64,7 +64,7 @@ const { genre, novels, chapterCounts } = Astro.props;
 
     <!-- Novels Grid -->
     {novels.length > 0 ? (
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5">
+      <div class="grid gap-3 sm:gap-4 md:grid-cols-2">
         {novels.map(novel => (
           <NovelCard
             id={novel.id}
@@ -72,6 +72,7 @@ const { genre, novels, chapterCounts } = Astro.props;
             author={novel.data.author}
             authorSlug={novel.data.authorSlug}
             coverImage={novel.data.coverImage}
+            synopsis={novel.data.synopsis}
             genres={novel.data.genres}
             status={novel.data.status}
             chapterCount={chapterCounts[novel.id] || 1}

@@ -109,7 +109,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
     <!-- Novel Grid Container: 2 on Mobile, 3 on Tablet, 4 on Desktop -->
     <div
       id="novels-catalog-grid"
-      class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5"
+      class="grid gap-3 sm:gap-4 md:grid-cols-2"
     >
       {sortedNovels.map((novel) => (
         <NovelCard
@@ -118,6 +118,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
           author={novel.data.author}
           authorSlug={novel.data.authorSlug}
           coverImage={novel.data.coverImage}
+          synopsis={novel.data.synopsis}
           genres={novel.data.genres}
           status={novel.data.status}
           chapterCount={novelChapterCounts[novel.id] || 1}
@@ -159,7 +160,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
       let visible = 0;
       cards.forEach(card => {
         const title = card.querySelector('h3')?.textContent?.toLowerCase() || '';
-        const author = card.querySelector('[data-novel-card] a')?.textContent?.toLowerCase() || '';
+        const author = card.querySelector('a[href^="/authors/"]')?.textContent?.toLowerCase() || '';
         const status = card.getAttribute('data-status') || '';
         const genres = (card.getAttribute('data-genres') || '').split(',');
 

@@ -159,7 +159,7 @@ const novelList = {
             <h2 id="all-novels" class="text-lg font-bold">සියලුම නවකතා</h2>
             <a href="/novels/" class="text-sm font-medium accent-text">සියල්ල බලන්න</a>
           </div>
-          <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5">
+          <div class="mt-3 grid gap-3 sm:gap-4 md:grid-cols-2">
             {novels.map((novel, i) => (
               <NovelCard
                 id={novel.id}
@@ -167,6 +167,7 @@ const novelList = {
                 author={novel.data.author}
                 authorSlug={novel.data.authorSlug}
                 coverImage={novel.data.coverImage}
+                synopsis={novel.data.synopsis}
                 genres={novel.data.genres}
                 status={novel.data.status}
                 chapterCount={chapterCounts[novel.id] || 0}

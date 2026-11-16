@@ -113,7 +113,8 @@ function historyCard(item: HistoryItem) {
   return a;
 }
 
-function initHistory() {
+// Also called by the library page after it removes items, so badges and lists stay in step.
+export function initHistory() {
   const history = read<HistoryItem[]>('katha_history', []);
   const bookmarks = read<unknown[]>('katha_bookmarks', []);
 

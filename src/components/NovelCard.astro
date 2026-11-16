@@ -9,6 +9,7 @@ interface Props {
   author: string;
   authorSlug: string;
   coverImage: ImageMetadata;
+  synopsis?: string;
   genres: string[];
   status: 'Ongoing' | 'Completed' | string;
   chapterCount?: number;
@@ -17,51 +18,56 @@ interface Props {
   eager?: boolean;
 }
 
-const { id, title, author, authorSlug, coverImage, genres, status, chapterCount = 0, class: className = '', eager = false } = Astro.props;
+const { id, title, author, authorSlug, coverImage, synopsis, genres, status, chapterCount = 0, class: className = '', eager = false } = Astro.props;
 ---
 
+<!-- Row card: cover beside the details, so a card stays short at any width -->
 <article
-  class={`surface group relative flex flex-col overflow-hidden transition-shadow hover:shadow-[var(--lift-shadow)] ${className}`}
+  class={`surface group flex gap-4 p-3 transition-shadow hover:shadow-[var(--lift-shadow)] sm:p-4 ${className}`}
   data-novel-card
   data-status={status}
   data-genres={genres.join(',')}
   data-stats={id}
 >
-  <a href={`/novels/${id}/`} class="block aspect-[2/3] overflow-hidden bg-[var(--reader-border)]" tabindex="-1" aria-hidden="true">
+  <a href={`/novels/${id}/`} class="block w-24 shrink-0 self-start overflow-hidden rounded-md bg-[var(--reader-border)] sm:w-28" tabindex="-1" aria-hidden="true">
     <Image
       src={coverImage}
       alt=""
-      widths={[180, 240, 360, 480]}
-      sizes="(min-width: 1024px) 320px, (min-width: 640px) 31vw, 47vw"
+      widths={[96, 112, 192, 224]}
+      sizes="(min-width: 640px) 112px, 96px"
       loading={eager ? 'eager' : 'lazy'}
-      class="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+      class="aspect-[2/3] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
     />
   </a>
 
-  <button
-    type="button"
-    data-like={id}
-    aria-pressed="false"
-    aria-label={`${title} කැමති ලැයිස්තුවට`}
-    class="like-btn tap absolute right-2 top-2 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-black/50 text-white"
-  >
-    <Icon name="heart" class="h-[18px] w-[18px]" />
-  </button>
-
-  <div class="flex flex-1 flex-col p-3">
-    <h3 class="line-clamp-2 font-serif font-semibold leading-snug">
+  <div class="flex min-w-0 flex-1 flex-col">
+    <h3 class="line-clamp-2 font-serif text-[1.0625rem] font-semibold leading-snug">
       <a href={`/novels/${id}/`} class="hover:accent-text">{title}</a>
     </h3>
-    <a href={`/authors/${authorSlug}/`} class="mt-1 truncate text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)]">{author}</a>
-    <p class="mt-0.5 truncate text-xs text-[var(--reader-muted)]">{genres[0]} · {status === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්'}</p>
+    <p class="mt-0.5 truncate text-sm text-[var(--reader-muted)]">
+      <a href={`/authors/${authorSlug}/`} class="hover:text-[var(--reader-text)]">{author}</a>
+      <span aria-hidden="true"> · </span>{genres[0]}
+    </p>
+    {synopsis && <p class="mt-2 line-clamp-2 text-sm leading-relaxed">{synopsis}</p>}
 
-    <div class="mt-auto flex items-center justify-between gap-2 pt-3 text-sm">
+    <div class="mt-auto flex items-center gap-3 pt-3 text-sm">
       <span class="inline-flex items-center gap-1">
         <Icon name="star" class="h-4 w-4 fill-current text-[var(--star)]" />
         <span data-s="rating" class="font-semibold tabular-nums">–</span>
         <span data-s="ratings" class="text-xs text-[var(--reader-muted)]"></span>
       </span>
-      <span class="shrink-0 text-xs text-[var(--reader-muted)]">පරිච්ඡේද {chapterCount}</span>
+      <span class="truncate text-xs text-[var(--reader-muted)]">
+        පරිච්ඡේද {chapterCount} · {status === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්'}
+      </span>
+      <button
+        type="button"
+        data-like={id}
+        aria-pressed="false"
+        aria-label={`${title} කැමතියි`}
+        class="tap -my-1 -mr-1 ml-auto grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full text-[var(--reader-muted)] hover:text-[var(--like)]"
+      >
+        <Icon name="heart" class="h-5 w-5" />
+      </button>
     </div>
   </div>
 </article>

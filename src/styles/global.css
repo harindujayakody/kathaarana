@@ -209,7 +209,7 @@ dialog.sheet::backdrop {
   border-color: var(--theme-accent);
   background: var(--theme-accent-soft);
 }
-[data-chart-tab][aria-selected="true"] {
+:is([data-chart-tab], [data-lib-tab])[aria-selected="true"] {
   background: var(--reader-text);
   color: var(--reader-panel);
   border-color: var(--reader-text);
