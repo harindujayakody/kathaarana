@@ -270,8 +270,30 @@ function initChart() {
   });
 }
 
+/* ---------- smart sticky side column ---------- */
+
+// A column shorter than the screen sticks near the top. A taller one scrolls with the page
+// until its bottom is in view, then sticks there, so every part of it can still be reached.
+const STICKY_GAP = 24;
+const stickyObserver = new ResizeObserver((entries) => entries.forEach((e) => placeSticky(e.target as HTMLElement)));
+
+function placeSticky(el: HTMLElement) {
+  el.style.setProperty('--sticky-top', `${Math.min(STICKY_GAP, innerHeight - el.offsetHeight - STICKY_GAP)}px`);
+}
+
+function initSticky() {
+  stickyObserver.disconnect();
+  document.querySelectorAll<HTMLElement>('[data-smart-sticky]').forEach((el) => {
+    placeSticky(el);
+    stickyObserver.observe(el);
+  });
+}
+
+addEventListener('resize', () => document.querySelectorAll<HTMLElement>('[data-smart-sticky]').forEach(placeSticky), { passive: true });
+
 document.addEventListener('astro:page-load', () => {
   initTheme();
+  initSticky();
   initHistory();
   initVoting();
   initChart();

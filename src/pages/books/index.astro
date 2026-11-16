@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookCard from '../../components/BookCard.astro';
+import Icon from '../../components/Icon.astro';
+
+// Newest first when a date is given, then by title.
+const books = (await getCollection('books')).sort(
+  (a, b) =>
+    (b.data.addedDate?.getTime() ?? 0) - (a.data.addedDate?.getTime() ?? 0) ||
+    a.data.title.localeCompare(b.data.title, 'si'),
+);
+
+const site = Astro.site ?? new URL('https://kathaarana.com');
+const bookList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'පොත් සාප්පුව',
+  itemListElement: books.map((b, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: b.data.title,
+    url: new URL(`/books/${b.id}/`, site).toString(),
+  })),
+};
+---
+
+<BaseLayout
+  title="පොත් සාප්පුව"
+  description="කතා අරණ පොත් සාප්පුව: සිංහල පොත්, කතුවරුන් සහ ප්‍රකාශකයන් පිළිබඳ විස්තර."
+  jsonLd={books.length > 0 ? [bookList] : []}
+>
+  <div class="mx-auto max-w-[90rem] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+    <header>
+      <h1 class="text-2xl font-bold leading-snug sm:text-3xl">පොත් සාප්පුව</h1>
+      <p class="mt-1 text-[0.9375rem] text-[var(--reader-muted)]">පොත් සහ ඒවායේ විස්තර. මාර්ගගත ඇණවුම් තවම ආරම්භ කර නැත.</p>
+    </header>
+
+    {books.length > 0 ? (
+      <div class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-[repeat(auto-fill,minmax(10.5rem,1fr))] sm:gap-4">
+        {books.map((book, i) => (
+          <BookCard
+            id={book.id}
+            title={book.data.title}
+            author={book.data.author}
+            publisher={book.data.publisher}
+            coverImage={book.data.coverImage}
+            eager={i < 4}
+          />
+        ))}
+      </div>
+    ) : (
+      <section class="surface mt-5 py-12 text-center">
+        <Icon name="store" class="mx-auto h-8 w-8 text-[var(--reader-muted)]" />
+        <p class="mt-3 text-[0.9375rem] text-[var(--reader-muted)]">තවම පොත් එකතු කර නැත.</p>
+      </section>
+    )}
+  </div>
+</BaseLayout>

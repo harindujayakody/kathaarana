@@ -43,4 +43,22 @@ const chapters = defineCollection({
   }),
 });
 
-export const collections = { novels, chapters };
+// Printed books for the book shop. Shown only; there is no online ordering yet.
+// The text under the front matter is "About this book".
+const books = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/books' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      author: z.string(),
+      publisher: z.string().optional(),
+      coverImage: image(),
+      isbn: z.string().optional(),
+      pages: z.number().int().positive().optional(),
+      print: z.string().optional(), // e.g. in print, out of print, new edition
+      binding: z.string().optional(), // e.g. paperback, hardcover
+      addedDate: z.coerce.date().optional(), // newest first on the shop page
+    }),
+});
+
+export const collections = { novels, chapters, books };

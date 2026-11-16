@@ -51,10 +51,13 @@ const currentPath = Astro.url.pathname;
 const tabs = [
   { href: '/', label: 'මුල් පිටුව', short: 'මුල', icon: 'home' },
   { href: '/novels/', label: 'නවකතා', short: 'නවකතා', icon: 'book' },
+  { href: '/books/', label: 'පොත් සාප්පුව', short: 'පොත්', icon: 'store' },
   { href: '/genres/', label: 'ප්‍රභේද', short: 'ප්‍රභේද', icon: 'tag' },
   { href: '/authors/', label: 'කතුවරුන්', short: 'කතුවරු', icon: 'users' },
   { href: '/bookmarks/', label: 'මගේ පුස්තකාලය', short: 'පුස්තකාලය', icon: 'bookmark' },
 ] as const;
+// Phones have room for five tabs; genres stay in the desktop sidebar and on novel pages.
+const mobileTabs = tabs.filter((tab) => tab.href !== '/genres/');
 const isActive = (href: string) => (href === '/' ? currentPath === '/' : currentPath.startsWith(href));
 
 // Inner pages get a back arrow to their parent, like a native navigation stack.
@@ -209,7 +212,7 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
         class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[var(--reader-border)] bg-[var(--reader-panel)] pb-[env(safe-area-inset-bottom)] lg:hidden"
         aria-label="ප්‍රධාන සංචලනය"
       >
-        {tabs.map((tab) => (
+        {mobileTabs.map((tab) => (
           <a
             href={tab.href}
             aria-current={isActive(tab.href) ? 'page' : undefined}

@@ -1,0 +1,113 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { coverShareUrl } from '../../utils/covers';
+
+export async function getStaticPaths() {
+  return (await getCollection('books')).map((book) => ({ params: { book: book.id }, props: { book } }));
+}
+
+const { book } = Astro.props;
+const { Content } = await render(book);
+const { title, author, publisher, isbn, pages, print, binding, coverImage } = book.data;
+
+const about = book.body?.trim() ?? '';
+// First paragraph of "About this book", without Markdown marks, for search results.
+const description =
+  about
+    .split(/\n\s*\n/)[0]
+    ?.replace(/[*_#>`[\]]/g, '')
+    .slice(0, 160) || `${title} - ${author}`;
+
+const details = [
+  ['ISBN', isbn],
+  ['පිටු ගණන', pages],
+  ['මුද්‍රණ තත්වය', print],
+  ['බන්ධනය', binding],
+].filter(([, value]) => value !== undefined && value !== '') as [string, string | number][];
+
+const site = Astro.site ?? new URL('https://kathaarana.com');
+const url = new URL(`/books/${book.id}/`, site).toString();
+const shareCover = new URL(await coverShareUrl(coverImage), site).toString();
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Book',
+    '@id': `${url}#book`,
+    name: title,
+    author: { '@type': 'Person', name: author },
+    publisher: publisher ? { '@type': 'Organization', name: publisher } : undefined,
+    isbn,
+    numberOfPages: pages,
+    image: shareCover,
+    inLanguage: 'si',
+    url,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'කතා අරණ', item: site.toString() },
+      { '@type': 'ListItem', position: 2, name: 'පොත් සාප්පුව', item: new URL('/books/', site).toString() },
+      { '@type': 'ListItem', position: 3, name: title, item: url },
+    ],
+  },
+];
+---
+
+<BaseLayout title={`${title} - ${author}`} description={description} image={`/og/book-${book.id}.jpg`} type="book" jsonLd={jsonLd}>
+  <div class="mx-auto max-w-5xl space-y-6 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+    <section class="surface p-4 sm:p-6">
+      <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-x-4 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-x-6">
+        <Image
+          src={coverImage}
+          alt={`${title} කවරය`}
+          widths={[128, 208, 256, 416]}
+          sizes="(min-width: 640px) 208px, 128px"
+          loading="eager"
+          fetchpriority="high"
+          class="aspect-[2/3] w-full self-start rounded-lg object-cover shadow-[var(--lift-shadow)]"
+        />
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold leading-snug sm:text-3xl">{title}</h1>
+          <p class="mt-1 text-[0.9375rem] font-medium">{author}</p>
+          {publisher && (
+            <p class="mt-2 text-sm text-[var(--reader-muted)]">
+              ප්‍රකාශක: <span class="text-[var(--reader-text)]">{publisher}</span>
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+
+    {about && (
+      <section class="surface p-4 sm:p-6" aria-labelledby="about-title">
+        <h2 id="about-title" class="text-lg font-bold">මෙම පොත ගැන</h2>
+        <div class="novel-prose mt-3 max-w-[42rem] [&_p:last-child]:mb-0">
+          <Content />
+        </div>
+      </section>
+    )}
+
+    {details.length > 0 && (
+      <section class="surface p-4 sm:p-6" aria-labelledby="details-title">
+        <h2 id="details-title" class="text-lg font-bold">විස්තර</h2>
+        <dl class="mt-2 divide-y divide-[var(--reader-border)]">
+          {details.map(([label, value]) => (
+            <div class="flex items-baseline justify-between gap-4 py-2.5 text-[0.9375rem]">
+              <dt class="text-[var(--reader-muted)]">{label}</dt>
+              <dd class="text-right font-medium tabular-nums">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    )}
+
+    <a href="/books/" class="tap inline-flex items-center gap-1 text-sm font-medium accent-text">
+      <Icon name="left" class="h-4 w-4" />
+      සියලු පොත්
+    </a>
+  </div>
+</BaseLayout>

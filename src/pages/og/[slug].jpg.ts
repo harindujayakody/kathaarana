@@ -35,10 +35,13 @@ export const getStaticPaths = (async () => {
   const novels = (await getCollection('novels')).sort(
     (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime(),
   );
+  const books = await getCollection('books');
   const getCoverPath = (img: unknown) => (img as { fsPath: string }).fsPath;
   return [
     { params: { slug: 'site' }, props: { covers: novels.slice(0, 3).map((n) => getCoverPath(n.data.coverImage)) } },
     ...novels.map((n) => ({ params: { slug: n.id }, props: { covers: [getCoverPath(n.data.coverImage)] } })),
+    // Books share the same card style; the prefix keeps their names apart from novels.
+    ...books.map((b) => ({ params: { slug: `book-${b.id}` }, props: { covers: [getCoverPath(b.data.coverImage)] } })),
   ];
 }) satisfies GetStaticPaths;
 
