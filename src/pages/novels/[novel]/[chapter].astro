@@ -100,7 +100,7 @@ const reactions = [
   }}
 >
   <article
-    class="mx-auto max-w-[54rem] space-y-4 sm:px-6 sm:py-6 lg:py-8"
+    class="mx-auto max-w-[60rem] space-y-4 sm:px-6 sm:py-6 lg:py-8"
     data-chapter-page
     data-novel-id={novel.id}
     data-novel-title={novel.data.title}
@@ -144,12 +144,12 @@ const reactions = [
         </ul>
       </header>
 
-      <div id="chapter-content" class="novel-prose font-novel-sans mx-auto mt-7 max-w-[46rem]">
+      <div id="chapter-content" class="novel-prose font-novel-sans mx-auto mt-7 max-w-[50rem]">
         <Content />
       </div>
 
       {source && (
-        <div class="mx-auto mt-10 flex max-w-[46rem] flex-wrap items-center gap-x-3 gap-y-2 border-t border-[var(--reader-border)] pt-5 text-sm">
+        <div class="mx-auto mt-10 flex max-w-[50rem] flex-wrap items-center gap-x-3 gap-y-2 border-t border-[var(--reader-border)] pt-5 text-sm">
           <span class="text-[var(--reader-muted)]">මුලාශ්‍රය</span>
           {sourceIsLink ? (
             <a
@@ -172,7 +172,7 @@ const reactions = [
         url={new URL(Astro.url.pathname, Astro.site).href}
         title={`${novel.data.title} - ${chapter.data.title}`}
         card={`/share/${novel.id}.jpg`}
-        class={`mx-auto max-w-[46rem] ${source ? 'mt-4' : 'mt-10 border-t border-[var(--reader-border)] pt-5'}`}
+        class={`mx-auto max-w-[50rem] ${source ? 'mt-4' : 'mt-10 border-t border-[var(--reader-border)] pt-5'}`}
       />
     </div>
 
