@@ -24,7 +24,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
   title="සියලුම සිංහල නවකතා"
   description="කතා අරණ වෙබ් අඩවියේ ඇති සියලුම සිංහල නවකතා, අබිරහස් සහ ත්‍රාසජනක කතා නාමාවලිය. නොමිලේ කියවන්න."
 >
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
+  <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
     
     <!-- Page Header & Search Bar -->
     <div class="space-y-4">
@@ -109,7 +109,7 @@ const allGenres = Array.from(new Set(novels.flatMap(n => n.data.genres)));
     <!-- Novel Grid Container: 2 on Mobile, 3 on Tablet, 4 on Desktop -->
     <div
       id="novels-catalog-grid"
-      class="grid gap-3 sm:gap-4 md:grid-cols-2"
+      class="grid gap-3 sm:gap-4 md:grid-cols-2 2xl:grid-cols-3"
     >
       {sortedNovels.map((novel) => (
         <NovelCard
