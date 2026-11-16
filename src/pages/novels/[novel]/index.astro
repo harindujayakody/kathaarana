@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Icon from '../../../components/Icon.astro';
 import RatingStars from '../../../components/RatingStars.astro';
+import ShareButtons from '../../../components/ShareButtons.astro';
 import { coverShareUrl } from '../../../utils/covers';
 import { getGenreSlug } from '../../../utils/genres';
 import { buildStats } from '../../../utils/buildStats';
@@ -107,6 +108,8 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
             </div>
 
             <p class="col-span-2 max-w-[42rem] text-[1.0625rem] leading-[1.95] sm:col-span-1 sm:col-start-2">{novel.data.synopsis}</p>
+
+            <ShareButtons url={Astro.url.href} title={novel.data.title} class="col-span-2 sm:order-last sm:col-span-1 sm:col-start-2" />
           </div>
 
           <dl class="mt-5 grid grid-cols-3 gap-3 border-t border-[var(--reader-border)] pt-4 text-sm">
