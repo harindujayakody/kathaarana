@@ -70,6 +70,10 @@ html {
   scroll-padding: 4.5rem 0 5.5rem;
   -webkit-text-size-adjust: 100%;
 }
+/* Smooth scrolling for in-page jumps (Astro page changes still jump to the top instantly). */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
 html[data-theme="dark"] {
   color-scheme: dark;
 }
