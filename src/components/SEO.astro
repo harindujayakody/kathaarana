@@ -39,8 +39,9 @@ const {
 
 const siteName = 'කතා අරණ';
 const siteUrl = Astro.site ? Astro.site.toString() : 'https://kathaarana.com/';
-// Short suffix keeps the words that matter visible in search results.
-const pageTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
+// Every title is "{page title} | Kathaarana.com"; the home page passes its full title, which already has it.
+const brand = 'Kathaarana.com';
+const pageTitle = title.includes(brand) ? title : `${title} | ${brand}`;
 const fullImageUrl = new URL(image, siteUrl).toString();
 
 const jsonLdSchemas: any[] = [
@@ -48,10 +49,10 @@ const jsonLdSchemas: any[] = [
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: siteName,
-    alternateName: 'Katha Arana',
+    alternateName: ['Katha Arana', 'Kathaarana.com'],
     url: siteUrl,
     inLanguage: 'si',
-    description: 'සිංහල නවකතා පරිච්ඡේදයෙන් පරිච්ඡේදය නොමිලේ කියවන්න.',
+    description: "රසවත් සිංහල නවකතා සහ කෙටිකතා නොමිලේ කියවන්න. 'කතා අරණ' සමඟ අදම එක්වන්න!",
   },
 ];
 
