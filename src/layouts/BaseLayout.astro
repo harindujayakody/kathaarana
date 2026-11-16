@@ -183,7 +183,7 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
 
     <div class="flex min-h-dvh flex-col lg:pl-64">
       <!-- Phone and tablet top bar -->
-      <header class="sticky top-0 z-30 flex h-14 items-center gap-1 border-b border-[var(--reader-border)] bg-[var(--reader-panel)] px-2 lg:hidden">
+      <header id="mobile-header" class="sticky top-0 z-30 flex h-14 items-center gap-1 border-b border-[var(--reader-border)] bg-[var(--reader-panel)] px-2 lg:hidden">
         {parentPath ? (
           <a href={parentPath} class="tap rounded-lg p-2.5 text-[var(--reader-text)]" aria-label="ආපසු">
             <Icon name="left" />
