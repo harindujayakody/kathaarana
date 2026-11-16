@@ -68,7 +68,8 @@ const novelList = {
     </section>
 
     <!-- Phones: one column in source order (featured, top novels, all novels, latest).
-         Desktop: a main column and a right column that moves with the scroll and stops when either end is in view. -->
+         Desktop: the right column scrolls with the page until its heading reaches the top, then stays there;
+         if it is taller than the screen, the rest scrolls inside it. -->
     <div class="mt-6 flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,1fr)_21rem] xl:items-start">
       <div class="contents xl:block xl:min-w-0 xl:space-y-6">
           <!-- Featured: the newest novel -->
@@ -147,7 +148,7 @@ const novelList = {
           </section>
       </div>
 
-      <aside data-smart-sticky style="top: 24px" class="contents xl:sticky xl:block xl:space-y-6">
+      <aside class="side-scroll contents xl:sticky xl:top-6 xl:block xl:max-h-[calc(100dvh-10rem)] xl:space-y-6 xl:overflow-y-auto xl:pb-1">
           <!-- Top charts: one list, re-ranked by the chosen measure -->
           <section class="surface order-2 min-w-0 p-4" aria-labelledby="top-novels">
             <h2 id="top-novels" class="text-lg font-bold">ඉහළම නවකතා</h2>
