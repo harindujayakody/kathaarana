@@ -285,7 +285,8 @@ function renderChart() {
   scored.forEach(({ node, s }, i) => {
     node.hidden = i >= 5;
     node.querySelector<HTMLElement>('[data-rank]')!.textContent = String(i + 1);
-    node.querySelector<HTMLElement>('[data-metric]')!.textContent = stats ? chart.label(s) : '';
+    // Until the numbers arrive the line keeps the author's name, so the list doesn't jump.
+    if (stats) node.querySelector<HTMLElement>('[data-metric]')!.textContent = chart.label(s);
   });
 
   document.querySelectorAll<HTMLButtonElement>('[data-chart-tab]').forEach((tab) => {
