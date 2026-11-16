@@ -270,8 +270,38 @@ function initChart() {
   });
 }
 
+/* ---------- smart side columns ---------- */
+
+// A sticky side column that follows the scroll: scrolling down it moves up with the page until
+// its bottom is in view, then stops; scrolling up it moves down until its top is in view.
+// Columns shorter than the screen just stick at the top. When the main column is shorter than
+// the side column there is no room to stick, and the side column simply scrolls with the page.
+const SIDE_GAP = 24;
+let lastScrollY = 0;
+
+function placeSideColumns(delta: number) {
+  document.querySelectorAll<HTMLElement>('[data-smart-sticky]').forEach((el) => {
+    if (getComputedStyle(el).position !== 'sticky') return; // phones and tablets: normal flow
+    const lowest = Math.min(SIDE_GAP, innerHeight - el.offsetHeight - SIDE_GAP);
+    const current = parseFloat(el.style.top) || SIDE_GAP;
+    el.style.top = `${Math.max(lowest, Math.min(SIDE_GAP, current - delta))}px`;
+  });
+}
+
+addEventListener(
+  'scroll',
+  () => {
+    placeSideColumns(scrollY - lastScrollY);
+    lastScrollY = scrollY;
+  },
+  { passive: true },
+);
+addEventListener('resize', () => placeSideColumns(0), { passive: true });
+
 document.addEventListener('astro:page-load', () => {
   initTheme();
+  lastScrollY = scrollY;
+  placeSideColumns(0);
   initHistory();
   initVoting();
   initChart();

@@ -172,12 +172,6 @@ p, span, a, li, input, button, .font-sans {
   outline-offset: 2px;
 }
 
-/* The home page side column scrolls on its own when taller than the screen: keep its bar thin. */
-.side-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: var(--reader-border) transparent;
-}
-
 /* The wordmark is one transparent PNG used as a mask and filled with the text colour,
    so it is dark on light, white on black and brown on sepia without separate files. */
 .brand-logo {
