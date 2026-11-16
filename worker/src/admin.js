@@ -168,6 +168,95 @@ function coverFromBrowser(dataUrl) {
   return { bytes };
 }
 
+/* ---------- stats ---------- */
+
+const ymd = (d) => d.toISOString().slice(0, 10);
+
+// Cloudflare's analytics API. Needs the CF_ANALYTICS_TOKEN secret (Account Analytics: Read and
+// Zone Analytics: Read). Each part is asked for separately so one failing doesn't hide the others.
+async function cfQuery(env, query, variables) {
+  const res = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.CF_ANALYTICS_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, variables }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.errors?.length) throw new Error(json.errors?.map((e) => e.message).join('; ') || `HTTP ${res.status}`);
+  return json.data;
+}
+
+// Web Analytics: real visitors' page loads (the beacon on every page), not bots.
+async function webAnalytics(env, since, until) {
+  const group = (extra) => `rumPageloadEventsAdaptiveGroups(limit: $limit, filter: { date_geq: $since, date_leq: $until, requestHost: $host }${extra}) `;
+  const query = `query($acct: String!, $since: Date!, $until: Date!, $host: String!, $limit: Int!) {
+    viewer { accounts(filter: { accountTag: $acct }) {
+      daily: ${group(', orderBy: [date_ASC]')}{ count sum { visits } dimensions { date } }
+      pages: ${group(', orderBy: [count_DESC]')}{ count dimensions { requestPath } }
+      countries: ${group(', orderBy: [count_DESC]')}{ count dimensions { countryName } }
+      referrers: ${group(', orderBy: [count_DESC]')}{ count dimensions { refererHost } }
+      devices: ${group(', orderBy: [count_DESC]')}{ count dimensions { deviceType } }
+    } }
+  }`;
+  const a = (await cfQuery(env, query, { acct: env.CF_ACCOUNT_ID, since, until, host: env.SITE_HOST, limit: 100 })).viewer.accounts[0] ?? {};
+  const top = (rows = [], key, n = 8) => rows.slice(0, n).map((r) => ({ name: r.dimensions[key] || '(direct)', count: r.count }));
+  return {
+    daily: (a.daily ?? []).map((r) => ({ date: r.dimensions.date, views: r.count, visits: r.sum?.visits ?? 0 })),
+    pages: top(a.pages, 'requestPath', 10),
+    countries: top(a.countries, 'countryName'),
+    referrers: top(a.referrers, 'refererHost'),
+    devices: top(a.devices, 'deviceType', 4),
+  };
+}
+
+// Zone traffic: every request Cloudflare served for kathaarana.com, bots included.
+async function zoneTraffic(env, since, until) {
+  const data = await cfQuery(
+    env,
+    `query($zone: String!, $since: Date!, $until: Date!) {
+      viewer { zones(filter: { zoneTag: $zone }) {
+        httpRequests1dGroups(limit: 40, filter: { date_geq: $since, date_leq: $until }, orderBy: [date_ASC]) {
+          dimensions { date } sum { requests bytes cachedBytes threats } uniq { uniques }
+        }
+      } }
+    }`,
+    { zone: env.CF_ZONE_ID, since, until },
+  );
+  return (data.viewer.zones[0]?.httpRequests1dGroups ?? []).map((r) => ({ date: r.dimensions.date, ...r.sum, uniques: r.uniq.uniques }));
+}
+
+// The site's own numbers from D1: reads, likes, ratings and PDF downloads per story.
+async function siteNumbers(env, since) {
+  const sinceMs = Date.parse(`${since}T00:00:00Z`);
+  const [views, ratings, reactions, downloads, daily] = await env.DB.batch([
+    env.DB.prepare('SELECT novel, SUM(count) AS total, SUM(CASE WHEN day >= ?1 THEN count ELSE 0 END) AS recent FROM views_daily GROUP BY novel').bind(since),
+    env.DB.prepare('SELECT novel, AVG(stars) AS avg, COUNT(*) AS n FROM ratings GROUP BY novel'),
+    env.DB.prepare("SELECT novel, SUM(kind = 'like') AS likes, SUM(kind = 'sad') AS sad, COUNT(*) AS total FROM reactions GROUP BY novel"),
+    env.DB.prepare('SELECT novel, COUNT(*) AS total, SUM(created_at >= ?1) AS recent FROM downloads GROUP BY novel').bind(sinceMs),
+    env.DB.prepare('SELECT day, SUM(count) AS reads FROM views_daily WHERE day >= ?1 GROUP BY day ORDER BY day').bind(since),
+  ]);
+  const novels = {};
+  const row = (id) => (novels[id] ??= { reads: 0, readsRecent: 0, rating: 0, ratings: 0, likes: 0, sad: 0, reactions: 0, downloads: 0, downloadsRecent: 0 });
+  for (const r of views.results) Object.assign(row(r.novel), { reads: r.total, readsRecent: r.recent });
+  for (const r of ratings.results) Object.assign(row(r.novel), { rating: Math.round(r.avg * 10) / 10, ratings: r.n });
+  for (const r of reactions.results) Object.assign(row(r.novel), { likes: r.likes, sad: r.sad, reactions: r.total });
+  for (const r of downloads.results) Object.assign(row(r.novel), { downloads: r.total, downloadsRecent: r.recent });
+  return { novels, daily: daily.results.map((r) => ({ date: r.day, reads: r.reads })) };
+}
+
+async function stats(env, days) {
+  const until = new Date();
+  const since = new Date(until.getTime() - (days - 1) * 86400000);
+  const range = { since: ymd(since), until: ymd(until), days };
+  const ready = Boolean(env.CF_ANALYTICS_TOKEN && env.CF_ACCOUNT_ID && env.CF_ZONE_ID && env.SITE_HOST);
+  const [web, zone, site] = await Promise.allSettled([
+    ready ? webAnalytics(env, range.since, range.until) : Promise.reject(new Error('not set up')),
+    ready ? zoneTraffic(env, range.since, range.until) : Promise.reject(new Error('not set up')),
+    siteNumbers(env, range.since),
+  ]);
+  const part = (r) => (r.status === 'fulfilled' ? { ok: true, data: r.value } : { ok: false, error: String(r.reason?.message || r.reason).slice(0, 300) });
+  return { range, cloudflare: ready, web: part(web), zone: part(zone), site: part(site) };
+}
+
 /* ---------- routes ---------- */
 
 export async function handleAdmin(request, env) {
@@ -200,6 +289,7 @@ export async function handleAdmin(request, env) {
       return reply(readChapter(await snapshot(env), url.searchParams.get('novel') ?? '', Number(url.searchParams.get('n'))));
     }
     if (route === 'GET /admin/api/cover') return reply(await coverPreview(env, url.searchParams.get('name') ?? ''));
+    if (route === 'GET /admin/api/stats') return reply(await stats(env, url.searchParams.get('days') === '30' ? 30 : 7));
 
     if (request.method === 'POST' && (url.pathname === '/admin/api/story' || url.pathname === '/admin/api/chapter')) {
       const raw = await request.text();

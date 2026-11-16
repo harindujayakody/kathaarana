@@ -2,216 +2,430 @@
 <html lang="si">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark" />
-<title>කතා අරණ · Publishing</title>
+<meta name="robots" content="noindex" />
+<title>කතා අරණ · Studio</title>
 <style>
   :root {
-    --bg: #f4f5f7; --panel: #fff; --text: #16181d; --muted: #5f6570; --border: #e3e5ea;
-    --accent: #111; --accent-text: #fff; --ok: #15803d; --bad: #b91c1c; --soft: rgba(17,17,17,.06);
+    --bg: #f4f5f7; --panel: #fff; --raised: #fafafb; --text: #16181d; --muted: #5f6570; --faint: #8a909a;
+    --border: #e3e5ea; --accent: #111; --accent-text: #fff; --soft: rgba(17,17,17,.06);
+    --ok: #15803d; --bad: #b91c1c; --warn: #b45309; --bar: #111; --bar-hover: #555;
+    --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px -16px rgba(16,24,40,.25);
+    --radius: 16px;
     color-scheme: light dark;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #000; --panel: #0c0c0c; --text: #ececec; --muted: #a0a0a0; --border: #262626;
-      --accent: #f2f2f2; --accent-text: #000; --ok: #4ade80; --bad: #f87171; --soft: rgba(255,255,255,.08); }
+    :root { --bg: #000; --panel: #0c0c0c; --raised: #121212; --text: #ececec; --muted: #a0a0a0; --faint: #6f6f6f;
+      --border: #232323; --accent: #f2f2f2; --accent-text: #000; --soft: rgba(255,255,255,.07);
+      --ok: #4ade80; --bad: #f87171; --warn: #fbbf24; --bar: #e8e8e8; --bar-hover: #9a9a9a; --shadow: none; }
   }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body { margin: 0; background: var(--bg); color: var(--text);
-    font: 15px/1.6 "Noto Sans Sinhala", "Nirmala UI", "Iskoola Pota", system-ui, sans-serif; }
-  header { position: sticky; top: 0; z-index: 2; background: var(--panel); border-bottom: 1px solid var(--border); }
-  .bar { max-width: 56rem; margin: auto; padding: 12px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .brand { font-weight: 700; font-size: 18px; margin-right: auto; }
-  .brand small { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 6px; }
-  nav { display: flex; gap: 4px; flex-wrap: wrap; }
-  nav button { border: 0; background: none; color: var(--muted); padding: 8px 12px; border-radius: 8px; font: inherit; cursor: pointer; }
-  nav button[aria-selected="true"] { background: var(--soft); color: var(--text); font-weight: 600; }
-  .badge { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--accent); color: var(--accent-text); font-size: 12px; text-align: center; }
-  main { max-width: 56rem; margin: auto; padding: 20px 16px 80px; }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
-  h2 { margin: 0 0 4px; font-size: 20px; }
-  .hint { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
-  .grid { display: grid; gap: 14px; }
-  @media (min-width: 720px) { .two { grid-template-columns: 1fr 1fr; } .cover-row { grid-template-columns: 1fr 10rem; } }
-  label { display: grid; gap: 4px; font-weight: 600; font-size: 14px; }
-  label .opt { color: var(--muted); font-weight: 400; }
-  input[type=text], input[type=date], input[type=number], textarea, select {
-    width: 100%; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--border);
-    border-radius: 10px; padding: 9px 12px; }
-  textarea { resize: vertical; min-height: 6rem; }
-  textarea.story { min-height: 18rem; line-height: 1.9; }
-  input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .prefix { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); overflow: hidden; }
-  .prefix span { padding: 0 4px 0 12px; color: var(--muted); font-weight: 400; white-space: nowrap; }
-  .prefix input { border: 0; padding-left: 0; }
-  .check { display: flex; align-items: center; gap: 8px; font-weight: 400; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chips label { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
-  .chips label:has(input:checked) { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-  .chips input { display: none; }
-  .drop { display: grid; place-items: center; text-align: center; gap: 6px; border: 1.5px dashed var(--border); border-radius: 12px; padding: 18px; color: var(--muted); cursor: pointer; min-height: 9rem; }
-  .drop.over { border-color: var(--accent); color: var(--text); }
-  .preview { width: 10rem; aspect-ratio: 2 / 3; border-radius: 10px; border: 1px solid var(--border); background: var(--soft) center / cover no-repeat; }
-  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; }
-  button.primary, button.secondary { font: inherit; font-weight: 600; border-radius: 10px; padding: 10px 18px; cursor: pointer; }
-  button.primary { background: var(--accent); color: var(--accent-text); border: 1px solid var(--accent); }
-  button.secondary { background: none; color: var(--text); border: 1px solid var(--border); }
-  button:disabled { opacity: .5; cursor: progress; }
-  details summary { cursor: pointer; font-weight: 600; }
-  .list { list-style: none; margin: 0; padding: 0; }
-  .list li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border); }
-  .list li:first-child { border-top: 0; }
-  .list .num { width: 2rem; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .list .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .state { font: 12px ui-monospace, monospace; width: 1.5rem; color: var(--muted); }
-  pre { white-space: pre-wrap; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 13px; max-height: 18rem; overflow: auto; }
-  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); max-width: min(40rem, 92vw);
-    padding: 12px 18px; border-radius: 12px; background: var(--accent); color: var(--accent-text); box-shadow: 0 10px 30px rgba(0,0,0,.25); white-space: pre-wrap; }
-  #toast.bad { background: var(--bad); color: #fff; }
+    font: 15px/1.6 "Noto Sans Sinhala", "Nirmala UI", "Iskoola Pota", system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  a { color: inherit; }
+  svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
   [hidden] { display: none !important; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- shell ---------- */
+  .app { display: grid; grid-template-columns: 15.5rem minmax(0, 1fr); min-height: 100%; }
+  .side { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 4px;
+    padding: 20px 14px; background: var(--panel); border-right: 1px solid var(--border); }
+  .brand { display: flex; align-items: baseline; gap: 8px; padding: 2px 10px 18px; }
+  .brand b { font-size: 21px; letter-spacing: -.01em; }
+  .brand span { font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 0 8px; }
+  .nav { display: grid; gap: 2px; }
+  .nav button { display: flex; align-items: center; gap: 12px; width: 100%; border: 0; background: none; color: var(--muted);
+    padding: 10px 12px; border-radius: 10px; cursor: pointer; text-align: left; }
+  .nav button:hover { background: var(--soft); color: var(--text); }
+  .nav button[aria-current="page"] { background: var(--soft); color: var(--text); font-weight: 600; }
+  .nav .count { margin-left: auto; min-width: 22px; padding: 0 7px; border-radius: 999px; background: var(--accent); color: var(--accent-text); font-size: 12px; text-align: center; }
+  .side-foot { margin-top: auto; display: grid; gap: 8px; padding: 12px 10px 0; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
+  .side-foot a { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+  .side-foot a:hover { color: var(--text); }
+  .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); margin-right: 6px; }
+
+  main { min-width: 0; padding: 32px clamp(16px, 4vw, 48px) 120px; }
+  .page { max-width: 72rem; margin: 0 auto; }
+  .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 24px; }
+  .head h1 { margin: 0; font-size: 28px; line-height: 1.3; letter-spacing: -.01em; }
+  .head p { margin: 4px 0 0; color: var(--muted); }
+
+  /* phones: brand bar on top, tabs at the bottom */
+  .topbar { display: none; }
+  @media (max-width: 900px) {
+    .app { grid-template-columns: minmax(0, 1fr); }
+    .side { position: fixed; inset: auto 0 0 0; z-index: 20; height: auto; flex-direction: row; padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+      border-right: 0; border-top: 1px solid var(--border); }
+    .brand, .side-foot { display: none; }
+    .nav { grid-auto-flow: column; grid-auto-columns: 1fr; width: 100%; }
+    .nav button { flex-direction: column; gap: 2px; padding: 6px 2px; font-size: 11.5px; text-align: center; justify-content: center; }
+    .nav .count { position: absolute; margin: -4px 0 0 22px; font-size: 10px; min-width: 18px; padding: 0 5px; }
+    .nav button { position: relative; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 10;
+      padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+    .topbar b { font-size: 18px; }
+    .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; }
+    main { padding-top: 20px; }
+    .head h1 { font-size: 23px; }
+  }
+
+  /* ---------- building blocks ---------- */
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .card + .card { margin-top: 16px; }
+  .card h2 { margin: 0 0 4px; font-size: 17px; }
+  .card .sub { margin: 0 0 16px; color: var(--muted); font-size: 13.5px; }
+  .grid { display: grid; gap: 14px; }
+  .two { display: grid; gap: 14px; }
+  @media (min-width: 640px) { .two { grid-template-columns: 1fr 1fr; } }
+  label.f { display: grid; gap: 6px; font-weight: 600; font-size: 14px; }
+  .opt { color: var(--muted); font-weight: 400; }
+  input[type=text], input[type=date], input[type=number], textarea, select {
+    width: 100%; background: var(--raised); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+  textarea { resize: vertical; min-height: 6rem; }
+  textarea.story { min-height: 20rem; line-height: 1.95; }
+  input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible, .drop:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px; }
+  .prefix { display: flex; align-items: center; background: var(--raised); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .prefix:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .prefix span { padding-left: 12px; color: var(--muted); font-weight: 400; white-space: nowrap; }
+  .prefix input { border: 0; background: none; padding-left: 0; outline: none; }
+  .check { display: flex; align-items: center; gap: 10px; font-weight: 400; cursor: pointer; }
+  .check input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips label { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px; padding: 5px 14px; cursor: pointer; font-size: 14px; }
+  .chips label:has(input:checked) { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .chips label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .chips input { position: absolute; opacity: 0; pointer-events: none; }
+  .inline-add { display: flex; gap: 8px; max-width: 24rem; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; padding: 10px 18px;
+    font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--panel); text-decoration: none; white-space: nowrap; }
+  .btn:hover { background: var(--soft); }
+  .btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .btn.primary:hover { opacity: .88; }
+  .btn.small { padding: 6px 12px; font-size: 13.5px; border-radius: 8px; }
+  .btn.ghost { border-color: transparent; background: none; }
+  .btn:disabled { opacity: .5; cursor: progress; }
+  .seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--soft); }
+  .seg button { border: 0; background: none; padding: 6px 14px; border-radius: 8px; cursor: pointer; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--panel); color: var(--text); font-weight: 600; box-shadow: var(--shadow); }
+  .notice { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--raised); font-size: 14px; }
+  .notice svg { color: var(--warn); margin-top: 2px; }
+  .notice ol { margin: 6px 0 0; padding-left: 20px; }
+  code { overflow-wrap: anywhere; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--soft); padding: 1px 6px; border-radius: 6px; }
+  pre { white-space: pre-wrap; background: var(--raised); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 13px; max-height: 18rem; overflow: auto; }
+
+  /* ---------- story form ---------- */
+  .form-layout { display: grid; gap: 16px; align-items: start; }
+  @media (min-width: 1080px) { .form-layout { grid-template-columns: minmax(0, 1fr) 19rem; } .aside { position: sticky; top: 24px; } }
+  .aside .card + .card { margin-top: 16px; }
+  .drop { display: grid; place-items: center; gap: 8px; text-align: center; aspect-ratio: 2 / 3; width: 100%; max-width: 15rem; margin: 0 auto;
+    border: 1.5px dashed var(--border); border-radius: 12px; color: var(--muted); cursor: pointer; background: var(--raised) center / cover no-repeat;
+    overflow: hidden; position: relative; }
+  .drop.has { border-style: solid; }
+  .drop.has .drop-label { position: absolute; inset: auto 8px 8px; padding: 6px 10px; border-radius: 8px; background: rgba(0,0,0,.62); color: #fff; font-size: 12.5px; }
+  .drop.over { border-color: var(--accent); color: var(--text); }
+  .drop-note { margin: 10px 0 0; text-align: center; color: var(--muted); font-size: 12.5px; }
+  .actions { display: grid; gap: 10px; }
+  .actions .btn { width: 100%; }
+  details.paste { border: 1px dashed var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; background: var(--raised); }
+  details.paste summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; list-style: none; }
+  details.paste summary::-webkit-details-marker { display: none; }
+
+  /* ---------- stories ---------- */
+  .stories { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
+  .story { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
+  .story .art { aspect-ratio: 4 / 3; background: var(--soft) center / cover no-repeat; border-bottom: 1px solid var(--border); }
+  .story .body { padding: 14px 16px 16px; display: grid; gap: 6px; flex: 1; }
+  .story h3 { margin: 0; font-size: 16px; line-height: 1.45; }
+  .story .meta { color: var(--muted); font-size: 13.5px; }
+  .pill { display: inline-block; font-size: 12px; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .pill.done { color: var(--ok); border-color: currentColor; }
+  .story .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 8px; }
+  .story details { border-top: 1px solid var(--border); }
+  .story details summary { cursor: pointer; padding: 10px 16px; font-size: 13.5px; color: var(--muted); }
+  .chapters { list-style: none; margin: 0; padding: 0 8px 8px; }
+  .chapters li { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; }
+  .chapters li:hover { background: var(--soft); }
+  .chapters .n { width: 1.6rem; text-align: center; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .chapters .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+  .search { max-width: 20rem; }
+
+  /* ---------- stats ---------- */
+  .tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); margin-bottom: 16px; }
+  .tile { padding: 16px 18px; }
+  .tile .k { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .tile .v { font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .tile .s { color: var(--faint); font-size: 12px; margin-top: 2px; }
+  .tile.minor .v { font-size: 20px; }
+  .stats-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); margin-top: 16px; }
+  .chart { position: relative; }
+  .chart svg { display: block; width: 100%; height: 220px; overflow: visible; }
+  .chart .grid-line { stroke: var(--border); stroke-width: 1; }
+  .chart .axis { fill: var(--faint); font-size: 11px; font-family: ui-sans-serif, system-ui, sans-serif; }
+  .chart .bar { fill: var(--bar); }
+  .chart .hit:hover + .bar, .chart .bar.on { fill: var(--bar-hover); }
+  .chart .hit { fill: transparent; cursor: default; }
+  .tip { position: absolute; pointer-events: none; transform: translate(-50%, -100%); padding: 6px 10px; border-radius: 8px;
+    background: var(--accent); color: var(--accent-text); font-size: 12.5px; white-space: nowrap; box-shadow: var(--shadow); }
+  .bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .bars li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; font-size: 14px; }
+  .bars .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bars .num { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bars .track { grid-column: 1 / -1; height: 6px; border-radius: 4px; background: var(--soft); overflow: hidden; }
+  .bars .fill { height: 100%; border-radius: 4px; background: var(--bar); }
+  .empty { color: var(--muted); font-size: 14px; }
+  .table-wrap { overflow-x: auto; margin: 0 -20px -20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 10px 14px; text-align: right; white-space: nowrap; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+  th { color: var(--muted); font-weight: 600; font-size: 12.5px; border-top: 0; }
+  th:first-child, td:first-child { text-align: left; padding-left: 20px; }
+  td:first-child { max-width: 18rem; overflow: hidden; text-overflow: ellipsis; }
+  td .small { color: var(--faint); font-size: 12px; }
+
+  /* ---------- publish (local) ---------- */
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border); font-size: 14px; }
+  .list li:first-child { border-top: 0; }
+  .state { font: 12px ui-monospace, monospace; min-width: 2.2rem; color: var(--muted); }
+  .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  #toast { position: fixed; left: 50%; bottom: 24px; z-index: 50; transform: translateX(-50%); max-width: min(40rem, 92vw);
+    padding: 12px 18px; border-radius: 12px; background: var(--accent); color: var(--accent-text); box-shadow: 0 10px 30px rgba(0,0,0,.3); white-space: pre-wrap; }
+  #toast.bad { background: var(--bad); color: #fff; }
+  @media (max-width: 900px) { #toast { bottom: calc(84px + env(safe-area-inset-bottom)); } }
+  @media (prefers-reduced-motion: no-preference) { .card, .btn, .nav button { transition: background-color .15s, opacity .15s; } }
 </style>
 </head>
 <body>
-<header>
-  <div class="bar">
-    <div class="brand">කතා අරණ <small id="mode-note">Publishing · this computer only</small></div>
-    <nav role="tablist">
-      <button role="tab" data-tab="story" aria-selected="true">නව කතාව</button>
-      <button role="tab" data-tab="chapter">පරිච්ඡේදයක්</button>
-      <button role="tab" data-tab="edit">සංස්කරණය</button>
-      <button role="tab" data-tab="publish">ප්‍රකාශනය<span class="badge" id="change-count" hidden>0</span></button>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-stats" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></symbol>
+  <symbol id="i-new" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+  <symbol id="i-chapter" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4zM5 17a3 3 0 0 1 3-3h10M9 8h5" /></symbol>
+  <symbol id="i-books" viewBox="0 0 24 24"><path d="M4 5h5v15H4zM10 5h5v15h-5zM16.5 6l4 .8-2.8 13.8-4-.8" /></symbol>
+  <symbol id="i-publish" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" /></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15 9h.01" /></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><path d="M9 4h6v3H9zM8 5H6v15h12V5h-2M9 11h6M9 15h4" /></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3zM12 10v4M12 17h.01" /></symbol>
+</svg>
+
+<div class="app">
+  <aside class="side" aria-label="Dashboard">
+    <div class="brand"><b>කතා අරණ</b><span>Studio</span></div>
+    <nav class="nav" aria-label="Sections">
+      <button type="button" data-view="stats"><svg class="i"><use href="#i-stats" /></svg><span>සංඛ්‍යා</span></button>
+      <button type="button" data-view="story"><svg class="i"><use href="#i-new" /></svg><span>නව කතාව</span></button>
+      <button type="button" data-view="chapter"><svg class="i"><use href="#i-chapter" /></svg><span>පරිච්ඡේදය</span></button>
+      <button type="button" data-view="stories"><svg class="i"><use href="#i-books" /></svg><span>කතා</span></button>
+      <button type="button" data-view="publish" data-local-only><svg class="i"><use href="#i-publish" /></svg><span>ප්‍රකාශනය</span><b class="count" id="change-count" hidden>0</b></button>
     </nav>
-  </div>
-</header>
+    <div class="side-foot">
+      <div class="who" id="who"><span class="dot"></span>This computer</div>
+      <a href="https://kathaarana.com/" target="_blank" rel="noopener">kathaarana.com <svg class="i" style="width:14px;height:14px"><use href="#i-out" /></svg></a>
+    </div>
+  </aside>
 
-<main>
-  <!-- New / edit story -->
-  <section data-panel="story">
-    <form id="story-form" class="card" novalidate>
-      <h2 id="story-heading">නව කතාව</h2>
-      <p class="hint" id="story-hint">Fill this in, or paste your template below. Saving writes the files; nothing goes live until you publish.</p>
-
-      <details id="paste-box" style="margin-bottom:16px">
-        <summary>Paste a template (ටෙම්ප්ලේට් එක අලවන්න)</summary>
-        <div class="grid" style="margin-top:10px">
-          <textarea id="paste" placeholder="---&#10;title: &quot;...&quot;&#10;author: &quot;...&quot;&#10;---&#10;&#10;Story text..." rows="8"></textarea>
-          <div><button type="button" class="secondary" id="paste-fill">Fill the form</button></div>
+  <div style="min-width:0">
+    <div class="topbar"><b>කතා අරණ Studio</b><a href="https://kathaarana.com/" target="_blank" rel="noopener">kathaarana.com ↗</a></div>
+    <main>
+      <!-- ================= Stats ================= -->
+      <section class="page" data-panel="stats" hidden>
+        <div class="head">
+          <div><h1>සංඛ්‍යාලේඛන</h1><p id="stats-range">Visitors and readers</p></div>
+          <div class="seg" role="group" aria-label="Period">
+            <button type="button" data-days="7" aria-pressed="true">7 days</button>
+            <button type="button" data-days="30" aria-pressed="false">30 days</button>
+          </div>
         </div>
-      </details>
-
-      <div class="grid">
-        <div class="grid two">
-          <label>Title · මාතෘකාව <input type="text" name="title" required /></label>
-          <label>Author · කතුවරයා <input type="text" name="author" required /></label>
+        <div id="stats-local" class="notice" hidden>
+          <svg class="i"><use href="#i-alert" /></svg>
+          <div>Stats come from Cloudflare and the site's database, so they're in the online dashboard:
+            <a href="https://kathaarana.com/admin/" target="_blank" rel="noopener">kathaarana.com/admin/</a>.</div>
         </div>
-        <label>Web address · වෙබ් ලිපිනය
-          <div class="prefix"><span>kathaarana.com/novels/</span><input type="text" name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="english-words-with-hyphens" /></div>
-        </label>
-        <label>Source · මුලාශ්‍රය <span class="opt">(link to the original post, if any)</span><input type="text" name="source" placeholder="https://www.facebook.com/share/p/..." /></label>
-        <label>Synopsis · සාරාංශය <textarea name="synopsis" required rows="4"></textarea></label>
-
-        <div class="grid cover-row">
-          <label>Cover · කවරය <span class="opt">(portrait, about 2:3)</span>
-            <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a cover image">
-              <span id="drop-text">Drop an image here, or click to choose</span>
+        <div id="stats-body">
+          <div id="cf-setup" class="notice" style="margin-bottom:16px" hidden>
+            <svg class="i"><use href="#i-alert" /></svg>
+            <div><b>Visitor numbers need a Cloudflare token.</b> Story numbers below already work.
+              <ol>
+                <li>Cloudflare → My Profile → API Tokens → Create Token → Custom token.</li>
+                <li>Permissions: <b>Account · Account Analytics · Read</b> and <b>Zone · Analytics · Read</b> (zone kathaarana.com).</li>
+                <li>In the <code>worker</code> folder run <code>npx wrangler secret put CF_ANALYTICS_TOKEN</code> and paste it at the prompt.</li>
+              </ol>
             </div>
-            <input type="file" id="cover-file" accept="image/png,image/jpeg,image/webp,image/avif" hidden />
-          </label>
-          <div class="grid"><span style="font-weight:600;font-size:14px">On the site</span><div class="preview" id="cover-preview"></div></div>
+          </div>
+          <div class="tiles" id="tiles"></div>
+          <div class="card">
+            <h2 id="chart-title">Page views per day</h2>
+            <p class="sub" id="chart-sub"></p>
+            <div class="chart" id="chart"></div>
+          </div>
+          <div class="stats-grid" id="lists"></div>
+          <div class="card" style="margin-top:16px">
+            <h2>Stories</h2>
+            <p class="sub" id="table-sub">Reads, reactions, ratings and PDF downloads</p>
+            <div class="table-wrap"><table id="story-table"></table></div>
+          </div>
+          <p class="empty" id="stats-errors" style="margin-top:12px"></p>
         </div>
+      </section>
 
-        <div class="grid two">
-          <label>Publish date · දිනය <input type="date" name="publishDate" required /></label>
-          <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="completed" /> Completed · සම්පූර්ණයි</label>
+      <!-- ================= New / edit story ================= -->
+      <section class="page" data-panel="story" hidden>
+        <div class="head"><div><h1 id="story-heading">නව කතාව</h1><p id="story-hint">A new novel or short story. Paste your template to fill the form.</p></div></div>
+        <form id="story-form" class="form-layout" novalidate>
+          <div>
+            <details class="paste" id="paste-box">
+              <summary><svg class="i"><use href="#i-paste" /></svg>Paste a template · ටෙම්ප්ලේට් එක අලවන්න</summary>
+              <div class="grid" style="margin-top:12px">
+                <textarea id="paste" rows="8" placeholder="---&#10;title: &quot;...&quot;&#10;author: &quot;...&quot;&#10;---&#10;&#10;Story text..."></textarea>
+                <div><button type="button" class="btn small" id="paste-fill">Fill the form</button></div>
+              </div>
+            </details>
+
+            <div class="card">
+              <h2>Basics</h2><p class="sub">Title, author and where it was first published.</p>
+              <div class="grid">
+                <div class="two">
+                  <label class="f">Title · මාතෘකාව <input type="text" name="title" required /></label>
+                  <label class="f">Author · කතුවරයා <input type="text" name="author" required /></label>
+                </div>
+                <label class="f">Web address · වෙබ් ලිපිනය
+                  <div class="prefix"><span>kathaarana.com/novels/</span><input type="text" name="slug" required placeholder="english-words-with-hyphens" autocapitalize="off" spellcheck="false" /></div>
+                </label>
+                <label class="f">Source · මුලාශ්‍රය <span class="opt">link to the original post, if any</span>
+                  <input type="text" name="source" inputmode="url" placeholder="https://www.facebook.com/share/p/..." /></label>
+                <label class="f">Synopsis · සාරාංශය <textarea name="synopsis" required rows="4"></textarea></label>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Details</h2><p class="sub">Shown on the story page and used for sorting.</p>
+              <div class="grid">
+                <div class="two">
+                  <label class="f">Publish date · දිනය <input type="date" name="publishDate" required /></label>
+                  <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="completed" /> Completed · සම්පූර්ණයි</label>
+                </div>
+                <div class="grid" style="gap:8px">
+                  <span class="f" style="font-weight:600;font-size:14px">Genres · ප්‍රභේද <span class="opt">optional</span></span>
+                  <div class="chips" id="genres"></div>
+                  <div class="inline-add"><input type="text" id="new-genre" placeholder="Add another genre" /><button type="button" class="btn small" id="add-genre">Add</button></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" id="first-chapter">
+              <h2>First chapter · පළමු පරිච්ඡේදය</h2><p class="sub">Optional. A short story is just this one part.</p>
+              <div class="grid">
+                <label class="f">Chapter title <input type="text" name="chTitle" placeholder="Leave empty to use the story title" /></label>
+                <label class="f">Text <textarea name="chBody" class="story"></textarea></label>
+                <label class="check"><input type="checkbox" name="chLines" checked /> Each line is a paragraph (text pasted from Facebook)</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="aside">
+            <div class="card">
+              <h2>Cover · කවරය</h2><p class="sub">Portrait, about 2:3. Resized before upload.</p>
+              <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a cover image">
+                <svg class="i" style="width:28px;height:28px"><use href="#i-image" /></svg>
+                <span class="drop-label" id="drop-text">Drop an image, or click to choose</span>
+              </div>
+              <input type="file" id="cover-file" accept="image/png,image/jpeg,image/webp,image/avif" hidden />
+            </div>
+            <div class="card actions">
+              <button type="submit" class="btn primary" id="story-save">Save story</button>
+              <button type="button" class="btn" id="story-reset">Clear the form</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- ================= Add / edit chapter ================= -->
+      <section class="page" data-panel="chapter" hidden>
+        <div class="head"><div><h1 id="chapter-heading">පරිච්ඡේදයක් එක් කරන්න</h1><p>Pick the story; the next chapter number is filled in.</p></div></div>
+        <form id="chapter-form" class="form-layout" novalidate>
+          <div class="card">
+            <div class="grid">
+              <label class="f">Story · කතාව <select name="novel" id="chapter-novel" required></select></label>
+              <div class="two">
+                <label class="f">Chapter number <input type="number" name="chapterNumber" min="1" required /></label>
+                <label class="f">Publish date · දිනය <input type="date" name="publishDate" required /></label>
+              </div>
+              <label class="f">Chapter title · පරිච්ඡේදයේ නම <input type="text" name="title" required /></label>
+              <label class="f">Source · මුලාශ්‍රය <span class="opt">only if this part was posted somewhere else</span><input type="text" name="source" inputmode="url" /></label>
+              <label class="f">Text <textarea name="body" class="story" required></textarea></label>
+              <label class="check"><input type="checkbox" name="lines" checked /> Each line is a paragraph (text pasted from Facebook)</label>
+            </div>
+          </div>
+          <div class="aside">
+            <div class="card" id="chapter-story-card" hidden>
+              <div class="story" style="border:0;box-shadow:none"><div class="art" id="chapter-art" style="border-radius:10px"></div></div>
+              <p class="sub" id="chapter-story-meta" style="margin:10px 0 0"></p>
+            </div>
+            <div class="card actions">
+              <button type="submit" class="btn primary" id="chapter-save">Save chapter</button>
+              <button type="button" class="btn" id="chapter-cancel" hidden>Cancel editing</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- ================= Stories ================= -->
+      <section class="page" data-panel="stories" hidden>
+        <div class="head">
+          <div><h1>කතා</h1><p id="stories-count">Every story on the site</p></div>
+          <input type="text" id="story-search" class="search" placeholder="Search title or author" aria-label="Search stories" />
         </div>
+        <div class="stories" id="story-list"></div>
+      </section>
 
-        <div class="grid">
-          <span style="font-weight:600;font-size:14px">Genres · ප්‍රභේද <span class="opt" style="color:var(--muted);font-weight:400">(optional)</span></span>
-          <div class="chips" id="genres"></div>
-          <div class="prefix" style="max-width:22rem"><input type="text" id="new-genre" placeholder="Add another genre" style="padding-left:12px" /><button type="button" class="secondary" id="add-genre" style="border:0;border-left:1px solid var(--border);border-radius:0">Add</button></div>
+      <!-- ================= Publish (local only) ================= -->
+      <section class="page" data-panel="publish" hidden>
+        <div class="head"><div><h1>ප්‍රකාශනය</h1><p>Checks the files, commits only the story files and covers, and pushes to GitHub. The site updates a few minutes later.</p></div></div>
+        <div class="card">
+          <p id="branch-note" class="notice" hidden></p>
+          <ul class="list" id="change-list"></ul>
+          <div class="grid" style="margin-top:16px">
+            <label class="f">What's new <span class="opt">commit message</span><input type="text" id="commit-message" /></label>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px">
+            <button type="button" class="btn primary" id="publish-btn">Publish to kathaarana.com</button>
+            <button type="button" class="btn" id="check-btn">Check only</button>
+            <span id="publish-status" class="empty"></span>
+          </div>
+          <pre id="publish-output" hidden></pre>
         </div>
+      </section>
+    </main>
+  </div>
+</div>
 
-        <fieldset id="first-chapter" class="grid" style="border:1px solid var(--border);border-radius:12px;padding:14px">
-          <legend style="font-weight:600;padding:0 6px">First chapter · පළමු පරිච්ඡේදය <span class="opt" style="color:var(--muted);font-weight:400">(optional; a short story is just this)</span></legend>
-          <label>Chapter title <input type="text" name="chTitle" placeholder="Leave empty to use the story title" /></label>
-          <label>Text <textarea name="chBody" class="story"></textarea></label>
-          <label class="check"><input type="checkbox" name="chLines" checked /> Each line is a paragraph (for text pasted from Facebook)</label>
-        </fieldset>
-      </div>
-
-      <div class="actions">
-        <button type="submit" class="primary" id="story-save">Save story</button>
-        <button type="button" class="secondary" id="story-reset">Clear</button>
-      </div>
-    </form>
-  </section>
-
-  <!-- Add / edit chapter -->
-  <section data-panel="chapter" hidden>
-    <form id="chapter-form" class="card" novalidate>
-      <h2 id="chapter-heading">පරිච්ඡේදයක් එක් කරන්න</h2>
-      <p class="hint">Pick the story; the next chapter number is filled in for you.</p>
-      <div class="grid">
-        <label>Story · කතාව <select name="novel" id="chapter-novel" required></select></label>
-        <div class="grid two">
-          <label>Chapter number <input type="number" name="chapterNumber" min="1" required /></label>
-          <label>Publish date · දිනය <input type="date" name="publishDate" required /></label>
-        </div>
-        <label>Chapter title · පරිච්ඡේදයේ නම <input type="text" name="title" required /></label>
-        <label>Source · මුලාශ්‍රය <span class="opt">(only if this part was posted somewhere else)</span><input type="text" name="source" /></label>
-        <label>Text <textarea name="body" class="story" required></textarea></label>
-        <label class="check"><input type="checkbox" name="lines" checked /> Each line is a paragraph (for text pasted from Facebook)</label>
-      </div>
-      <div class="actions">
-        <button type="submit" class="primary" id="chapter-save">Save chapter</button>
-        <button type="button" class="secondary" id="chapter-cancel" hidden>Cancel editing</button>
-      </div>
-    </form>
-  </section>
-
-  <!-- Edit -->
-  <section data-panel="edit" hidden>
-    <div class="card">
-      <h2>සංස්කරණය</h2>
-      <p class="hint">Choose a story to change its details or any chapter.</p>
-      <ul class="list" id="story-list"></ul>
-    </div>
-  </section>
-
-  <!-- Publish -->
-  <section data-panel="publish" hidden>
-    <div class="card">
-      <h2>ප්‍රකාශනය</h2>
-      <p class="hint">Checks the files, commits only the story files and covers, and pushes to GitHub. The site updates a few minutes later.</p>
-      <p id="branch-note" class="hint" hidden></p>
-      <ul class="list" id="change-list"></ul>
-      <div class="grid" style="margin-top:14px">
-        <label>What's new <span class="opt">(commit message)</span><input type="text" id="commit-message" /></label>
-      </div>
-      <div class="actions">
-        <button type="button" class="primary" id="publish-btn">Publish to kathaarana.com</button>
-        <button type="button" class="secondary" id="check-btn">Check only</button>
-        <span id="publish-status" class="hint" style="margin:0"></span>
-      </div>
-      <pre id="publish-output" hidden></pre>
-    </div>
-  </section>
-</main>
-
-<div id="toast" role="status" hidden></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
 // Filled in by the server: local (`npm run admin`) or online (kathaarana.com/admin/).
 const CONFIG = __ADMIN_CONFIG__;
 const ONLINE = CONFIG.mode === 'online';
+const SITE = ONLINE ? '' : 'https://kathaarana.com';
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const today = () => new Date().toLocaleDateString('en-CA');
+const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+const fmt = (n) => (n ?? 0).toLocaleString('en-US');
+const compact = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e4 ? `${Math.round(n / 1e3)}k` : n >= 1e3 ? `${(n / 1e3).toFixed(1)}k` : String(n ?? 0));
+const bytes = (b) => (b >= 1e9 ? `${(b / 1e9).toFixed(1)} GB` : b >= 1e6 ? `${(b / 1e6).toFixed(0)} MB` : `${Math.round((b || 0) / 1e3)} KB`);
 let stories = [];
 let genres = [];
 let storyMode = { isNew: true, slug: null };
 let chapterMode = { isNew: true };
 let cover = { dataUrl: null, path: null };
 let lastSaved = '';
+let statsDays = 7;
 
 async function api(path, body) {
   const res = await fetch(CONFIG.api + path.replace(/^\/api/, ''), {
@@ -231,7 +445,7 @@ function toast(msg, bad = false) {
   t.className = bad ? 'bad' : '';
   t.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => (t.hidden = true), bad ? 9000 : 4000);
+  toastTimer = setTimeout(() => (t.hidden = true), bad ? 9000 : 4500);
 }
 
 async function busy(button, fn) {
@@ -239,16 +453,19 @@ async function busy(button, fn) {
   try { return await fn(); } catch (e) { toast(e.message, true); } finally { button.disabled = false; }
 }
 
-/* ---------- tabs ---------- */
-function showTab(name) {
-  $$('nav [data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+/* ---------- navigation ---------- */
+function showView(name) {
+  $$('.nav [data-view]').forEach((b) => (b.dataset.view === name ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')));
   $$('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== name));
   if (name === 'publish') loadChanges();
   if (name === 'chapter' && chapterMode.isNew) suggestChapterNumber();
+  if (name === 'stats') loadStats();
+  scrollTo({ top: 0 });
 }
-$$('nav [data-tab]').forEach((b) => (b.onclick = () => {
-  if (b.dataset.tab === 'story' && !storyMode.isNew) resetStory();
-  showTab(b.dataset.tab);
+$$('.nav [data-view]').forEach((b) => (b.onclick = () => {
+  if (b.dataset.view === 'story' && !storyMode.isNew) resetStory();
+  if (b.dataset.view === 'chapter' && !chapterMode.isNew) resetChapter();
+  showView(b.dataset.view);
 }));
 
 /* ---------- data ---------- */
@@ -274,13 +491,7 @@ async function refreshCount() {
 }
 
 function renderGenres(selected = selectedGenres()) {
-  const box = $('#genres');
-  box.replaceChildren(...genres.map((g) => {
-    const l = document.createElement('label');
-    const i = Object.assign(document.createElement('input'), { type: 'checkbox', value: g, checked: selected.includes(g) });
-    l.append(i, g);
-    return l;
-  }));
+  $('#genres').replaceChildren(...genres.map((g) => el('label', {}, el('input', { type: 'checkbox', value: g, checked: selected.includes(g) }), g)));
 }
 const selectedGenres = () => $$('#genres input:checked').map((i) => i.value);
 $('#add-genre').onclick = () => {
@@ -294,8 +505,10 @@ $('#add-genre').onclick = () => {
 /* ---------- cover ---------- */
 function setCover(dataUrl, path = null) {
   cover = { dataUrl: path ? null : dataUrl, path };
-  $('#cover-preview').style.backgroundImage = dataUrl ? `url("${dataUrl}")` : '';
-  $('#drop-text').textContent = dataUrl ? (path ? `Using ${path.split('/').pop()}` : 'Cover ready. Drop or click to change.') : 'Drop an image here, or click to choose';
+  const drop = $('#drop');
+  drop.style.backgroundImage = dataUrl ? `url("${dataUrl}")` : '';
+  drop.classList.toggle('has', Boolean(dataUrl));
+  $('#drop-text').textContent = dataUrl ? (path ? `Using ${path.split('/').pop()}` : 'Click or drop to change') : 'Drop an image, or click to choose';
 }
 // Resized here to a JPEG at most 1200px wide, so uploads stay small even from a phone.
 async function readFile(file) {
@@ -304,7 +517,7 @@ async function readFile(file) {
   try {
     const img = await createImageBitmap(file, { imageOrientation: 'from-image' });
     const scale = Math.min(1, 1200 / img.width);
-    const canvas = Object.assign(document.createElement('canvas'), { width: Math.round(img.width * scale), height: Math.round(img.height * scale) });
+    const canvas = el('canvas', { width: Math.round(img.width * scale), height: Math.round(img.height * scale) });
     canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
     setCover(canvas.toDataURL('image/jpeg', 0.88));
   } catch {
@@ -344,8 +557,7 @@ $('#paste-fill').onclick = async () => {
   if (!parsed) return toast('Could not find the --- lines at the top of the template', true);
   const { data, body } = parsed;
   if (data.novel) {
-    // A chapter template.
-    showTab('chapter');
+    showView('chapter');
     const f = $('#chapter-form');
     f.novel.value = data.novel;
     f.chapterNumber.value = data.chapterNumber || '';
@@ -353,6 +565,7 @@ $('#paste-fill').onclick = async () => {
     f.publishDate.value = data.publishDate || today();
     f.source.value = data.source || '';
     f.body.value = body;
+    showChapterStory();
     return toast('Chapter form filled. Check it, then save.');
   }
   resetStory();
@@ -370,17 +583,15 @@ $('#paste-fill').onclick = async () => {
     try {
       const { dataUrl } = await api(`/api/cover?name=${encodeURIComponent(coverName)}`);
       setCover(dataUrl, `../../assets/covers/${coverName}`);
-    } catch { toast(`Cover ${coverName} isn't in src/assets/covers yet. Choose it below.`, true); }
+    } catch { toast(`Cover ${coverName} isn't in src/assets/covers yet. Choose it on the right.`, true); }
   }
-  if (body) {
-    f.chTitle.value = '';
-    f.chBody.value = body;
-  }
+  if (body) { f.chTitle.value = ''; f.chBody.value = body; }
   $('#paste-box').open = false;
   toast('Form filled. Check the web address and cover, then save.');
 };
 
 /* ---------- save story ---------- */
+const saveLabel = (isNew, what) => (ONLINE ? (isNew ? `Publish ${what}` : 'Publish changes') : isNew ? `Save ${what}` : 'Save changes');
 function resetStory() {
   storyMode = { isNew: true, slug: null };
   const f = $('#story-form');
@@ -388,9 +599,10 @@ function resetStory() {
   f.publishDate.value = today();
   f.slug.disabled = false;
   $('#first-chapter').hidden = false;
-  $('#story-heading').textContent = 'නව කතාව';
-  $('#story-save').textContent = ONLINE ? 'Publish story' : 'Save story';
   $('#paste-box').hidden = false;
+  $('#story-heading').textContent = 'නව කතාව';
+  $('#story-hint').textContent = 'A new novel or short story. Paste your template to fill the form.';
+  $('#story-save').textContent = saveLabel(true, 'story');
   setCover(null);
   renderGenres([]);
 }
@@ -417,37 +629,44 @@ $('#story-form').onsubmit = (e) => {
     lastSaved = `Publish ${f.title.value.trim()}`;
     await load();
     resetStory();
-    if (ONLINE) return published(r);
-    toast(storyMode.isNew ? 'Story saved. Publish it when you are ready.' : 'Story updated.');
-    showTab('publish');
+    if (ONLINE) { published(r); return showView('stories'); }
+    toast(body.isNew ? 'Story saved. Publish it when you are ready.' : 'Story updated.');
+    showView('publish');
   });
 };
 
 /* ---------- chapters ---------- */
+function showChapterStory() {
+  const s = stories.find((x) => x.slug === $('#chapter-form').novel.value);
+  $('#chapter-story-card').hidden = !s;
+  if (!s) return;
+  $('#chapter-art').style.backgroundImage = `url("${SITE}/share/${s.slug}.jpg")`;
+  $('#chapter-story-meta').textContent = `${s.author} · ${s.chapters.length} part${s.chapters.length === 1 ? '' : 's'}`;
+}
 function suggestChapterNumber() {
   const f = $('#chapter-form');
   const s = stories.find((x) => x.slug === f.novel.value);
+  showChapterStory();
   if (!s) return;
   f.chapterNumber.value = (s.chapters.at(-1)?.number ?? 0) + 1;
   if (!f.publishDate.value) f.publishDate.value = today();
 }
-$('#chapter-novel').onchange = () => chapterMode.isNew && suggestChapterNumber();
+$('#chapter-novel').onchange = () => (chapterMode.isNew ? suggestChapterNumber() : showChapterStory());
 
-function resetChapter() {
+function resetChapter(novel = $('#chapter-form').novel.value) {
   chapterMode = { isNew: true };
   const f = $('#chapter-form');
-  const novel = f.novel.value;
   f.reset();
   f.novel.value = novel;
   f.novel.disabled = false;
   f.chapterNumber.disabled = false;
   f.publishDate.value = today();
   $('#chapter-heading').textContent = 'පරිච්ඡේදයක් එක් කරන්න';
-  $('#chapter-save').textContent = ONLINE ? 'Publish chapter' : 'Save chapter';
+  $('#chapter-save').textContent = saveLabel(true, 'chapter');
   $('#chapter-cancel').hidden = true;
   suggestChapterNumber();
 }
-$('#chapter-cancel').onclick = resetChapter;
+$('#chapter-cancel').onclick = () => resetChapter();
 
 $('#chapter-form').onsubmit = (e) => {
   e.preventDefault();
@@ -461,41 +680,46 @@ $('#chapter-form').onsubmit = (e) => {
       body: f.body.value, linesAreParagraphs: f.lines.checked,
     });
     lastSaved = `Publish ${story?.title ?? f.novel.value} part ${f.chapterNumber.value}`;
+    const wasNew = chapterMode.isNew;
     await load();
     resetChapter();
     if (ONLINE) return published(r);
-    toast(chapterMode.isNew ? 'Chapter saved. Publish it when you are ready.' : 'Chapter updated.');
-    showTab('publish');
+    toast(wasNew ? 'Chapter saved. Publish it when you are ready.' : 'Chapter updated.');
+    showView('publish');
   });
 };
 
-/* ---------- edit ---------- */
+/* ---------- stories ---------- */
 function renderStoryList() {
-  const list = $('#story-list');
-  list.replaceChildren(...stories.map((s) => {
-    const li = document.createElement('li');
-    li.style.flexWrap = 'wrap';
-    const title = Object.assign(document.createElement('span'), { className: 'grow', textContent: `${s.title} · ${s.author}` });
-    const edit = Object.assign(document.createElement('button'), { type: 'button', className: 'secondary', textContent: 'Details' });
+  const q = $('#story-search').value.trim().toLowerCase();
+  const shown = stories.filter((s) => !q || `${s.title} ${s.author} ${s.slug}`.toLowerCase().includes(q));
+  $('#stories-count').textContent = `${stories.length} stories · ${stories.reduce((n, s) => n + s.chapters.length, 0)} chapters`;
+  $('#story-list').replaceChildren(...shown.map((s) => {
+    const edit = el('button', { type: 'button', className: 'btn small', textContent: 'Edit details' });
     edit.onclick = () => editStory(s);
-    const chapters = document.createElement('ul');
-    chapters.className = 'list';
-    chapters.style.cssText = 'flex-basis:100%;padding-left:1rem';
-    chapters.append(...s.chapters.map((c) => {
-      const row = document.createElement('li');
-      const b = Object.assign(document.createElement('button'), { type: 'button', className: 'secondary', textContent: 'Edit' });
+    const add = el('button', { type: 'button', className: 'btn small ghost', textContent: '+ Chapter' });
+    add.onclick = () => { resetChapter(s.slug); showView('chapter'); };
+    const view = el('a', { className: 'btn small ghost', href: `https://kathaarana.com/novels/${s.slug}/`, target: '_blank', rel: 'noopener', textContent: 'View ↗' });
+    const chapters = el('ul', { className: 'chapters' }, ...s.chapters.map((c) => {
+      const b = el('button', { type: 'button', className: 'btn small ghost', textContent: 'Edit' });
       b.onclick = () => editChapter(s.slug, c.number);
-      row.append(
-        Object.assign(document.createElement('span'), { className: 'num', textContent: c.number }),
-        Object.assign(document.createElement('span'), { className: 'grow', textContent: c.title }),
-        b,
-      );
-      return row;
+      return el('li', {}, el('span', { className: 'n', textContent: c.number }), el('span', { className: 't', textContent: c.title }), b);
     }));
-    li.append(title, edit, chapters);
-    return li;
+    const art = el('div', { className: 'art' });
+    art.style.backgroundImage = `url("${SITE}/share/${s.slug}.jpg")`;
+    return el('article', { className: 'card story' },
+      art,
+      el('div', { className: 'body' },
+        el('h3', { textContent: s.title }),
+        el('div', { className: 'meta', textContent: `${s.author} · ${s.publishDate}` }),
+        el('div', {}, el('span', { className: `pill${s.status === 'Completed' ? ' done' : ''}`, textContent: s.status === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්' }), ' ',
+          el('span', { className: 'pill', textContent: `${s.chapters.length} part${s.chapters.length === 1 ? '' : 's'}` })),
+        el('div', { className: 'row' }, edit, add, view)),
+      el('details', {}, el('summary', { textContent: `Chapters (${s.chapters.length})` }), chapters));
   }));
+  if (!shown.length) $('#story-list').append(el('p', { className: 'empty', textContent: q ? 'No stories match.' : 'No stories yet.' }));
 }
+$('#story-search').oninput = renderStoryList;
 
 async function editStory(s) {
   resetStory();
@@ -509,14 +733,15 @@ async function editStory(s) {
   renderGenres(s.genres || []);
   $('#first-chapter').hidden = true;
   $('#paste-box').hidden = true;
-  $('#story-heading').textContent = `සංස්කරණය: ${s.title}`;
-  $('#story-save').textContent = ONLINE ? 'Publish changes' : 'Save changes';
+  $('#story-heading').textContent = s.title;
+  $('#story-hint').textContent = 'Editing the story details. Chapters are edited from the Stories list.';
+  $('#story-save').textContent = saveLabel(false);
+  showView('story');
   const coverName = String(s.coverImage || '').split('/').pop();
   if (coverName) {
     try { const { dataUrl } = await api(`/api/cover?name=${encodeURIComponent(coverName)}`); setCover(dataUrl); cover = { dataUrl: null, path: null }; } catch {}
-    $('#drop-text').textContent = 'Drop a new image to replace the cover';
+    $('#drop-text').textContent = 'Drop a new image to replace';
   }
-  showTab('story');
 }
 
 async function editChapter(slug, number) {
@@ -532,35 +757,151 @@ async function editChapter(slug, number) {
   f.source.value = data.source || '';
   f.body.value = body;
   f.lines.checked = false; // already formatted
-  $('#chapter-heading').textContent = `සංස්කරණය: පරිච්ඡේදය ${number}`;
-  $('#chapter-save').textContent = ONLINE ? 'Publish changes' : 'Save changes';
+  $('#chapter-heading').textContent = `පරිච්ඡේදය ${number}`;
+  $('#chapter-save').textContent = saveLabel(false);
   $('#chapter-cancel').hidden = false;
-  showTab('chapter');
+  showView('chapter');
+  showChapterStory();
 }
 
-/* ---------- publish ---------- */
-const STATES = { A: 'new', M: 'changed', D: 'deleted', '??': 'new' };
+/* ---------- stats ---------- */
+function tile(label, value, note, minor = false) {
+  return el('div', { className: `card tile${minor ? ' minor' : ''}` },
+    el('div', { className: 'k', textContent: label }), el('div', { className: 'v', textContent: value }), note ? el('div', { className: 's', textContent: note }) : '');
+}
+
+// One series, so no legend: the card title names it. Hover (or focus) a day for its number.
+function barChart(target, rows, key, label) {
+  target.replaceChildren();
+  if (!rows.some((r) => r[key])) return target.append(el('p', { className: 'empty', textContent: 'No data for this period yet.' }));
+  const W = 720, H = 220, L = 36, B = 22, T = 8;
+  const max = Math.max(1, ...rows.map((r) => r[key]));
+  const step = Math.pow(10, Math.floor(Math.log10(max)));
+  const top = Math.ceil(max / step) * step;
+  const bw = (W - L) / rows.length;
+  const y = (v) => T + (H - T - B) * (1 - v / top);
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', `${label} per day`);
+  const add = (tag, attrs, text) => { const n = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text != null) n.textContent = text; svg.append(n); return n; };
+  for (const v of [0, top / 2, top]) {
+    add('line', { x1: L, x2: W, y1: y(v), y2: y(v), class: 'grid-line' });
+    add('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'axis' }, compact(v));
+  }
+  const tip = el('div', { className: 'tip', hidden: true });
+  rows.forEach((r, i) => {
+    const w = Math.max(2, Math.min(bw - 2, 40)), x = L + i * bw + (bw - w) / 2, h = Math.max(0, y(0) - y(r[key])), r4 = Math.min(4, w / 2, h);
+    const hit = add('rect', { x: L + i * bw, y: T, width: bw, height: H - T - B, class: 'hit', tabindex: 0 });
+    const bar = add('path', { class: 'bar', d: h ? `M${x},${y(0)} V${y(0) - h + r4} Q${x},${y(0) - h} ${x + r4},${y(0) - h} H${x + w - r4} Q${x + w},${y(0) - h} ${x + w},${y(0) - h + r4} V${y(0)} Z` : '' });
+    const show = () => {
+      bar.classList.add('on');
+      tip.hidden = false;
+      tip.textContent = `${new Date(`${r.date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} · ${fmt(r[key])} ${label.toLowerCase()}`;
+      const box = svg.getBoundingClientRect();
+      tip.style.left = `${((L + (i + 0.5) * bw) / W) * box.width}px`;
+      tip.style.top = `${(y(r[key]) / H) * box.height - 8}px`;
+    };
+    const hide = () => { bar.classList.remove('on'); tip.hidden = true; };
+    hit.addEventListener('mouseenter', show); hit.addEventListener('focus', show);
+    hit.addEventListener('mouseleave', hide); hit.addEventListener('blur', hide);
+    if (i === 0 || i === rows.length - 1 || (rows.length > 10 && i === Math.floor(rows.length / 2)))
+      add('text', { x: L + (i + 0.5) * bw, y: H - 4, 'text-anchor': 'middle', class: 'axis' }, new Date(`${r.date}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }));
+  });
+  // The same numbers as a table, for screen readers.
+  const table = el('table', { className: 'sr-only' }, el('caption', { textContent: `${label} per day` }),
+    ...rows.map((r) => el('tr', {}, el('th', { textContent: r.date }), el('td', { textContent: r[key] }))));
+  target.append(svg, tip, table);
+}
+
+function barList(title, rows, unit) {
+  const max = Math.max(1, ...rows.map((r) => r.count));
+  return el('div', { className: 'card' }, el('h2', { textContent: title }), el('p', { className: 'sub', textContent: unit }),
+    rows.length
+      ? el('ul', { className: 'bars' }, ...rows.map((r) => {
+          const fill = el('div', { className: 'fill' });
+          fill.style.width = `${(r.count / max) * 100}%`;
+          return el('li', {}, el('span', { className: 'name', textContent: r.name, title: r.name }), el('span', { className: 'num', textContent: fmt(r.count) }), el('div', { className: 'track' }, fill));
+        }))
+      : el('p', { className: 'empty', textContent: 'Nothing yet.' }));
+}
+
+async function loadStats() {
+  if (!ONLINE) { $('#stats-local').hidden = false; $('#stats-body').hidden = true; return; }
+  $('#tiles').replaceChildren(el('p', { className: 'empty', textContent: 'Loading…' }));
+  let s;
+  try { s = await api(`/api/stats?days=${statsDays}`); } catch (e) { $('#tiles').replaceChildren(el('p', { className: 'empty', textContent: e.message })); return; }
+  const { range, web, zone, site } = s;
+  const d = (v) => new Date(`${v}T00:00:00`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  $('#stats-range').textContent = `${d(range.since)} – ${d(range.until)} · last ${range.days} days`;
+  $('#cf-setup').hidden = s.cloudflare;
+
+  const w = web.ok ? web.data : null, z = zone.ok ? zone.data : null, st = site.ok ? site.data : null;
+  const sum = (rows, k) => (rows || []).reduce((n, r) => n + (r[k] || 0), 0);
+  // Every day of the period gets a bar, so quiet days show as zero instead of disappearing.
+  const allDays = (rows, key) => {
+    const by = Object.fromEntries((rows || []).map((r) => [r.date, r]));
+    const out = [];
+    for (let t = Date.parse(range.since + 'T00:00:00Z'); t <= Date.parse(range.until + 'T00:00:00Z'); t += 86400000) {
+      const date = new Date(t).toISOString().slice(0, 10);
+      out.push({ date, [key]: by[date]?.[key] ?? 0 });
+    }
+    return out;
+  };
+  const novels = st ? Object.entries(st.novels) : [];
+  const tiles = [];
+  if (w) tiles.push(tile('Visits', compact(sum(w.daily, 'visits')), 'Cloudflare Web Analytics'), tile('Page views', compact(sum(w.daily, 'views')), 'real browsers, bots excluded'));
+  if (st) tiles.push(tile('Chapter reads', compact(sum(st.daily, 'reads')), 'once per reader per chapter per day'), tile('PDF downloads', compact(novels.reduce((n, [, v]) => n + (v.downloadsRecent || 0), 0)), `${compact(novels.reduce((n, [, v]) => n + v.downloads, 0))} all time`));
+  if (z) tiles.push(tile('Requests', compact(sum(z, 'requests')), 'all traffic, bots included', true), tile('Bandwidth', bytes(sum(z, 'bytes')), `${Math.round((sum(z, 'cachedBytes') / Math.max(1, sum(z, 'bytes'))) * 100)}% from cache`, true), tile('Threats blocked', compact(sum(z, 'threats')), 'by Cloudflare', true));
+  $('#tiles').replaceChildren(...tiles);
+
+  // Prefer real page views; without Cloudflare, show the site's own chapter reads.
+  if (w) { $('#chart-title').textContent = 'Page views per day'; $('#chart-sub').textContent = 'From Cloudflare Web Analytics. Hover a day for its number.'; barChart($('#chart'), allDays(w.daily, 'views'), 'views', 'Page views'); }
+  else { $('#chart-title').textContent = 'Chapter reads per day'; $('#chart-sub').textContent = 'From the site’s own counter. Hover a day for its number.'; barChart($('#chart'), allDays(st?.daily, 'reads'), 'reads', 'Reads'); }
+
+  $('#lists').replaceChildren(...(w ? [
+    barList('Top pages', w.pages.map((p) => ({ ...p, name: p.name === '/' ? '/ (home)' : decodeURIComponent(p.name) })), 'page views'),
+    barList('Countries', w.countries, 'page views'),
+    barList('Referrers', w.referrers, 'where visitors came from'),
+    barList('Devices', w.devices, 'page views'),
+  ] : []));
+
+  const title = (slug) => stories.find((x) => x.slug === slug)?.title ?? slug;
+  const head = el('tr', {}, ...['Story', `Reads (${range.days}d)`, 'Reads (all)', '❤️', '😢', 'Rating', 'PDF'].map((h) => el('th', { scope: 'col', textContent: h })));
+  const rows = novels.sort((a, b) => b[1].readsRecent - a[1].readsRecent || b[1].reads - a[1].reads).map(([slug, v]) => el('tr', {},
+    el('td', { title: title(slug), textContent: title(slug) }),
+    el('td', { textContent: fmt(v.readsRecent) }), el('td', { textContent: fmt(v.reads) }),
+    el('td', { textContent: fmt(v.likes) }), el('td', { textContent: fmt(v.sad) }),
+    el('td', {}, v.ratings ? `${v.rating.toFixed(1)} ` : '–', v.ratings ? el('span', { className: 'small', textContent: `(${v.ratings})` }) : ''),
+    el('td', { textContent: fmt(v.downloads) })));
+  $('#story-table').replaceChildren(el('thead', {}, head), el('tbody', {}, ...(rows.length ? rows : [el('tr', {}, el('td', { colSpan: 7, className: 'empty', textContent: 'No reader activity yet.' }))])));
+
+  const problems = [[web, 'Web Analytics'], [zone, 'Zone traffic'], [site, 'Site numbers']].filter(([p]) => !p.ok && p.error !== 'not set up').map(([p, n]) => `${n}: ${p.error}`);
+  $('#stats-errors').textContent = problems.join(' · ');
+}
+$$('[data-days]').forEach((b) => (b.onclick = () => {
+  statsDays = Number(b.dataset.days);
+  $$('[data-days]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  loadStats();
+}));
+
+/* ---------- publish (local) ---------- */
 async function loadChanges() {
   const { branch, files } = await api('/api/changes');
   const note = $('#branch-note');
   note.hidden = branch === 'main';
   note.textContent = `You're on the "${branch}" branch. Switch to main to publish.`;
-  const list = $('#change-list');
-  list.replaceChildren(...(files.length ? files.map((f) => {
-    const li = document.createElement('li');
-    li.append(
-      Object.assign(document.createElement('span'), { className: 'state', textContent: f.state }),
-      Object.assign(document.createElement('span'), { className: 'grow', textContent: f.path, title: STATES[f.state] ?? f.state }),
-    );
-    return li;
-  }) : [Object.assign(document.createElement('li'), { textContent: 'Nothing new to publish.' })]));
+  $('#change-list').replaceChildren(...(files.length
+    ? files.map((f) => el('li', {}, el('span', { className: 'state', textContent: f.state }), el('span', { className: 'grow', textContent: f.path })))
+    : [el('li', { className: 'empty', textContent: 'Nothing new to publish.' })]));
   $('#publish-btn').disabled = !files.length || branch !== 'main';
   if (!$('#commit-message').value) $('#commit-message').value = lastSaved;
   refreshCount();
 }
 
 $('#check-btn').onclick = () => busy($('#check-btn'), async () => {
-  $('#publish-status').textContent = 'Checking...';
+  $('#publish-status').textContent = 'Checking…';
   const r = await api('/api/check', {});
   $('#publish-status').textContent = r.ok ? 'All files are valid.' : 'Problems found:';
   $('#publish-output').hidden = r.ok;
@@ -572,7 +913,7 @@ $('#publish-btn').onclick = () => {
   if (!message) return toast('Write a short note about what is new', true);
   if (!confirm(`Publish to kathaarana.com?\n\n"${message}"`)) return;
   busy($('#publish-btn'), async () => {
-    $('#publish-status').textContent = 'Checking and publishing...';
+    $('#publish-status').textContent = 'Checking and publishing…';
     $('#publish-output').hidden = true;
     try {
       const r = await api('/api/publish', { message });
@@ -590,19 +931,17 @@ $('#publish-btn').onclick = () => {
   });
 };
 
+/* ---------- start ---------- */
 // Online, saving is publishing: one commit to GitHub, then the usual build and deploy.
 function published(r) {
   toast(`Published (${r.sha}). kathaarana.com updates in about 3–5 minutes.`);
 }
 if (ONLINE) {
-  $('#mode-note').textContent = `Publishing · ${CONFIG.user}`;
-  $('[data-tab="publish"]').hidden = true;
-  $('#story-hint').textContent = 'Fill this in, or paste your template below. Publishing commits to GitHub and the site updates a few minutes later.';
-  $('#story-save').textContent = 'Publish story';
-  $('#chapter-save').textContent = 'Publish chapter';
+  $('#who').replaceChildren(el('span', { className: 'dot' }), CONFIG.user);
+  $$('[data-local-only]').forEach((n) => (n.hidden = true));
 }
-
 resetStory();
+showView(ONLINE ? 'stats' : 'story');
 load().then(() => resetChapter()).catch((e) => toast(e.message, true));
 </script>
 </body>
