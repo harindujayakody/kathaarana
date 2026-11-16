@@ -1,0 +1,38 @@
+---
+import Icon from './Icon.astro';
+---
+
+<!-- Site search: opened by any [data-search-open] button, Ctrl/⌘+K or "/". Logic in scripts/search.ts. -->
+<dialog id="search-dialog" class="search-dialog" closedby="any" aria-label="සොයන්න">
+  <div class="flex items-center gap-2 border-b border-[var(--reader-border)] px-4">
+    <Icon name="search" class="h-5 w-5 shrink-0 text-[var(--reader-muted)]" />
+    <input
+      id="search-input"
+      type="search"
+      role="combobox"
+      aria-expanded="true"
+      aria-controls="search-results"
+      aria-autocomplete="list"
+      autocomplete="off"
+      enterkeyhint="search"
+      placeholder="කතා, පරිච්ඡේද, පොත් හෝ කතුවරුන් සොයන්න…"
+      class="h-14 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-[var(--reader-muted)]"
+    />
+    <button type="button" data-search-close class="tap shrink-0 cursor-pointer rounded-lg p-2 text-[var(--reader-muted)]" aria-label="වසන්න">
+      <Icon name="close" />
+    </button>
+  </div>
+  <div class="max-h-[min(70dvh,32rem)] overflow-y-auto overscroll-contain p-2">
+    <!-- "Nothing found" comes first, above the suggestions. -->
+    <p id="search-empty" class="px-3 pb-2 pt-4 text-center text-sm text-[var(--reader-muted)]" hidden></p>
+    <p id="search-heading" class="px-3 pb-1 pt-2 text-xs font-semibold text-[var(--reader-muted)]"></p>
+    <ul id="search-results" role="listbox" aria-labelledby="search-heading" class="space-y-0.5"></ul>
+  </div>
+  <p class="hidden border-t border-[var(--reader-border)] px-4 py-2 text-xs text-[var(--reader-muted)] sm:block">
+    ↑ ↓ තෝරන්න · Enter විවෘත කරන්න · Esc වසන්න
+  </p>
+</dialog>
+
+<script>
+  import '../scripts/search.ts';
+</script>
