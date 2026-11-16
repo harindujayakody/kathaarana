@@ -1,10 +1,10 @@
-// Site-wide behaviour: theme, reading history, and the shared numbers (ratings, likes, views).
+// Site-wide behaviour: theme, reading history, and the shared numbers (ratings, likes, views, downloads).
 // The page uses Astro's client router, so everything that touches the DOM runs from
 // `astro:page-load`, which fires on first load and after every in-app navigation.
 
 const API = import.meta.env.PUBLIC_API_BASE ?? '/api';
 
-type NovelStats = { rating: number; ratings: number; likes: number; views: number; week: number };
+type NovelStats = { rating: number; ratings: number; likes: number; views: number; downloads: number; week: number };
 type Stats = Record<string, NovelStats>;
 type Votes = { r: Record<string, number>; x: Record<string, string> };
 export type HistoryItem = {
@@ -51,7 +51,7 @@ export const post = (path: string, body: object) =>
   });
 
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n));
-const emptyStats = (): NovelStats => ({ rating: 0, ratings: 0, likes: 0, views: 0, week: 0 });
+const emptyStats = (): NovelStats => ({ rating: 0, ratings: 0, likes: 0, views: 0, downloads: 0, week: 0 });
 
 /* ---------- theme ---------- */
 
@@ -161,6 +161,7 @@ function renderStats() {
     set('ratings-long', s.ratings ? `ඇගයීම් ${compact(s.ratings)}` : 'තවම ඇගයීම් නැත');
     set('likes', compact(s.likes));
     set('views', compact(s.views));
+    set('downloads', compact(s.downloads ?? 0));
   });
 
   document.querySelectorAll<HTMLButtonElement>('[data-like]').forEach((btn) => {
@@ -180,7 +181,38 @@ function renderStats() {
   renderChart();
 }
 
+// WhatsApp on phones: open the share sheet with the story card attached, like shops do.
+// The image is fetched up front because share() must run straight from the tap.
+// Where files can't be shared (desktop, older phones) the link opens wa.me as usual.
+function initShareCards() {
+  if (!matchMedia('(pointer: coarse)').matches || !navigator.canShare) return;
+  document.querySelectorAll<HTMLAnchorElement>('[data-share-card]').forEach(async (link) => {
+    let file: File;
+    try {
+      const res = await fetch(link.dataset.shareCard!);
+      if (!res.ok) return;
+      file = new File([await res.blob()], 'kathaarana.jpg', { type: 'image/jpeg' });
+      if (!navigator.canShare({ files: [file] })) return;
+    } catch {
+      return;
+    }
+    link.onclick = (event) => {
+      event.preventDefault();
+      navigator.share({ files: [file], text: link.dataset.shareText }).catch((err: DOMException) => {
+        if (err.name !== 'AbortError') location.href = link.href;
+      });
+    };
+  });
+}
+
 function initVoting() {
+  // The link still downloads the file; this only counts it (once per device, on the server).
+  document.querySelectorAll<HTMLAnchorElement>('[data-download]').forEach((link) => {
+    link.onclick = () => {
+      post('/download', { novel: link.dataset.download! }).catch(() => {});
+    };
+  });
+
   document.querySelectorAll<HTMLButtonElement>('[data-like]').forEach((btn) => {
     btn.onclick = (event) => {
       event.preventDefault();
@@ -274,6 +306,7 @@ document.addEventListener('astro:page-load', () => {
   initTheme();
   initHistory();
   initVoting();
+  initShareCards();
   initChart();
   renderStats();
   loadStats().then(renderStats);

@@ -28,6 +28,14 @@ CREATE TABLE IF NOT EXISTS view_log (
   PRIMARY KEY (novel, chapter, device, day)
 );
 
+-- PDF downloads: a device counts once per novel.
+CREATE TABLE IF NOT EXISTS downloads (
+  novel TEXT NOT NULL,
+  device TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY (novel, device)
+);
+
 CREATE TABLE IF NOT EXISTS views_daily (
   novel TEXT NOT NULL,
   day TEXT NOT NULL,

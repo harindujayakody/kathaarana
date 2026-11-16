@@ -162,6 +162,7 @@ const reactions = [
       <ShareButtons
         url={new URL(Astro.url.pathname, Astro.site).href}
         title={`${novel.data.title} - ${chapter.data.title}`}
+        card={`/share/${novel.id}.jpg`}
         class={`mx-auto max-w-[46rem] ${source ? 'mt-4' : 'mt-10 border-t border-[var(--reader-border)] pt-5'}`}
       />
     </div>
