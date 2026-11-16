@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="si">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<title>කතා අරණ · Publishing</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #fff; --text: #16181d; --muted: #5f6570; --border: #e3e5ea;
+    --accent: #111; --accent-text: #fff; --ok: #15803d; --bad: #b91c1c; --soft: rgba(17,17,17,.06);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #000; --panel: #0c0c0c; --text: #ececec; --muted: #a0a0a0; --border: #262626;
+      --accent: #f2f2f2; --accent-text: #000; --ok: #4ade80; --bad: #f87171; --soft: rgba(255,255,255,.08); }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.6 "Noto Sans Sinhala", "Nirmala UI", "Iskoola Pota", system-ui, sans-serif; }
+  header { position: sticky; top: 0; z-index: 2; background: var(--panel); border-bottom: 1px solid var(--border); }
+  .bar { max-width: 56rem; margin: auto; padding: 12px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .brand { font-weight: 700; font-size: 18px; margin-right: auto; }
+  .brand small { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 6px; }
+  nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav button { border: 0; background: none; color: var(--muted); padding: 8px 12px; border-radius: 8px; font: inherit; cursor: pointer; }
+  nav button[aria-selected="true"] { background: var(--soft); color: var(--text); font-weight: 600; }
+  .badge { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--accent); color: var(--accent-text); font-size: 12px; text-align: center; }
+  main { max-width: 56rem; margin: auto; padding: 20px 16px 80px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  h2 { margin: 0 0 4px; font-size: 20px; }
+  .hint { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .grid { display: grid; gap: 14px; }
+  @media (min-width: 720px) { .two { grid-template-columns: 1fr 1fr; } .cover-row { grid-template-columns: 1fr 10rem; } }
+  label { display: grid; gap: 4px; font-weight: 600; font-size: 14px; }
+  label .opt { color: var(--muted); font-weight: 400; }
+  input[type=text], input[type=date], input[type=number], textarea, select {
+    width: 100%; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 12px; }
+  textarea { resize: vertical; min-height: 6rem; }
+  textarea.story { min-height: 18rem; line-height: 1.9; }
+  input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .prefix { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); overflow: hidden; }
+  .prefix span { padding: 0 4px 0 12px; color: var(--muted); font-weight: 400; white-space: nowrap; }
+  .prefix input { border: 0; padding-left: 0; }
+  .check { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips label { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+  .chips label:has(input:checked) { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .chips input { display: none; }
+  .drop { display: grid; place-items: center; text-align: center; gap: 6px; border: 1.5px dashed var(--border); border-radius: 12px; padding: 18px; color: var(--muted); cursor: pointer; min-height: 9rem; }
+  .drop.over { border-color: var(--accent); color: var(--text); }
+  .preview { width: 10rem; aspect-ratio: 2 / 3; border-radius: 10px; border: 1px solid var(--border); background: var(--soft) center / cover no-repeat; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; }
+  button.primary, button.secondary { font: inherit; font-weight: 600; border-radius: 10px; padding: 10px 18px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-text); border: 1px solid var(--accent); }
+  button.secondary { background: none; color: var(--text); border: 1px solid var(--border); }
+  button:disabled { opacity: .5; cursor: progress; }
+  details summary { cursor: pointer; font-weight: 600; }
+  .list { list-style: none; margin: 0; padding: 0; }
+  .list li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border); }
+  .list li:first-child { border-top: 0; }
+  .list .num { width: 2rem; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .list .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .state { font: 12px ui-monospace, monospace; width: 1.5rem; color: var(--muted); }
+  pre { white-space: pre-wrap; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 13px; max-height: 18rem; overflow: auto; }
+  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); max-width: min(40rem, 92vw);
+    padding: 12px 18px; border-radius: 12px; background: var(--accent); color: var(--accent-text); box-shadow: 0 10px 30px rgba(0,0,0,.25); white-space: pre-wrap; }
+  #toast.bad { background: var(--bad); color: #fff; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">කතා අරණ <small>Publishing · this computer only</small></div>
+    <nav role="tablist">
+      <button role="tab" data-tab="story" aria-selected="true">නව කතාව</button>
+      <button role="tab" data-tab="chapter">පරිච්ඡේදයක්</button>
+      <button role="tab" data-tab="edit">සංස්කරණය</button>
+      <button role="tab" data-tab="publish">ප්‍රකාශනය<span class="badge" id="change-count" hidden>0</span></button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- New / edit story -->
+  <section data-panel="story">
+    <form id="story-form" class="card" novalidate>
+      <h2 id="story-heading">නව කතාව</h2>
+      <p class="hint" id="story-hint">Fill this in, or paste your template below. Saving writes the files; nothing goes live until you publish.</p>
+
+      <details id="paste-box" style="margin-bottom:16px">
+        <summary>Paste a template (ටෙම්ප්ලේට් එක අලවන්න)</summary>
+        <div class="grid" style="margin-top:10px">
+          <textarea id="paste" placeholder="---&#10;title: &quot;...&quot;&#10;author: &quot;...&quot;&#10;---&#10;&#10;Story text..." rows="8"></textarea>
+          <div><button type="button" class="secondary" id="paste-fill">Fill the form</button></div>
+        </div>
+      </details>
+
+      <div class="grid">
+        <div class="grid two">
+          <label>Title · මාතෘකාව <input type="text" name="title" required /></label>
+          <label>Author · කතුවරයා <input type="text" name="author" required /></label>
+        </div>
+        <label>Web address · වෙබ් ලිපිනය
+          <div class="prefix"><span>kathaarana.com/novels/</span><input type="text" name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="english-words-with-hyphens" /></div>
+        </label>
+        <label>Source · මුලාශ්‍රය <span class="opt">(link to the original post, if any)</span><input type="text" name="source" placeholder="https://www.facebook.com/share/p/..." /></label>
+        <label>Synopsis · සාරාංශය <textarea name="synopsis" required rows="4"></textarea></label>
+
+        <div class="grid cover-row">
+          <label>Cover · කවරය <span class="opt">(portrait, about 2:3)</span>
+            <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a cover image">
+              <span id="drop-text">Drop an image here, or click to choose</span>
+            </div>
+            <input type="file" id="cover-file" accept="image/png,image/jpeg,image/webp,image/avif" hidden />
+          </label>
+          <div class="grid"><span style="font-weight:600;font-size:14px">On the site</span><div class="preview" id="cover-preview"></div></div>
+        </div>
+
+        <div class="grid two">
+          <label>Publish date · දිනය <input type="date" name="publishDate" required /></label>
+          <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="completed" /> Completed · සම්පූර්ණයි</label>
+        </div>
+
+        <div class="grid">
+          <span style="font-weight:600;font-size:14px">Genres · ප්‍රභේද <span class="opt" style="color:var(--muted);font-weight:400">(optional)</span></span>
+          <div class="chips" id="genres"></div>
+          <div class="prefix" style="max-width:22rem"><input type="text" id="new-genre" placeholder="Add another genre" style="padding-left:12px" /><button type="button" class="secondary" id="add-genre" style="border:0;border-left:1px solid var(--border);border-radius:0">Add</button></div>
+        </div>
+
+        <fieldset id="first-chapter" class="grid" style="border:1px solid var(--border);border-radius:12px;padding:14px">
+          <legend style="font-weight:600;padding:0 6px">First chapter · පළමු පරිච්ඡේදය <span class="opt" style="color:var(--muted);font-weight:400">(optional; a short story is just this)</span></legend>
+          <label>Chapter title <input type="text" name="chTitle" placeholder="Leave empty to use the story title" /></label>
+          <label>Text <textarea name="chBody" class="story"></textarea></label>
+          <label class="check"><input type="checkbox" name="chLines" checked /> Each line is a paragraph (for text pasted from Facebook)</label>
+        </fieldset>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="primary" id="story-save">Save story</button>
+        <button type="button" class="secondary" id="story-reset">Clear</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Add / edit chapter -->
+  <section data-panel="chapter" hidden>
+    <form id="chapter-form" class="card" novalidate>
+      <h2 id="chapter-heading">පරිච්ඡේදයක් එක් කරන්න</h2>
+      <p class="hint">Pick the story; the next chapter number is filled in for you.</p>
+      <div class="grid">
+        <label>Story · කතාව <select name="novel" id="chapter-novel" required></select></label>
+        <div class="grid two">
+          <label>Chapter number <input type="number" name="chapterNumber" min="1" required /></label>
+          <label>Publish date · දිනය <input type="date" name="publishDate" required /></label>
+        </div>
+        <label>Chapter title · පරිච්ඡේදයේ නම <input type="text" name="title" required /></label>
+        <label>Source · මුලාශ්‍රය <span class="opt">(only if this part was posted somewhere else)</span><input type="text" name="source" /></label>
+        <label>Text <textarea name="body" class="story" required></textarea></label>
+        <label class="check"><input type="checkbox" name="lines" checked /> Each line is a paragraph (for text pasted from Facebook)</label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="primary" id="chapter-save">Save chapter</button>
+        <button type="button" class="secondary" id="chapter-cancel" hidden>Cancel editing</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Edit -->
+  <section data-panel="edit" hidden>
+    <div class="card">
+      <h2>සංස්කරණය</h2>
+      <p class="hint">Choose a story to change its details or any chapter.</p>
+      <ul class="list" id="story-list"></ul>
+    </div>
+  </section>
+
+  <!-- Publish -->
+  <section data-panel="publish" hidden>
+    <div class="card">
+      <h2>ප්‍රකාශනය</h2>
+      <p class="hint">Checks the files, commits only the story files and covers, and pushes to GitHub. The site updates a few minutes later.</p>
+      <p id="branch-note" class="hint" hidden></p>
+      <ul class="list" id="change-list"></ul>
+      <div class="grid" style="margin-top:14px">
+        <label>What's new <span class="opt">(commit message)</span><input type="text" id="commit-message" /></label>
+      </div>
+      <div class="actions">
+        <button type="button" class="primary" id="publish-btn">Publish to kathaarana.com</button>
+        <button type="button" class="secondary" id="check-btn">Check only</button>
+        <span id="publish-status" class="hint" style="margin:0"></span>
+      </div>
+      <pre id="publish-output" hidden></pre>
+    </div>
+  </section>
+</main>
+
+<div id="toast" role="status" hidden></div>
+
+<script>
+const KEY = '__ADMIN_KEY__';
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const today = () => new Date().toLocaleDateString('en-CA');
+let stories = [];
+let genres = [];
+let storyMode = { isNew: true, slug: null };
+let chapterMode = { isNew: true };
+let cover = { dataUrl: null, path: null };
+let lastSaved = '';
+
+async function api(path, body) {
+  const res = await fetch(path, {
+    method: body ? 'POST' : 'GET',
+    headers: { 'X-Admin-Key': KEY, ...(body ? { 'Content-Type': 'application/json' } : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+let toastTimer;
+function toast(msg, bad = false) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = bad ? 'bad' : '';
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (t.hidden = true), bad ? 9000 : 4000);
+}
+
+async function busy(button, fn) {
+  button.disabled = true;
+  try { return await fn(); } catch (e) { toast(e.message, true); } finally { button.disabled = false; }
+}
+
+/* ---------- tabs ---------- */
+function showTab(name) {
+  $$('nav [data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  $$('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== name));
+  if (name === 'publish') loadChanges();
+  if (name === 'chapter' && chapterMode.isNew) suggestChapterNumber();
+}
+$$('nav [data-tab]').forEach((b) => (b.onclick = () => {
+  if (b.dataset.tab === 'story' && !storyMode.isNew) resetStory();
+  showTab(b.dataset.tab);
+}));
+
+/* ---------- data ---------- */
+async function load() {
+  ({ stories, genres } = await api('/api/stories'));
+  renderGenres();
+  const select = $('#chapter-novel');
+  const keep = select.value;
+  select.replaceChildren(...stories.map((s) => new Option(`${s.title}  (${s.chapters.length})`, s.slug)));
+  if (keep) select.value = keep;
+  renderStoryList();
+  refreshCount();
+}
+
+async function refreshCount() {
+  try {
+    const { files } = await api('/api/changes');
+    const badge = $('#change-count');
+    badge.textContent = files.length;
+    badge.hidden = !files.length;
+  } catch {}
+}
+
+function renderGenres(selected = selectedGenres()) {
+  const box = $('#genres');
+  box.replaceChildren(...genres.map((g) => {
+    const l = document.createElement('label');
+    const i = Object.assign(document.createElement('input'), { type: 'checkbox', value: g, checked: selected.includes(g) });
+    l.append(i, g);
+    return l;
+  }));
+}
+const selectedGenres = () => $$('#genres input:checked').map((i) => i.value);
+$('#add-genre').onclick = () => {
+  const g = $('#new-genre').value.trim();
+  if (!g) return;
+  if (!genres.includes(g)) genres.push(g);
+  renderGenres([...selectedGenres(), g]);
+  $('#new-genre').value = '';
+};
+
+/* ---------- cover ---------- */
+function setCover(dataUrl, path = null) {
+  cover = { dataUrl: path ? null : dataUrl, path };
+  $('#cover-preview').style.backgroundImage = dataUrl ? `url("${dataUrl}")` : '';
+  $('#drop-text').textContent = dataUrl ? (path ? `Using ${path.split('/').pop()}` : 'Cover ready. Drop or click to change.') : 'Drop an image here, or click to choose';
+}
+function readFile(file) {
+  if (!file || !/^image\/(png|jpeg|webp|avif)$/.test(file.type)) return toast('Choose a PNG, JPEG, WebP or AVIF image', true);
+  if (file.size > 15 * 1024 * 1024) return toast('That image is over 15 MB', true);
+  const r = new FileReader();
+  r.onload = () => setCover(r.result);
+  r.readAsDataURL(file);
+}
+const drop = $('#drop');
+drop.onclick = () => $('#cover-file').click();
+drop.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#cover-file').click(); } };
+$('#cover-file').onchange = (e) => readFile(e.target.files[0]);
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove('over'); readFile(e.dataTransfer.files[0]); };
+
+/* ---------- paste a template ---------- */
+function parseValue(v) {
+  v = v.trim();
+  if (v.startsWith('"')) {
+    for (let i = 1; i < v.length; i++) { if (v[i] === '\\') i++; else if (v[i] === '"') return JSON.parse(v.slice(0, i + 1)); }
+  }
+  if (v.startsWith('[')) { try { return JSON.parse(v.slice(0, v.indexOf(']') + 1)); } catch {} }
+  return v.replace(/\s+#.*$/, '').trim();
+}
+function parseTemplate(text) {
+  const m = text.replace(/\r\n/g, '\n').match(/^\s*---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!m) return null;
+  const data = {};
+  for (const line of m[1].split('\n')) {
+    const kv = line.match(/^([A-Za-z]+):\s*(.*)$/);
+    if (kv && kv[2]) data[kv[1]] = parseValue(kv[2]);
+  }
+  return { data, body: m[2].trim() };
+}
+
+$('#paste-fill').onclick = async () => {
+  const parsed = parseTemplate($('#paste').value);
+  if (!parsed) return toast('Could not find the --- lines at the top of the template', true);
+  const { data, body } = parsed;
+  if (data.novel) {
+    // A chapter template.
+    showTab('chapter');
+    const f = $('#chapter-form');
+    f.novel.value = data.novel;
+    f.chapterNumber.value = data.chapterNumber || '';
+    f.title.value = data.title || '';
+    f.publishDate.value = data.publishDate || today();
+    f.source.value = data.source || '';
+    f.body.value = body;
+    return toast('Chapter form filled. Check it, then save.');
+  }
+  resetStory();
+  const f = $('#story-form');
+  for (const k of ['title', 'author', 'source', 'synopsis']) f[k].value = data[k] || '';
+  f.publishDate.value = /^\d{4}-\d{2}-\d{2}$/.test(data.publishDate) ? data.publishDate : today();
+  f.completed.checked = data.status === 'Completed';
+  const g = Array.isArray(data.genres) ? data.genres : [];
+  g.forEach((x) => { if (!genres.includes(x)) genres.push(x); });
+  renderGenres(g);
+  // The cover's file name usually holds the story's English name: papuwak-nathi-ganiyek-cover-9x16.png
+  const coverName = typeof data.coverImage === 'string' ? data.coverImage.split('/').pop() : '';
+  f.slug.value = coverName.replace(/\.[a-z]+$/i, '').replace(/[-_](cover|redesigned).*$/i, '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  if (coverName) {
+    try {
+      const { dataUrl } = await api(`/api/cover?name=${encodeURIComponent(coverName)}`);
+      setCover(dataUrl, `../../assets/covers/${coverName}`);
+    } catch { toast(`Cover ${coverName} isn't in src/assets/covers yet. Choose it below.`, true); }
+  }
+  if (body) {
+    f.chTitle.value = '';
+    f.chBody.value = body;
+  }
+  $('#paste-box').open = false;
+  toast('Form filled. Check the web address and cover, then save.');
+};
+
+/* ---------- save story ---------- */
+function resetStory() {
+  storyMode = { isNew: true, slug: null };
+  const f = $('#story-form');
+  f.reset();
+  f.publishDate.value = today();
+  f.slug.disabled = false;
+  $('#first-chapter').hidden = false;
+  $('#story-heading').textContent = 'නව කතාව';
+  $('#story-save').textContent = 'Save story';
+  $('#paste-box').hidden = false;
+  setCover(null);
+  renderGenres([]);
+}
+$('#story-reset').onclick = resetStory;
+
+$('#story-form').onsubmit = (e) => {
+  e.preventDefault();
+  const f = e.target;
+  busy($('#story-save'), async () => {
+    const slug = storyMode.isNew ? f.slug.value.trim() : storyMode.slug;
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error('Web address: lowercase English letters, numbers and hyphens, e.g. papuwak-nathi-ganiyek');
+    if (storyMode.isNew && !cover.dataUrl && !cover.path) throw new Error('Choose a cover image');
+    const body = {
+      isNew: storyMode.isNew, slug,
+      title: f.title.value, author: f.author.value, source: f.source.value, synopsis: f.synopsis.value,
+      publishDate: f.publishDate.value, completed: f.completed.checked, genres: selectedGenres(),
+      cover: cover.dataUrl, coverPath: cover.path,
+      firstChapter: storyMode.isNew && f.chBody.value.trim()
+        ? { title: f.chTitle.value.trim() || f.title.value.replace(/\s*\(කෙටිකතාව\)\s*$/, '').replace(/[.]+$/, '').trim(), body: f.chBody.value, linesAreParagraphs: f.chLines.checked }
+        : null,
+    };
+    await api('/api/story', body);
+    lastSaved = `Publish ${f.title.value.trim()}`;
+    toast(storyMode.isNew ? 'Story saved. Publish it when you are ready.' : 'Story updated.');
+    await load();
+    resetStory();
+    showTab('publish');
+  });
+};
+
+/* ---------- chapters ---------- */
+function suggestChapterNumber() {
+  const f = $('#chapter-form');
+  const s = stories.find((x) => x.slug === f.novel.value);
+  if (!s) return;
+  f.chapterNumber.value = (s.chapters.at(-1)?.number ?? 0) + 1;
+  if (!f.publishDate.value) f.publishDate.value = today();
+}
+$('#chapter-novel').onchange = () => chapterMode.isNew && suggestChapterNumber();
+
+function resetChapter() {
+  chapterMode = { isNew: true };
+  const f = $('#chapter-form');
+  const novel = f.novel.value;
+  f.reset();
+  f.novel.value = novel;
+  f.novel.disabled = false;
+  f.chapterNumber.disabled = false;
+  f.publishDate.value = today();
+  $('#chapter-heading').textContent = 'පරිච්ඡේදයක් එක් කරන්න';
+  $('#chapter-save').textContent = 'Save chapter';
+  $('#chapter-cancel').hidden = true;
+  suggestChapterNumber();
+}
+$('#chapter-cancel').onclick = resetChapter;
+
+$('#chapter-form').onsubmit = (e) => {
+  e.preventDefault();
+  const f = e.target;
+  busy($('#chapter-save'), async () => {
+    const story = stories.find((s) => s.slug === f.novel.value);
+    await api('/api/chapter', {
+      isNew: chapterMode.isNew, novel: f.novel.value, chapterNumber: Number(f.chapterNumber.value),
+      title: f.title.value, publishDate: f.publishDate.value, source: f.source.value,
+      body: f.body.value, linesAreParagraphs: f.lines.checked,
+    });
+    lastSaved = `Publish ${story?.title ?? f.novel.value} part ${f.chapterNumber.value}`;
+    toast(chapterMode.isNew ? 'Chapter saved. Publish it when you are ready.' : 'Chapter updated.');
+    await load();
+    resetChapter();
+    showTab('publish');
+  });
+};
+
+/* ---------- edit ---------- */
+function renderStoryList() {
+  const list = $('#story-list');
+  list.replaceChildren(...stories.map((s) => {
+    const li = document.createElement('li');
+    li.style.flexWrap = 'wrap';
+    const title = Object.assign(document.createElement('span'), { className: 'grow', textContent: `${s.title} · ${s.author}` });
+    const edit = Object.assign(document.createElement('button'), { type: 'button', className: 'secondary', textContent: 'Details' });
+    edit.onclick = () => editStory(s);
+    const chapters = document.createElement('ul');
+    chapters.className = 'list';
+    chapters.style.cssText = 'flex-basis:100%;padding-left:1rem';
+    chapters.append(...s.chapters.map((c) => {
+      const row = document.createElement('li');
+      const b = Object.assign(document.createElement('button'), { type: 'button', className: 'secondary', textContent: 'Edit' });
+      b.onclick = () => editChapter(s.slug, c.number);
+      row.append(
+        Object.assign(document.createElement('span'), { className: 'num', textContent: c.number }),
+        Object.assign(document.createElement('span'), { className: 'grow', textContent: c.title }),
+        b,
+      );
+      return row;
+    }));
+    li.append(title, edit, chapters);
+    return li;
+  }));
+}
+
+async function editStory(s) {
+  resetStory();
+  storyMode = { isNew: false, slug: s.slug };
+  const f = $('#story-form');
+  for (const k of ['title', 'author', 'source', 'synopsis']) f[k].value = s[k] || '';
+  f.slug.value = s.slug;
+  f.slug.disabled = true;
+  f.publishDate.value = s.publishDate;
+  f.completed.checked = s.status === 'Completed';
+  renderGenres(s.genres || []);
+  $('#first-chapter').hidden = true;
+  $('#paste-box').hidden = true;
+  $('#story-heading').textContent = `සංස්කරණය: ${s.title}`;
+  $('#story-save').textContent = 'Save changes';
+  const coverName = String(s.coverImage || '').split('/').pop();
+  if (coverName) {
+    try { const { dataUrl } = await api(`/api/cover?name=${encodeURIComponent(coverName)}`); setCover(dataUrl); cover = { dataUrl: null, path: null }; } catch {}
+    $('#drop-text').textContent = 'Drop a new image to replace the cover';
+  }
+  showTab('story');
+}
+
+async function editChapter(slug, number) {
+  const { data, body } = await api(`/api/chapter?novel=${encodeURIComponent(slug)}&n=${number}`);
+  chapterMode = { isNew: false };
+  const f = $('#chapter-form');
+  f.novel.value = slug;
+  f.novel.disabled = true;
+  f.chapterNumber.value = number;
+  f.chapterNumber.disabled = true;
+  f.title.value = data.title || '';
+  f.publishDate.value = data.publishDate || today();
+  f.source.value = data.source || '';
+  f.body.value = body;
+  f.lines.checked = false; // already formatted
+  $('#chapter-heading').textContent = `සංස්කරණය: පරිච්ඡේදය ${number}`;
+  $('#chapter-save').textContent = 'Save changes';
+  $('#chapter-cancel').hidden = false;
+  showTab('chapter');
+}
+
+/* ---------- publish ---------- */
+const STATES = { A: 'new', M: 'changed', D: 'deleted', '??': 'new' };
+async function loadChanges() {
+  const { branch, files } = await api('/api/changes');
+  const note = $('#branch-note');
+  note.hidden = branch === 'main';
+  note.textContent = `You're on the "${branch}" branch. Switch to main to publish.`;
+  const list = $('#change-list');
+  list.replaceChildren(...(files.length ? files.map((f) => {
+    const li = document.createElement('li');
+    li.append(
+      Object.assign(document.createElement('span'), { className: 'state', textContent: f.state }),
+      Object.assign(document.createElement('span'), { className: 'grow', textContent: f.path, title: STATES[f.state] ?? f.state }),
+    );
+    return li;
+  }) : [Object.assign(document.createElement('li'), { textContent: 'Nothing new to publish.' })]));
+  $('#publish-btn').disabled = !files.length || branch !== 'main';
+  if (!$('#commit-message').value) $('#commit-message').value = lastSaved;
+  refreshCount();
+}
+
+$('#check-btn').onclick = () => busy($('#check-btn'), async () => {
+  $('#publish-status').textContent = 'Checking...';
+  const r = await api('/api/check', {});
+  $('#publish-status').textContent = r.ok ? 'All files are valid.' : 'Problems found:';
+  $('#publish-output').hidden = r.ok;
+  $('#publish-output').textContent = r.output || '';
+});
+
+$('#publish-btn').onclick = () => {
+  const message = $('#commit-message').value.trim();
+  if (!message) return toast('Write a short note about what is new', true);
+  if (!confirm(`Publish to kathaarana.com?\n\n"${message}"`)) return;
+  busy($('#publish-btn'), async () => {
+    $('#publish-status').textContent = 'Checking and publishing...';
+    $('#publish-output').hidden = true;
+    try {
+      const r = await api('/api/publish', { message });
+      $('#publish-status').textContent = `Published (${r.sha}). The site updates in a few minutes.`;
+      $('#commit-message').value = '';
+      lastSaved = '';
+      toast('Published! The site updates in a few minutes.');
+      await loadChanges();
+    } catch (e) {
+      $('#publish-status').textContent = 'Not published.';
+      $('#publish-output').hidden = false;
+      $('#publish-output').textContent = e.message;
+      throw e;
+    }
+  });
+};
+
+resetStory();
+load().then(() => resetChapter()).catch((e) => toast(e.message, true));
+</script>
+</body>
+</html>
