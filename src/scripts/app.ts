@@ -337,7 +337,27 @@ function initChart() {
   });
 }
 
+// Phone header: hide while scrolling down, show on scrolling up, near the top, or once scrolling stops.
+// Registered once; it looks up the current page's header each time.
+let headerY = 0;
+let headerIdle: ReturnType<typeof setTimeout> | undefined;
+addEventListener(
+  'scroll',
+  () => {
+    const header = document.getElementById('mobile-header');
+    if (!header) return;
+    const y = scrollY;
+    if (y <= 80 || y < headerY - 4) header.classList.remove('header-hidden');
+    else if (y > headerY + 4) header.classList.add('header-hidden');
+    headerY = y;
+    clearTimeout(headerIdle);
+    headerIdle = setTimeout(() => header.classList.remove('header-hidden'), 350);
+  },
+  { passive: true },
+);
+
 document.addEventListener('astro:page-load', () => {
+  headerY = scrollY;
   initTheme();
   initHistory();
   initVoting();
