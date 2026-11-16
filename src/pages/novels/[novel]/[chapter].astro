@@ -80,8 +80,8 @@ const reactions = [
 ---
 
 <BaseLayout
-  title={siblings.length > 1 ? `${novel.data.title} - ${chapter.data.title}` : novel.data.title}
-  description={siblings.length > 1 ? `${novel.data.title} නවකතාවේ ${chapter.data.chapterNumber} වන පරිච්ඡේදය. කර්තෘ: ${novel.data.author}.` : novel.data.synopsis}
+  title={siblings.length > 1 ? `${novel.data.title} - ${chapter.data.title}` : `${novel.data.title} - කියවන්න`}
+  description={siblings.length > 1 ? `${novel.data.title} නවකතාවේ ${chapter.data.chapterNumber} වන පරිච්ඡේදය. කර්තෘ: ${novel.data.author}.` : `${novel.data.author} ලියූ "${novel.data.title}" සම්පූර්ණ කතාව මෙතැනින් කියවන්න. ${novel.data.synopsis ?? ''}`}
   image={`/og/${novel.id}.jpg`}
   type="article"
   publishDate={chapter.data.publishDate}

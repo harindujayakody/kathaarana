@@ -63,7 +63,10 @@ const isActive = (href: string) => (href === '/' ? currentPath === '/' : current
 
 // Inner pages get a back arrow to their parent, like a native navigation stack.
 const segments = currentPath.split('/').filter(Boolean);
-const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` : null;
+const parentSegments = segments.slice(0, -1);
+// /books/author/ and /books/publisher/ are not pages; their back button goes to the shop.
+if (parentSegments[0] === 'books' && parentSegments.length === 2) parentSegments.pop();
+const parentPath = segments.length > 1 ? `/${parentSegments.join('/')}/` : null;
 ---
 
 <!doctype html>
