@@ -60,6 +60,30 @@ const jsonLd = [
     inLanguage: 'si',
     url,
   },
+  // The same book as something for sale, so search engines can show its price.
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${url}#product`,
+    name: title,
+    description,
+    image: shareCover,
+    url,
+    sku: isbn ?? book.id,
+    // An ISBN-13 is the book's GTIN-13.
+    gtin13: isbn && /^97[89]\d{10}$/.test(isbn.replace(/-/g, '')) ? isbn.replace(/-/g, '') : undefined,
+    brand: publisher ? { '@type': 'Brand', name: publisher } : undefined,
+    category: 'Books',
+    subjectOf: { '@id': `${url}#book` },
+    offers:
+      price !== undefined
+        ? { '@type': 'Offer', price: price.toFixed(2), priceCurrency: 'LKR', url, itemCondition: 'https://schema.org/NewCondition' }
+        : undefined,
+    aggregateRating:
+      rated && rated.ratings > 0
+        ? { '@type': 'AggregateRating', ratingValue: rated.rating, ratingCount: rated.ratings, bestRating: 5, worstRating: 1 }
+        : undefined,
+  },
   {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -69,7 +93,7 @@ const jsonLd = [
       { '@type': 'ListItem', position: 3, name: title, item: url },
     ],
   },
-];
+].filter((s) => s['@type'] !== 'Product' || s.offers || s.aggregateRating); // Google ignores a Product with neither.
 ---
 
 <BaseLayout title={`${title} - ${author}`} description={description} image={`/og/book-${book.id}.jpg`} type="book" jsonLd={jsonLd}>
