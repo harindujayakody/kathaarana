@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark" />
 <meta name="robots" content="noindex" />
-<title>කතා අරණ · Studio</title>
+<title>Katha Arana Studio</title>
 <style>
   :root {
     --bg: #f4f5f7; --panel: #fff; --raised: #fafafb; --text: #16181d; --muted: #5f6570; --faint: #8a909a;
@@ -156,12 +156,25 @@
   .search { max-width: 20rem; }
 
   /* ---------- stats ---------- */
-  .tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); margin-bottom: 16px; }
-  .tile { padding: 16px 18px; }
-  .tile .k { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; }
-  .tile .v { font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; margin-top: 6px; font-variant-numeric: tabular-nums; }
-  .tile .s { color: var(--faint); font-size: 12px; margin-top: 2px; }
-  .tile.minor .v { font-size: 20px; }
+  /* Each group is one card split into equal cells, so every number lines up and rows stay full. */
+  .groups { display: grid; gap: 16px; margin-bottom: 16px; }
+  @media (min-width: 1100px) { .groups { grid-template-columns: minmax(0, 4fr) minmax(0, 3fr); } }
+  .group { padding: 0; overflow: hidden; }
+  .group-title { margin: 0; padding: 16px 20px 0; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .stat-row { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); }
+  .stat { padding: 10px 20px 18px; border-left: 1px solid var(--border); min-width: 0; }
+  .stat:first-child { border-left: 0; }
+  .stat .k { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat .v { font-size: 30px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .stat .s { color: var(--faint); font-size: 12px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 640px) {
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .stat { border-left: 0; border-top: 1px solid var(--border); }
+    .stat:nth-child(even) { border-left: 1px solid var(--border); }
+    .stat:nth-child(-n+2) { border-top: 0; }
+    .stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .stat .v { font-size: 26px; }
+  }
   .stats-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); margin-top: 16px; }
   .chart { position: relative; }
   .chart svg { display: block; width: 100%; height: 220px; overflow: visible; }
@@ -216,13 +229,13 @@
 
 <div class="app">
   <aside class="side" aria-label="Dashboard">
-    <div class="brand"><b>කතා අරණ</b><span>Studio</span></div>
+    <div class="brand"><b>Katha Arana</b><span>Studio</span></div>
     <nav class="nav" aria-label="Sections">
-      <button type="button" data-view="stats"><svg class="i"><use href="#i-stats" /></svg><span>සංඛ්‍යා</span></button>
-      <button type="button" data-view="story"><svg class="i"><use href="#i-new" /></svg><span>නව කතාව</span></button>
-      <button type="button" data-view="chapter"><svg class="i"><use href="#i-chapter" /></svg><span>පරිච්ඡේදය</span></button>
-      <button type="button" data-view="stories"><svg class="i"><use href="#i-books" /></svg><span>කතා</span></button>
-      <button type="button" data-view="publish" data-local-only><svg class="i"><use href="#i-publish" /></svg><span>ප්‍රකාශනය</span><b class="count" id="change-count" hidden>0</b></button>
+      <button type="button" data-view="stats"><svg class="i"><use href="#i-stats" /></svg><span>Stats</span></button>
+      <button type="button" data-view="story"><svg class="i"><use href="#i-new" /></svg><span>New story</span></button>
+      <button type="button" data-view="chapter"><svg class="i"><use href="#i-chapter" /></svg><span>Add chapter</span></button>
+      <button type="button" data-view="stories"><svg class="i"><use href="#i-books" /></svg><span>Stories</span></button>
+      <button type="button" data-view="publish" data-local-only><svg class="i"><use href="#i-publish" /></svg><span>Publish</span><b class="count" id="change-count" hidden>0</b></button>
     </nav>
     <div class="side-foot">
       <div class="who" id="who"><span class="dot"></span>This computer</div>
@@ -231,12 +244,12 @@
   </aside>
 
   <div style="min-width:0">
-    <div class="topbar"><b>කතා අරණ Studio</b><a href="https://kathaarana.com/" target="_blank" rel="noopener">kathaarana.com ↗</a></div>
+    <div class="topbar"><b>Katha Arana Studio</b><a href="https://kathaarana.com/" target="_blank" rel="noopener">kathaarana.com ↗</a></div>
     <main>
       <!-- ================= Stats ================= -->
       <section class="page" data-panel="stats" hidden>
         <div class="head">
-          <div><h1>සංඛ්‍යාලේඛන</h1><p id="stats-range">Visitors and readers</p></div>
+          <div><h1>Stats</h1><p id="stats-range">Visitors and readers</p></div>
           <div class="seg" role="group" aria-label="Period">
             <button type="button" data-days="7" aria-pressed="true">7 days</button>
             <button type="button" data-days="30" aria-pressed="false">30 days</button>
@@ -258,7 +271,8 @@
               </ol>
             </div>
           </div>
-          <div class="tiles" id="tiles"></div>
+          <div id="stats-errors" class="notice" style="margin-bottom:16px" hidden></div>
+          <div class="groups" id="tiles"></div>
           <div class="card">
             <h2 id="chart-title">Page views per day</h2>
             <p class="sub" id="chart-sub"></p>
@@ -270,17 +284,16 @@
             <p class="sub" id="table-sub">Reads, reactions, ratings and PDF downloads</p>
             <div class="table-wrap"><table id="story-table"></table></div>
           </div>
-          <p class="empty" id="stats-errors" style="margin-top:12px"></p>
         </div>
       </section>
 
       <!-- ================= New / edit story ================= -->
       <section class="page" data-panel="story" hidden>
-        <div class="head"><div><h1 id="story-heading">නව කතාව</h1><p id="story-hint">A new novel or short story. Paste your template to fill the form.</p></div></div>
+        <div class="head"><div><h1 id="story-heading">New story</h1><p id="story-hint">A new novel or short story. Paste your template to fill the form.</p></div></div>
         <form id="story-form" class="form-layout" novalidate>
           <div>
             <details class="paste" id="paste-box">
-              <summary><svg class="i"><use href="#i-paste" /></svg>Paste a template · ටෙම්ප්ලේට් එක අලවන්න</summary>
+              <summary><svg class="i"><use href="#i-paste" /></svg>Paste a template</summary>
               <div class="grid" style="margin-top:12px">
                 <textarea id="paste" rows="8" placeholder="---&#10;title: &quot;...&quot;&#10;author: &quot;...&quot;&#10;---&#10;&#10;Story text..."></textarea>
                 <div><button type="button" class="btn small" id="paste-fill">Fill the form</button></div>
@@ -291,15 +304,15 @@
               <h2>Basics</h2><p class="sub">Title, author and where it was first published.</p>
               <div class="grid">
                 <div class="two">
-                  <label class="f">Title · මාතෘකාව <input type="text" name="title" required /></label>
-                  <label class="f">Author · කතුවරයා <input type="text" name="author" required /></label>
+                  <label class="f">Title <input type="text" name="title" required /></label>
+                  <label class="f">Author <input type="text" name="author" required /></label>
                 </div>
-                <label class="f">Web address · වෙබ් ලිපිනය
+                <label class="f">Web address
                   <div class="prefix"><span>kathaarana.com/novels/</span><input type="text" name="slug" required placeholder="english-words-with-hyphens" autocapitalize="off" spellcheck="false" /></div>
                 </label>
-                <label class="f">Source · මුලාශ්‍රය <span class="opt">link to the original post, if any</span>
+                <label class="f">Source <span class="opt">link to the original post, if any</span>
                   <input type="text" name="source" inputmode="url" placeholder="https://www.facebook.com/share/p/..." /></label>
-                <label class="f">Synopsis · සාරාංශය <textarea name="synopsis" required rows="4"></textarea></label>
+                <label class="f">Synopsis <textarea name="synopsis" required rows="4"></textarea></label>
               </div>
             </div>
 
@@ -307,11 +320,11 @@
               <h2>Details</h2><p class="sub">Shown on the story page and used for sorting.</p>
               <div class="grid">
                 <div class="two">
-                  <label class="f">Publish date · දිනය <input type="date" name="publishDate" required /></label>
-                  <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="completed" /> Completed · සම්පූර්ණයි</label>
+                  <label class="f">Publish date <input type="date" name="publishDate" required /></label>
+                  <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="completed" /> Completed</label>
                 </div>
                 <div class="grid" style="gap:8px">
-                  <span class="f" style="font-weight:600;font-size:14px">Genres · ප්‍රභේද <span class="opt">optional</span></span>
+                  <span class="f" style="font-weight:600;font-size:14px">Genres <span class="opt">optional</span></span>
                   <div class="chips" id="genres"></div>
                   <div class="inline-add"><input type="text" id="new-genre" placeholder="Add another genre" /><button type="button" class="btn small" id="add-genre">Add</button></div>
                 </div>
@@ -319,7 +332,7 @@
             </div>
 
             <div class="card" id="first-chapter">
-              <h2>First chapter · පළමු පරිච්ඡේදය</h2><p class="sub">Optional. A short story is just this one part.</p>
+              <h2>First chapter</h2><p class="sub">Optional. A short story is just this one part.</p>
               <div class="grid">
                 <label class="f">Chapter title <input type="text" name="chTitle" placeholder="Leave empty to use the story title" /></label>
                 <label class="f">Text <textarea name="chBody" class="story"></textarea></label>
@@ -330,7 +343,7 @@
 
           <div class="aside">
             <div class="card">
-              <h2>Cover · කවරය</h2><p class="sub">Portrait, about 2:3. Resized before upload.</p>
+              <h2>Cover</h2><p class="sub">Portrait, about 2:3. Resized before upload.</p>
               <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose a cover image">
                 <svg class="i" style="width:28px;height:28px"><use href="#i-image" /></svg>
                 <span class="drop-label" id="drop-text">Drop an image, or click to choose</span>
@@ -347,17 +360,17 @@
 
       <!-- ================= Add / edit chapter ================= -->
       <section class="page" data-panel="chapter" hidden>
-        <div class="head"><div><h1 id="chapter-heading">පරිච්ඡේදයක් එක් කරන්න</h1><p>Pick the story; the next chapter number is filled in.</p></div></div>
+        <div class="head"><div><h1 id="chapter-heading">Add a chapter</h1><p>Pick the story; the next chapter number is filled in.</p></div></div>
         <form id="chapter-form" class="form-layout" novalidate>
           <div class="card">
             <div class="grid">
-              <label class="f">Story · කතාව <select name="novel" id="chapter-novel" required></select></label>
+              <label class="f">Story <select name="novel" id="chapter-novel" required></select></label>
               <div class="two">
                 <label class="f">Chapter number <input type="number" name="chapterNumber" min="1" required /></label>
-                <label class="f">Publish date · දිනය <input type="date" name="publishDate" required /></label>
+                <label class="f">Publish date <input type="date" name="publishDate" required /></label>
               </div>
-              <label class="f">Chapter title · පරිච්ඡේදයේ නම <input type="text" name="title" required /></label>
-              <label class="f">Source · මුලාශ්‍රය <span class="opt">only if this part was posted somewhere else</span><input type="text" name="source" inputmode="url" /></label>
+              <label class="f">Chapter title <input type="text" name="title" required /></label>
+              <label class="f">Source <span class="opt">only if this part was posted somewhere else</span><input type="text" name="source" inputmode="url" /></label>
               <label class="f">Text <textarea name="body" class="story" required></textarea></label>
               <label class="check"><input type="checkbox" name="lines" checked /> Each line is a paragraph (text pasted from Facebook)</label>
             </div>
@@ -378,7 +391,7 @@
       <!-- ================= Stories ================= -->
       <section class="page" data-panel="stories" hidden>
         <div class="head">
-          <div><h1>කතා</h1><p id="stories-count">Every story on the site</p></div>
+          <div><h1>Stories</h1><p id="stories-count">Every story on the site</p></div>
           <input type="text" id="story-search" class="search" placeholder="Search title or author" aria-label="Search stories" />
         </div>
         <div class="stories" id="story-list"></div>
@@ -386,7 +399,7 @@
 
       <!-- ================= Publish (local only) ================= -->
       <section class="page" data-panel="publish" hidden>
-        <div class="head"><div><h1>ප්‍රකාශනය</h1><p>Checks the files, commits only the story files and covers, and pushes to GitHub. The site updates a few minutes later.</p></div></div>
+        <div class="head"><div><h1>Publish</h1><p>Checks the files, commits only the story files and covers, and pushes to GitHub. The site updates a few minutes later.</p></div></div>
         <div class="card">
           <p id="branch-note" class="notice" hidden></p>
           <ul class="list" id="change-list"></ul>
@@ -600,7 +613,7 @@ function resetStory() {
   f.slug.disabled = false;
   $('#first-chapter').hidden = false;
   $('#paste-box').hidden = false;
-  $('#story-heading').textContent = 'නව කතාව';
+  $('#story-heading').textContent = 'New story';
   $('#story-hint').textContent = 'A new novel or short story. Paste your template to fill the form.';
   $('#story-save').textContent = saveLabel(true, 'story');
   setCover(null);
@@ -661,7 +674,7 @@ function resetChapter(novel = $('#chapter-form').novel.value) {
   f.novel.disabled = false;
   f.chapterNumber.disabled = false;
   f.publishDate.value = today();
-  $('#chapter-heading').textContent = 'පරිච්ඡේදයක් එක් කරන්න';
+  $('#chapter-heading').textContent = 'Add a chapter';
   $('#chapter-save').textContent = saveLabel(true, 'chapter');
   $('#chapter-cancel').hidden = true;
   suggestChapterNumber();
@@ -712,7 +725,7 @@ function renderStoryList() {
       el('div', { className: 'body' },
         el('h3', { textContent: s.title }),
         el('div', { className: 'meta', textContent: `${s.author} · ${s.publishDate}` }),
-        el('div', {}, el('span', { className: `pill${s.status === 'Completed' ? ' done' : ''}`, textContent: s.status === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්' }), ' ',
+        el('div', {}, el('span', { className: `pill${s.status === 'Completed' ? ' done' : ''}`, textContent: s.status === 'Completed' ? 'Completed' : 'Ongoing' }), ' ',
           el('span', { className: 'pill', textContent: `${s.chapters.length} part${s.chapters.length === 1 ? '' : 's'}` })),
         el('div', { className: 'row' }, edit, add, view)),
       el('details', {}, el('summary', { textContent: `Chapters (${s.chapters.length})` }), chapters));
@@ -757,7 +770,7 @@ async function editChapter(slug, number) {
   f.source.value = data.source || '';
   f.body.value = body;
   f.lines.checked = false; // already formatted
-  $('#chapter-heading').textContent = `පරිච්ඡේදය ${number}`;
+  $('#chapter-heading').textContent = `Chapter ${number}`;
   $('#chapter-save').textContent = saveLabel(false);
   $('#chapter-cancel').hidden = false;
   showView('chapter');
@@ -765,9 +778,14 @@ async function editChapter(slug, number) {
 }
 
 /* ---------- stats ---------- */
-function tile(label, value, note, minor = false) {
-  return el('div', { className: `card tile${minor ? ' minor' : ''}` },
-    el('div', { className: 'k', textContent: label }), el('div', { className: 'v', textContent: value }), note ? el('div', { className: 's', textContent: note }) : '');
+function tile(label, value, note) {
+  return el('div', { className: 'stat' },
+    el('div', { className: 'k', textContent: label }), el('div', { className: 'v', textContent: value }), el('div', { className: 's', textContent: note || ' ', title: note || '' }));
+}
+function group(title, stats) {
+  const row = el('div', { className: 'stat-row' }, ...stats);
+  row.style.setProperty('--n', stats.length);
+  return el('section', { className: 'card group' }, el('h2', { className: 'group-title', textContent: title }), row);
 }
 
 // One series, so no legend: the card title names it. Hover (or focus) a day for its number.
@@ -850,11 +868,11 @@ async function loadStats() {
     return out;
   };
   const novels = st ? Object.entries(st.novels) : [];
-  const tiles = [];
-  if (w) tiles.push(tile('Visits', compact(sum(w.daily, 'visits')), 'Cloudflare Web Analytics'), tile('Page views', compact(sum(w.daily, 'views')), 'real browsers, bots excluded'));
-  if (st) tiles.push(tile('Chapter reads', compact(sum(st.daily, 'reads')), 'once per reader per chapter per day'), tile('PDF downloads', compact(novels.reduce((n, [, v]) => n + (v.downloadsRecent || 0), 0)), `${compact(novels.reduce((n, [, v]) => n + v.downloads, 0))} all time`));
-  if (z) tiles.push(tile('Requests', compact(sum(z, 'requests')), 'all traffic, bots included', true), tile('Bandwidth', bytes(sum(z, 'bytes')), `${Math.round((sum(z, 'cachedBytes') / Math.max(1, sum(z, 'bytes'))) * 100)}% from cache`, true), tile('Threats blocked', compact(sum(z, 'threats')), 'by Cloudflare', true));
-  $('#tiles').replaceChildren(...tiles);
+  const readers = [];
+  if (w) readers.push(tile('Visits', compact(sum(w.daily, 'visits')), 'Web Analytics'), tile('Page views', compact(sum(w.daily, 'views')), 'Real browsers only'));
+  if (st) readers.push(tile('Chapter reads', compact(sum(st.daily, 'reads')), 'Unique daily'), tile('PDF downloads', compact(novels.reduce((n, [, v]) => n + (v.downloadsRecent || 0), 0)), `${compact(novels.reduce((n, [, v]) => n + v.downloads, 0))} all time`));
+  const traffic = z ? [tile('Requests', compact(sum(z, 'requests')), 'Bots included'), tile('Bandwidth', bytes(sum(z, 'bytes')), `${Math.round((sum(z, 'cachedBytes') / Math.max(1, sum(z, 'bytes'))) * 100)}% from cache`), tile('Threats blocked', compact(sum(z, 'threats')), 'By Cloudflare')] : [];
+  $('#tiles').replaceChildren(...[readers.length && group('Readers', readers), traffic.length && group('Site traffic', traffic)].filter(Boolean));
 
   // Prefer real page views; without Cloudflare, show the site's own chapter reads.
   if (w) { $('#chart-title').textContent = 'Page views per day'; $('#chart-sub').textContent = 'From Cloudflare Web Analytics. Hover a day for its number.'; barChart($('#chart'), allDays(w.daily, 'views'), 'views', 'Page views'); }
@@ -878,7 +896,9 @@ async function loadStats() {
   $('#story-table').replaceChildren(el('thead', {}, head), el('tbody', {}, ...(rows.length ? rows : [el('tr', {}, el('td', { colSpan: 7, className: 'empty', textContent: 'No reader activity yet.' }))])));
 
   const problems = [[web, 'Web Analytics'], [zone, 'Zone traffic'], [site, 'Site numbers']].filter(([p]) => !p.ok && p.error !== 'not set up').map(([p, n]) => `${n}: ${p.error}`);
-  $('#stats-errors').textContent = problems.join(' · ');
+  // Shown at the top, so a part that didn't load is obvious rather than just missing.
+  $('#stats-errors').hidden = !problems.length;
+  $('#stats-errors').replaceChildren(...(problems.length ? [el('div', {}, el('b', { textContent: 'Some numbers didn’t load. ' }), problems.join(' · '))] : []));
 }
 $$('[data-days]').forEach((b) => (b.onclick = () => {
   statsDays = Number(b.dataset.days);
