@@ -1,6 +1,6 @@
 // Chapter page behaviour: history, view count, reader bar, settings sheet, reactions.
 import { navigate } from 'astro:transitions/client';
-import { post, type HistoryItem } from './app';
+import { post, setTheme, type HistoryItem } from './app';
 
 const API = import.meta.env.PUBLIC_API_BASE ?? '/api';
 
@@ -71,10 +71,20 @@ function initSettings() {
 
   document.getElementById('btn-open-settings')!.onclick = () => sheet.showModal();
   document.getElementById('btn-close-sheet')!.onclick = () => sheet.close();
-  // Tapping the dimmed area outside the sheet closes it.
-  sheet.onclick = (event) => {
-    if (event.target === sheet) sheet.close();
-  };
+  // Tapping outside the sheet closes it: closedby="any" does that natively. Safari lacks it, so there
+  // we test the pointer position (not event.target, which is also the sheet's own padding), and
+  // require press and release outside so a text-selection drag doesn't close it.
+  if (!('closedBy' in HTMLDialogElement.prototype)) {
+    const outside = (e: PointerEvent) => {
+      const r = sheet.getBoundingClientRect();
+      return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    };
+    let pressedOutside = false;
+    sheet.onpointerdown = (e) => (pressedOutside = outside(e));
+    sheet.onpointerup = (e) => {
+      if (pressedOutside && outside(e)) sheet.close();
+    };
+  }
 
   let size = parseFloat(localStorage.getItem('katha_font_size') || '') || 17;
   const setSize = (next: number) => {
@@ -92,8 +102,7 @@ function initSettings() {
   };
   themeButtons.forEach((btn) => {
     btn.onclick = () => {
-      document.documentElement.dataset.theme = btn.dataset.setTheme!;
-      localStorage.setItem('katha_theme', btn.dataset.setTheme!);
+      setTheme(btn.dataset.setTheme!);
       syncTheme();
     };
   });

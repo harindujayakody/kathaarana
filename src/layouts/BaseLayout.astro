@@ -93,20 +93,34 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
 
     <ClientRouter />
 
-    <!-- Theme before first paint, and again after each in-app navigation swaps <html>. -->
+    <!-- Theme before first paint, and again after each in-app navigation swaps <html>.
+         No saved choice: follow the device's light/dark setting. scripts/app.ts setTheme() saves choices. -->
+    <meta name="color-scheme" content="light dark" />
     <script is:inline>
       (function () {
+        var dark = matchMedia('(prefers-color-scheme: dark)');
         function apply() {
+          var saved = null;
           try {
-            var theme = localStorage.getItem('katha_theme') || 'light';
-            if (theme === 'amoled') theme = 'dark';
-            document.documentElement.dataset.theme = theme;
+            saved = localStorage.getItem('katha_theme');
+          } catch (e) {}
+          if (saved === 'amoled') saved = 'dark';
+          var theme = saved || (dark.matches ? 'dark' : 'light');
+          document.documentElement.dataset.theme = theme;
+          var meta = document.querySelector('meta[name="color-scheme"]');
+          if (meta) meta.content = saved ? (theme === 'dark' ? 'dark' : 'light') : 'light dark';
+          try {
             var size = parseFloat(localStorage.getItem('katha_font_size')) || 17;
             document.documentElement.style.setProperty('--reader-font-size', size + 'px');
           } catch (e) {}
         }
         apply();
         document.addEventListener('astro:after-swap', apply);
+        dark.addEventListener('change', apply);
+        // A choice made in another tab.
+        addEventListener('storage', function (e) {
+          if (e.key === 'katha_theme') apply();
+        });
       })();
     </script>
   </head>
