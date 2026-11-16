@@ -7,6 +7,7 @@ import RatingStars from '../../components/RatingStars.astro';
 import { coverShareUrl } from '../../utils/covers';
 import { buildStats } from '../../utils/buildStats';
 import { formatPrice } from '../../utils/price';
+import { slugFromName } from '../../utils/slug';
 
 export async function getStaticPaths() {
   return (await getCollection('books')).map((book) => ({ params: { book: book.id }, props: { book } }));
@@ -89,10 +90,10 @@ const jsonLd = [
             />
             <div class="min-w-0">
               <h1 class="text-2xl font-bold leading-snug sm:text-3xl">{title}</h1>
-              <p class="mt-1 text-[0.9375rem] font-medium">{author}</p>
+              <p class="mt-1 text-[0.9375rem] font-medium"><a href={`/books/author/${slugFromName(author)}/`} class="hover:accent-text hover:underline">{author}</a></p>
               {publisher && (
                 <p class="mt-2 text-sm text-[var(--reader-muted)]">
-                  ප්‍රකාශක: <span class="text-[var(--reader-text)]">{publisher}</span>
+                  ප්‍රකාශක: <a href={`/books/publisher/${slugFromName(publisher)}/`} class="text-[var(--reader-text)] hover:underline">{publisher}</a>
                 </p>
               )}
               {price !== undefined && <p class="mt-3 text-xl font-bold tabular-nums" aria-label={`මිල ${formatPrice(price)}`}>{formatPrice(price)}</p>}
