@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
+import BookGrid from '../../components/BookGrid.astro';
 import RatingStars from '../../components/RatingStars.astro';
 import { coverShareUrl } from '../../utils/covers';
 import { buildStats } from '../../utils/buildStats';
@@ -10,10 +11,22 @@ import { formatPrice } from '../../utils/price';
 import { slugFromName } from '../../utils/slug';
 
 export async function getStaticPaths() {
-  return (await getCollection('books')).map((book) => ({ params: { book: book.id }, props: { book } }));
+  const books = await getCollection('books');
+  return books.map((book) => {
+    // Related: same author first, then same publisher, then shared genres; newest breaks ties.
+    const score = (b: typeof book) =>
+      (b.data.author === book.data.author ? 4 : 0) +
+      (book.data.publisher && b.data.publisher === book.data.publisher ? 2 : 0) +
+      b.data.genres.filter((g) => book.data.genres.includes(g)).length;
+    const related = books
+      .filter((b) => b.id !== book.id)
+      .sort((a, b) => score(b) - score(a) || (b.data.addedDate?.getTime() ?? 0) - (a.data.addedDate?.getTime() ?? 0))
+      .slice(0, 5);
+    return { params: { book: book.id }, props: { book, related } };
+  });
 }
 
-const { book } = Astro.props;
+const { book, related } = Astro.props;
 const { Content } = await render(book);
 const { title, author, publisher, isbn, pages, print, binding, coverImage, genres, price } = book.data;
 // Ratings are stored under the same key the catalog gives this book.
@@ -146,7 +159,14 @@ const jsonLd = [
           </section>
         )}
 
-        <a href="/books/" class="tap order-5 inline-flex items-center gap-1 text-sm font-medium accent-text">
+        {related.length > 0 && (
+          <section class="order-5" aria-labelledby="related-title">
+            <h2 id="related-title" class="mb-3 text-lg font-bold">සම්බන්ධ පොත්</h2>
+            <BookGrid books={related} lazy />
+          </section>
+        )}
+
+        <a href="/books/" class="tap order-6 inline-flex items-center gap-1 text-sm font-medium accent-text">
           <Icon name="left" class="h-4 w-4" />
           සියලු පොත්
         </a>
@@ -158,9 +178,9 @@ const jsonLd = [
             <h2 id="details-title" class="text-lg font-bold">විස්තර</h2>
             <dl class="mt-2 divide-y divide-[var(--reader-border)]">
               {details.map(([label, value]) => (
-                <div class="flex items-baseline justify-between gap-4 py-2.5 text-[0.9375rem]">
-                  <dt class="text-[var(--reader-muted)]">{label}</dt>
-                  <dd class="text-right font-medium tabular-nums">{value}</dd>
+                <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 py-2.5 text-[0.9375rem]">
+                  <dt class="shrink-0 whitespace-nowrap text-[var(--reader-muted)]">{label}</dt>
+                  <dd class="ml-auto min-w-0 text-right font-medium tabular-nums [overflow-wrap:anywhere]">{value}</dd>
                 </div>
               ))}
             </dl>

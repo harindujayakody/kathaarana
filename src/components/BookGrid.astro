@@ -4,9 +4,11 @@ import BookCard from './BookCard.astro';
 
 interface Props {
   books: CollectionEntry<'books'>[];
+  /** Below the fold: every cover loads lazily. */
+  lazy?: boolean;
 }
 
-const { books } = Astro.props;
+const { books, lazy = false } = Astro.props;
 ---
 
 <!-- 2 columns on phones, 3 on tablets, 4 on laptops, 5 on wide screens. -->
@@ -19,7 +21,7 @@ const { books } = Astro.props;
       publisher={book.data.publisher}
       coverImage={book.data.coverImage}
       price={book.data.price}
-      eager={i < 5}
+      eager={!lazy && i < 5}
     />
   ))}
 </div>
