@@ -23,7 +23,7 @@ const { id, title, author, authorSlug, coverImage, synopsis, genres, status, cha
 
 <!-- Row card: cover beside the details, so a card stays short at any width -->
 <article
-  class={`surface group flex gap-4 p-3 transition-shadow hover:shadow-[var(--lift-shadow)] sm:p-4 ${className}`}
+  class={`surface group flex min-w-0 gap-4 p-3 transition-shadow hover:shadow-[var(--lift-shadow)] sm:p-4 ${className}`}
   data-novel-card
   data-status={status}
   data-genres={genres.join(',')}

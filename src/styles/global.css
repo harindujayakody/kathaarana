@@ -65,6 +65,7 @@
 
 html {
   color-scheme: light;
+  overflow-x: clip;
   /* Keep focused or scrolled-to items clear of the fixed top bar and bottom tabs. */
   scroll-padding: 4.5rem 0 5.5rem;
   -webkit-text-size-adjust: 100%;
@@ -79,6 +80,8 @@ body {
   font-family: var(--font-si-sans);
   font-size: 17px;
   overflow-x: hidden;
+  /* Long Sinhala titles with no spaces would otherwise stretch narrow phone layouts. */
+  overflow-wrap: anywhere;
   -webkit-tap-highlight-color: transparent;
 }
 
