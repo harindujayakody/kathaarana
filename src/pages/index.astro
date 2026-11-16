@@ -54,6 +54,7 @@ const novelList = {
   title="කතා අරණ | සිංහල නවකතා නොමිලේ කියවන්න"
   description="ශ්‍රී ලාංකේය ලේඛකයන්ගේ සිංහල නවකතා, අබිරහස්, ත්‍රාසජනක සහ ආදර කතා ජංගම දුරකථනයෙන් පහසුවෙන් කියවන්න. නොමිලේ, ගිණුම් අවශ්‍ය නැත."
   jsonLd={[novelList]}
+  rightRail
 >
   <div class="mx-auto max-w-[90rem] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
     <header>
@@ -68,9 +69,9 @@ const novelList = {
     </section>
 
     <!-- Phones: one column in source order (featured, top novels, all novels, latest).
-         Desktop: a main column and a right column that stays in view while scrolling. -->
-    <div class="mt-6 flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,1fr)_21rem] xl:items-start">
-      <div class="contents xl:block xl:min-w-0 xl:space-y-6">
+         Desktop: the right column is fixed to the screen like the left sidebar, and scrolls on its own when taller. -->
+    <div class="mt-6 flex flex-col gap-6">
+      <div class="contents">
           <!-- Featured: the newest novel -->
           <section class="surface order-1 grid min-w-0 grid-cols-[6rem_minmax(0,1fr)] gap-x-4 gap-y-3 p-4 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-x-6 sm:p-5" data-stats={featured.id} aria-labelledby="featured-title">
             <a href={`/novels/${featured.id}/`} class="sm:row-span-3" tabindex="-1" aria-hidden="true">
@@ -147,7 +148,7 @@ const novelList = {
           </section>
       </div>
 
-      <aside data-smart-sticky class="contents xl:sticky xl:top-[var(--sticky-top,1.5rem)] xl:block xl:space-y-6">
+      <aside class="side-scroll contents xl:fixed xl:inset-y-0 xl:right-0 xl:z-20 xl:block xl:w-[22rem] xl:space-y-6 xl:overflow-y-auto xl:py-8 xl:pl-2 xl:pr-6">
           <!-- Top charts: one list, re-ranked by the chosen measure -->
           <section class="surface order-2 min-w-0 p-4" aria-labelledby="top-novels">
             <h2 id="top-novels" class="text-lg font-bold">ඉහළම නවකතා</h2>

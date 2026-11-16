@@ -29,6 +29,8 @@ interface Props {
   noindex?: boolean;
   /** Chapter pages: the reader bar replaces the bottom tabs. */
   reading?: boolean;
+  /** Home page: leave room on wide screens for the fixed right column. */
+  rightRail?: boolean;
   /** Extra JSON-LD for this page (lists, breadcrumbs). */
   jsonLd?: object[];
 }
@@ -44,6 +46,7 @@ const {
   chapter,
   noindex = false,
   reading = false,
+  rightRail = false,
   jsonLd = [],
 } = Astro.props;
 
@@ -70,7 +73,8 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="generator" content={Astro.generator} />
 
@@ -116,9 +120,8 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
 
     <!-- Desktop sidebar -->
     <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-[var(--reader-border)] bg-[var(--reader-panel)] lg:flex">
-      <a href="/" class="flex h-16 shrink-0 items-center gap-2.5 px-5">
-        <img src="/favicon.svg" alt="" width="28" height="28" class="h-7 w-7" />
-        <span class="font-serif text-xl font-bold">කතා අරණ</span>
+      <a href="/" class="flex h-16 shrink-0 items-center px-5" aria-label="කතා අරණ - මුල් පිටුව">
+        <span class="brand-logo h-9" aria-hidden="true"></span>
       </a>
 
       <nav class="px-3" aria-label="ප්‍රධාන සංචලනය">
@@ -169,7 +172,7 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
       </div>
     </aside>
 
-    <div class="flex min-h-dvh flex-col lg:pl-64">
+    <div class={`flex min-h-dvh flex-col lg:pl-64 ${rightRail ? 'xl:pr-[22rem]' : ''}`}>
       <!-- Phone and tablet top bar -->
       <header class="sticky top-0 z-30 flex h-14 items-center gap-1 border-b border-[var(--reader-border)] bg-[var(--reader-panel)] px-2 lg:hidden">
         {parentPath ? (
@@ -177,9 +180,11 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
             <Icon name="left" />
           </a>
         ) : (
-          <img src="/favicon.svg" alt="" width="26" height="26" class="ml-2 h-[26px] w-[26px]" />
+          <span class="w-1.5" aria-hidden="true"></span>
         )}
-        <a href="/" class="px-1.5 font-serif text-lg font-bold">කතා අරණ</a>
+        <a href="/" class="px-1.5" aria-label="කතා අරණ - මුල් පිටුව">
+          <span class="brand-logo h-8" aria-hidden="true"></span>
+        </a>
         <button
           type="button"
           data-theme-toggle
