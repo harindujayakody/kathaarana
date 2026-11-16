@@ -210,8 +210,10 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
       </main>
 
       <footer class={`px-4 pt-10 text-xs text-[var(--reader-muted)] sm:px-6 lg:px-8 lg:pb-8 ${reading ? 'pb-24' : 'pb-[calc(5.5rem+env(safe-area-inset-bottom))]'}`}>
-        <div class="mx-auto flex max-w-[90rem] flex-col gap-1 border-t border-[var(--reader-border)] pt-5 sm:flex-row sm:justify-between">
-          <span>© {new Date().getFullYear()} කතා අරණ (Katha Arana). All Rights reserved!</span>
+        <!-- Phones: one centered column with the logo. Wider: copyright left, credit right. -->
+        <div class="mx-auto flex max-w-[90rem] flex-col items-center gap-2 border-t border-[var(--reader-border)] pt-6 text-center sm:flex-row sm:justify-between sm:gap-1 sm:pt-5 sm:text-left">
+          <a href="/" class="mb-1 sm:hidden" aria-label="කතා අරණ"><span class="brand-logo h-8 opacity-90" aria-hidden="true"></span></a>
+          <span class="leading-relaxed">© {new Date().getFullYear()} කතා අරණ (Katha Arana). All Rights reserved!</span>
           <span class="inline-flex items-center gap-1">
             Made with
             <svg class="heartbeat h-3.5 w-3.5 text-[var(--like)]" viewBox="0 0 24 24" fill="currentColor" role="img" aria-label="love">
