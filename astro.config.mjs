@@ -1,7 +1,7 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
-import buildPdfs from './scripts/build-pdfs.mjs';
+import buildPrints from './scripts/build-prints.mjs';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,7 +42,7 @@ export default defineConfig({
   // Old /_astro/ links are 301-redirected to /assets/ by the Worker (worker/src/legacy-assets.json).
   build: { assets: 'assets' },
   // /bookmarks/ is each reader's own localStorage page, not content for search.
-  // /print/ pages are the PDF sources; they are deleted once the PDFs are written.
+  // /print/ pages are the sources for the PDFs and share cards; deleted once those are written.
   integrations: [
     sitemap({
       filter: (page) => !page.endsWith('/bookmarks/') && !page.includes('/print/'),
@@ -53,9 +53,9 @@ export default defineConfig({
       },
     }),
     {
-      name: 'story-pdfs',
+      name: 'story-prints',
       hooks: {
-        'astro:build:done': ({ dir, logger }) => buildPdfs(fileURLToPath(dir), logger),
+        'astro:build:done': ({ dir, logger }) => buildPrints(fileURLToPath(dir), logger),
       },
     },
   ],

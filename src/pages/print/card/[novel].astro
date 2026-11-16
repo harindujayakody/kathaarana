@@ -1,0 +1,56 @@
+---
+// 1200x900 (4:3) story card that the WhatsApp button attaches when sharing from a phone.
+// scripts/build-prints.mjs screenshots it to /share/<novel>.jpg, then deletes this page.
+import { Font, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const novels = await getCollection('novels');
+  const chapters = await getCollection('chapters');
+  return novels.map((novel) => ({
+    params: { novel: novel.id },
+    props: { novel, parts: chapters.filter((c) => c.data.novel === novel.id).length },
+  }));
+}
+
+const { novel, parts } = Astro.props;
+const cover = await getImage({ src: novel.data.coverImage, width: 760, format: 'jpeg', quality: 85 });
+const status = novel.data.status === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්';
+---
+
+<!doctype html>
+<html lang="si">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>{novel.data.title}</title>
+    <Font cssVariable="--font-si-sans" />
+    <style is:global>
+      html, body { margin: 0; width: 1200px; height: 900px; overflow: hidden; }
+      body { font-family: var(--font-si-sans); color: #fff; background: #111; position: relative; }
+      .bg { position: absolute; inset: -60px; background: center / cover; filter: blur(40px) brightness(0.45) saturate(1.2); }
+      .card { position: relative; display: grid; grid-template-columns: 420px 1fr; gap: 64px; align-items: center; height: 100%; padding: 0 80px; box-sizing: border-box; }
+      .cover { width: 420px; height: 630px; object-fit: cover; border-radius: 18px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55); }
+      .logo { height: 58px; filter: invert(1); }
+      h1 { font-size: 54px; line-height: 1.35; margin: 28px 0 0; font-weight: 700; text-wrap: balance; }
+      .author { font-size: 30px; margin-top: 18px; opacity: 0.85; }
+      .meta { margin-top: 26px; font-size: 24px; opacity: 0.75; }
+      .cta { display: inline-block; margin-top: 42px; padding: 16px 30px; border-radius: 999px; background: #fff; color: #111; font-size: 26px; font-weight: 700; }
+      .site { margin-top: 18px; font-size: 24px; opacity: 0.8; letter-spacing: 0.02em; }
+    </style>
+  </head>
+  <body>
+    <div class="bg" style={`background-image:url(${cover.src})`}></div>
+    <div class="card">
+      <img class="cover" src={cover.src} alt="" />
+      <div>
+        <img class="logo" src="/brand/logo.png" alt="කතා අරණ" />
+        <h1>{novel.data.title}</h1>
+        <p class="author">{novel.data.author}</p>
+        <p class="meta">{parts > 1 ? `පරිච්ඡේද ${parts} · ` : ''}{status}</p>
+        <span class="cta">නොමිලේ කියවන්න</span>
+        <p class="site">kathaarana.com</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -181,6 +181,30 @@ function renderStats() {
   renderChart();
 }
 
+// WhatsApp on phones: open the share sheet with the story card attached, like shops do.
+// The image is fetched up front because share() must run straight from the tap.
+// Where files can't be shared (desktop, older phones) the link opens wa.me as usual.
+function initShareCards() {
+  if (!matchMedia('(pointer: coarse)').matches || !navigator.canShare) return;
+  document.querySelectorAll<HTMLAnchorElement>('[data-share-card]').forEach(async (link) => {
+    let file: File;
+    try {
+      const res = await fetch(link.dataset.shareCard!);
+      if (!res.ok) return;
+      file = new File([await res.blob()], 'kathaarana.jpg', { type: 'image/jpeg' });
+      if (!navigator.canShare({ files: [file] })) return;
+    } catch {
+      return;
+    }
+    link.onclick = (event) => {
+      event.preventDefault();
+      navigator.share({ files: [file], text: link.dataset.shareText }).catch((err: DOMException) => {
+        if (err.name !== 'AbortError') location.href = link.href;
+      });
+    };
+  });
+}
+
 function initVoting() {
   // The link still downloads the file; this only counts it (once per device, on the server).
   document.querySelectorAll<HTMLAnchorElement>('[data-download]').forEach((link) => {
@@ -282,6 +306,7 @@ document.addEventListener('astro:page-load', () => {
   initTheme();
   initHistory();
   initVoting();
+  initShareCards();
   initChart();
   renderStats();
   loadStats().then(renderStats);

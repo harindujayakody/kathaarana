@@ -1,6 +1,8 @@
-// After `astro build`: print every /print/<novel>/ page to /downloads/<novel>.pdf with Chrome,
+// After `astro build`, with Chrome:
+//   /print/<novel>/      -> /downloads/<novel>.pdf  (the story PDF)
+//   /print/card/<novel>/ -> /share/<novel>.jpg      (4:3 card the WhatsApp button attaches)
 // then delete /print/ so those pages never go live. Chrome shapes Sinhala text correctly,
-// which the JavaScript PDF libraries can't.
+// which the JavaScript PDF libraries and sharp's text rendering can't.
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
@@ -33,30 +35,41 @@ function serve(root) {
   return new Promise((ok) => server.listen(0, '127.0.0.1', () => ok(server)));
 }
 
-export default async function buildPdfs(distDir, log = console) {
+export default async function buildPrints(distDir, log = console) {
   const printDir = join(distDir, 'print');
   if (!existsSync(printDir)) return;
-  const novels = readdirSync(printDir);
+  const novels = readdirSync(printDir).filter((d) => d !== 'card');
+  const cards = existsSync(join(printDir, 'card')) ? readdirSync(join(printDir, 'card')) : [];
   const executablePath = BROWSERS.find((p) => p && existsSync(p));
   try {
     if (!executablePath) {
       // The live build must have PDFs; a local build without Chrome just skips them.
-      if (process.env.CI) throw new Error('No Chrome found for the story PDFs. Set CHROME_PATH.');
-      log.warn('No Chrome or Edge found: skipping story PDFs.');
+      if (process.env.CI) throw new Error('No Chrome found for the story PDFs and share cards. Set CHROME_PATH.');
+      log.warn('No Chrome or Edge found: skipping story PDFs and share cards.');
       return;
     }
     const out = join(distDir, 'downloads');
+    const shareOut = join(distDir, 'share');
     mkdirSync(out, { recursive: true });
+    mkdirSync(shareOut, { recursive: true });
     const server = await serve(normalize(distDir));
     const browser = await puppeteer.launch({ executablePath, args: ['--no-sandbox'] });
     try {
       const page = await browser.newPage();
-      for (const id of novels) {
-        await page.goto(`http://127.0.0.1:${server.address().port}/print/${id}/`, { waitUntil: 'networkidle0' });
+      const open = async (path) => {
+        await page.goto(`http://127.0.0.1:${server.address().port}${path}`, { waitUntil: 'networkidle0' });
         await page.evaluate(() => document.fonts.ready);
+      };
+      for (const id of novels) {
+        await open(`/print/${id}/`);
         await page.pdf({ path: join(out, `${id}.pdf`), preferCSSPageSize: true, printBackground: true });
       }
-      log.info(`Story PDFs: ${novels.length} written to /downloads/`);
+      await page.setViewport({ width: 1200, height: 900 });
+      for (const id of cards) {
+        await open(`/print/card/${id}/`);
+        await page.screenshot({ path: join(shareOut, `${id}.jpg`), type: 'jpeg', quality: 82 });
+      }
+      log.info(`Story PDFs: ${novels.length} in /downloads/, share cards: ${cards.length} in /share/`);
     } finally {
       await browser.close();
       server.close();
