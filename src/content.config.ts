@@ -1,14 +1,8 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-// Address for an author's page when the novel doesn't give one: the name itself, with hyphens for spaces.
-// Sinhala letters stay as they are; the Cf class keeps the invisible joiner many Sinhala letters contain.
-const slugFromName = (name: string) =>
-  name
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\p{L}\p{M}\p{N}\p{Cf}-]/gu, '');
+// Address for an author's page when the novel doesn't give one: made from the name (src/utils/slug.ts).
+import { slugFromName } from './utils/slug';
 
 const novels = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/novels' }),
