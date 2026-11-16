@@ -3,6 +3,7 @@ title: "කාන්තාරයේ කුසුම | Kantharaye Kusuma"
 author: "රංජිත් කුරුප්පු"
 publisher: "සුරස - Surasa (fast publishing)"
 coverImage: "../../assets/books/kantharaye-kusuma.jpg"
+price: 960
 isbn: "9789551188719"
 pages: 318
 print: "මුද්‍රණයේ පවති - In Print"
