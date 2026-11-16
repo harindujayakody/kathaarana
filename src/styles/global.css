@@ -227,6 +227,32 @@ dialog.sheet:modal {
   }
 }
 
+/* Feedback when a reader reacts, likes or rates: a short springy bounce and a ring that fades out.
+   Off for readers who ask for reduced motion. Classes are added by pop() / burst() in scripts/app.ts. */
+@media (prefers-reduced-motion: no-preference) {
+  .kt-pop { animation: kt-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  .kt-burst { position: relative; }
+  .kt-burst::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    border: 2px solid currentColor;
+    pointer-events: none;
+    animation: kt-burst 0.6s ease-out both;
+  }
+}
+@keyframes kt-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.4) rotate(-6deg); }
+  65% { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+@keyframes kt-burst {
+  0% { opacity: 0.55; transform: scale(0.9); }
+  100% { opacity: 0; transform: scale(1.3); }
+}
+
 /* Footer credit: a heart that beats twice, then rests. */
 @keyframes heartbeat {
   0%, 60%, 100% { transform: scale(1); }

@@ -50,6 +50,19 @@ export const post = (path: string, body: object) =>
     keepalive: true,
   });
 
+// Little "it counted" feedback for reactions, likes and ratings (CSS in global.css; skipped for reduced motion).
+// Removing and re-adding the class restarts the animation on repeated taps.
+const restart = (node: Element | null | undefined, cls: string, delay = 0) => {
+  if (!(node instanceof HTMLElement || node instanceof SVGElement)) return;
+  node.classList.remove(cls);
+  void (node as HTMLElement).getBoundingClientRect();
+  node.style.animationDelay = delay ? `${delay}ms` : '';
+  node.classList.add(cls);
+  setTimeout(() => node.classList.remove(cls), 700 + delay);
+};
+export const pop = (node: Element | null | undefined, delay = 0) => restart(node, 'kt-pop', delay);
+export const burst = (node: Element | null | undefined) => restart(node, 'kt-burst');
+
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n));
 const emptyStats = (): NovelStats => ({ rating: 0, ratings: 0, likes: 0, views: 0, downloads: 0, week: 0 });
 
@@ -243,6 +256,10 @@ function initVoting() {
       write('katha_votes', mine);
       if (stats) (stats[novel] ??= emptyStats()).likes += liked ? -1 : 1;
       renderStats();
+      if (!liked) {
+        pop(btn.querySelector('svg'));
+        burst(btn);
+      }
       post('/react', { novel, chapter: 0, kind: liked ? null : 'like' }).catch(() => {});
     };
   });
@@ -263,6 +280,11 @@ function initVoting() {
           s.rating = total / s.ratings;
         }
         renderStats();
+        // The chosen stars bounce in turn, left to right.
+        box.querySelectorAll<HTMLButtonElement>('[data-star]').forEach((star) => {
+          const n = Number(star.dataset.star);
+          if (n <= value) pop(star.querySelector('svg'), (n - 1) * 60);
+        });
         post('/rate', { novel, stars: value }).catch(() => {});
       };
     });
