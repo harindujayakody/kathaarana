@@ -37,6 +37,8 @@ const shareCover = await coverShareUrl(novel.data.coverImage);
 const firstChapterUrl = chapters.length > 0 ? `/novels/${novel.id}/${chapters[0].data.chapterNumber}/` : undefined;
 const totalWords = chapters.reduce((sum, c) => sum + chapterWords(c), 0);
 const rated = (await buildStats())[novel.id];
+// The PDF is written by scripts/build-pdfs.mjs; the saved file is named after the story.
+const pdfName = `${novel.data.title.replace(/[\\/:*?"<>|]+/g, '').trim()} - kathaarana.com.pdf`;
 const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 ---
 
@@ -102,6 +104,14 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
               {firstChapterUrl && (
                 <a href={firstChapterUrl} class="accent-bg tap inline-flex flex-1 items-center justify-center rounded-lg px-6 py-2.5 font-semibold sm:flex-none">කියවීම අරඹන්න</a>
               )}
+              <a
+                href={`/downloads/${novel.id}.pdf`}
+                download={pdfName}
+                data-download={novel.id}
+                class="tap inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--reader-border)] px-3 font-medium"
+              >
+                <Icon name="download" />PDF
+              </a>
               <button type="button" data-like={novel.id} aria-pressed="false" aria-label="කැමතියි" class="tap grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-lg border border-[var(--reader-border)] text-[var(--reader-muted)]">
                 <Icon name="heart" />
               </button>

@@ -1,0 +1,103 @@
+---
+// Print source for each story's PDF. scripts/build-pdfs.mjs prints it with Chrome after the
+// build, saves /downloads/<novel>.pdf, then deletes these pages, so they never go live.
+import { Font, getImage } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const novels = await getCollection('novels');
+  const chapters = await getCollection('chapters');
+  return novels.map((novel) => ({
+    params: { novel: novel.id },
+    props: {
+      novel,
+      chapters: chapters
+        .filter((c) => c.data.novel === novel.id)
+        .sort((a, b) => a.data.chapterNumber - b.data.chapterNumber),
+    },
+  }));
+}
+
+const { novel, chapters } = Astro.props;
+const cover = await getImage({ src: novel.data.coverImage, width: 1000, format: 'jpeg', quality: 82 });
+const parts = await Promise.all(chapters.map(async (c) => ({ data: c.data, Content: (await render(c)).Content })));
+const pageUrl = `https://kathaarana.com/novels/${novel.id}/`;
+const showChapterTitles = parts.length > 1;
+---
+
+<!doctype html>
+<html lang="si">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>{novel.data.title}</title>
+    <Font cssVariable="--font-si-sans" />
+    <style is:global>
+      @page { size: A5; margin: 18mm 15mm 16mm; }
+      @page :first { margin: 0; }
+      * { box-sizing: border-box; }
+      html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { margin: 0; font-family: var(--font-si-sans); color: #1a1a1a; font-size: 11pt; line-height: 1.85; }
+      a { color: inherit; }
+
+      /* Chrome repeats fixed elements on every printed page. The opaque cover hides it on page 1. */
+      .watermark {
+        position: fixed; inset: 0; z-index: 0; display: grid; place-content: center; text-align: center;
+        transform: rotate(-32deg); color: rgba(0, 0, 0, 0.06); pointer-events: none;
+      }
+      .watermark b { font-size: 30pt; font-weight: 700; }
+      .watermark span { font-size: 11pt; letter-spacing: 0.1em; }
+      main { position: relative; z-index: 1; }
+
+      /* Covers aren't all A5-shaped: show the whole cover on a dark mat. */
+      .cover { position: relative; z-index: 2; width: 148mm; height: 210mm; overflow: hidden; background: #222; break-after: page; }
+      .cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+      
+      .title-page { min-height: 170mm; display: flex; flex-direction: column; justify-content: center; text-align: center; break-after: page; }
+      .title-page h1 { font-size: 20pt; line-height: 1.5; margin: 0; }
+      .title-page .author { font-size: 13pt; margin-top: 6mm; }
+      .title-page .meta { margin-top: 18mm; font-size: 9pt; color: #555; line-height: 1.7; word-break: break-all; }
+
+      .chapter + .chapter { break-before: page; }
+      .chapter h2 { font-size: 14pt; line-height: 1.5; margin: 0 0 6mm; }
+      .chapter p { margin: 0 0 3.5mm; orphans: 2; widows: 2; }
+
+      .credits { break-before: page; min-height: 170mm; display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 10pt; line-height: 1.8; }
+      .credits h2 { font-size: 13pt; margin: 0 0 6mm; }
+      .credits p { margin: 0 0 4mm; word-break: break-all; }
+      .brand { margin-top: 10mm; font-weight: 700; font-size: 12pt; }
+    </style>
+  </head>
+  <body>
+    <div class="watermark" aria-hidden="true"><b>{novel.data.author}</b><span>kathaarana.com</span></div>
+    <main>
+      <section class="cover"><img src={cover.src} alt={`${novel.data.title} කවරය`} /></section>
+
+      <section class="title-page">
+        <h1>{novel.data.title}</h1>
+        <p class="author">{novel.data.author}</p>
+        <div class="meta">
+          {novel.data.source && <p>මුලාශ්‍රය: {novel.data.source}</p>}
+          <p>කතා අරණ · kathaarana.com</p>
+        </div>
+      </section>
+
+      {parts.map(({ data, Content }) => (
+        <article class="chapter">
+          {showChapterTitles && <h2>{data.chapterNumber}. {data.title}</h2>}
+          <Content />
+          {data.source && data.source !== novel.data.source && <p class="meta">මුලාශ්‍රය: {data.source}</p>}
+        </article>
+      ))}
+
+      <section class="credits">
+        <h2>{novel.data.title}</h2>
+        <p>කතුවරයා: {novel.data.author}</p>
+        {novel.data.source && <p>මුලාශ්‍රය: <a href={novel.data.source}>{novel.data.source}</a></p>}
+        <p>මෙම කතාවේ සියලු හිමිකම් කතුවරයා සතුය.</p>
+        <p class="brand">කතා අරණ (Katha Arana)</p>
+        <p>තවත් රසවත් සිංහල නවකතා සහ කෙටිකතා නොමිලේ කියවන්න: <a href={pageUrl}>kathaarana.com</a></p>
+      </section>
+    </main>
+  </body>
+</html>
