@@ -50,7 +50,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 async function stats(env) {
   const since = Date.now() - WEEK_MS;
-  const [ratings, reactions, views] = await env.DB.batch([
+  const [ratings, reactions, views, downloads] = await env.DB.batch([
     env.DB.prepare(
       'SELECT novel, AVG(stars) AS avg, COUNT(*) AS n, SUM(updated_at >= ?1) AS week FROM ratings GROUP BY novel',
     ).bind(since),
@@ -58,10 +58,11 @@ async function stats(env) {
       'SELECT novel, COUNT(*) AS n, SUM(created_at >= ?1) AS week FROM reactions GROUP BY novel',
     ).bind(since),
     env.DB.prepare('SELECT novel, SUM(count) AS n FROM views_daily GROUP BY novel'),
+    env.DB.prepare('SELECT novel, COUNT(*) AS n FROM downloads GROUP BY novel'),
   ]);
 
   const novels = {};
-  const row = (id) => (novels[id] ??= { rating: 0, ratings: 0, likes: 0, views: 0, week: 0 });
+  const row = (id) => (novels[id] ??= { rating: 0, ratings: 0, likes: 0, views: 0, downloads: 0, week: 0 });
   for (const r of ratings.results) {
     Object.assign(row(r.novel), { rating: Math.round(r.avg * 10) / 10, ratings: r.n });
     row(r.novel).week += r.week;
@@ -71,6 +72,7 @@ async function stats(env) {
     row(r.novel).week += r.week;
   }
   for (const r of views.results) row(r.novel).views = r.n;
+  for (const r of downloads.results) row(r.novel).downloads = r.n;
   return { novels };
 }
 
@@ -119,6 +121,13 @@ async function handleWrite(path, request, env) {
        ON CONFLICT (novel, device) DO UPDATE SET stars = ?3, updated_at = ?4`,
     )
       .bind(novel, device, stars, now)
+      .run();
+    return json({ ok: true });
+  }
+
+  if (path === '/api/download') {
+    await env.DB.prepare('INSERT OR IGNORE INTO downloads (novel, device, created_at) VALUES (?1, ?2, ?3)')
+      .bind(novel, device, now)
       .run();
     return json({ ok: true });
   }
