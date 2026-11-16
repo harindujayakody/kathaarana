@@ -6,7 +6,11 @@
   "account_id": "0426aaf804f668559bbdf8522547f783",
   "compatibility_date": "2026-05-01",
   // Same origin as the site, so the pages call /api/* with no CORS and no extra DNS.
-  "routes": [{ "pattern": "kathaarana.com/api/*", "zone_name": "kathaarana.com" }],
+  "routes": [
+    { "pattern": "kathaarana.com/api/*", "zone_name": "kathaarana.com" },
+    // Permanent redirects from the old /_astro/ file addresses (see src/legacy-assets.json).
+    { "pattern": "kathaarana.com/_astro/*", "zone_name": "kathaarana.com" }
+  ],
   "workers_dev": false,
   "d1_databases": [
     {
