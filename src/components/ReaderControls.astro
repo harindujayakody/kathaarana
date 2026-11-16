@@ -56,7 +56,7 @@ const navClass = 'tap flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-2 te
     </button>
 
     {nextUrl ? (
-      <a href={nextUrl} id="btn-next-chap" class={`${navClass} accent-bg`} aria-label="ඊළඟ පරිච්ඡේදය">
+      <a href={nextUrl} id="btn-next-chap" data-astro-prefetch="load" class={`${navClass} accent-bg`} aria-label="ඊළඟ පරිච්ඡේදය">
         <span class="hidden sm:inline">ඊළඟ</span><Icon name="right" />
       </a>
     ) : (
