@@ -275,12 +275,57 @@ dialog.search-dialog {
   border-radius: 16px;
   box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.45);
   overscroll-behavior: contain;
+  /* Opens with a short fade and lift, closes the same way back. */
+  opacity: 0;
+  transform: translateY(-12px) scale(0.98);
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    overlay 0.25s allow-discrete,
+    display 0.25s allow-discrete;
 }
+dialog.search-dialog[open] {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  dialog.search-dialog[open] {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+}
+/* The page behind blurs in softly. */
 dialog.search-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
   overflow: hidden;
   overscroll-behavior: contain;
+  transition:
+    background 0.25s ease,
+    backdrop-filter 0.25s ease,
+    -webkit-backdrop-filter 0.25s ease,
+    overlay 0.25s allow-discrete,
+    display 0.25s allow-discrete;
 }
+dialog.search-dialog[open]::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+@starting-style {
+  dialog.search-dialog[open]::backdrop {
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.search-dialog,
+  dialog.search-dialog::backdrop { transition: none; }
+}
+/* The box itself is the focus cue; no outline ring inside it. */
+#search-input:focus-visible { outline: none; }
 @media (max-width: 639px) {
   dialog.search-dialog {
     margin: 0;
