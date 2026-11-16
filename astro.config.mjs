@@ -36,6 +36,10 @@ export default defineConfig({
   site: 'https://kathaarana.com',
   // GitHub Pages serves /x/ and 301s /x, so links and canonicals all use the slash form.
   trailingSlash: 'always',
+  // Built images, styles and scripts live under /assets/ (default is /_astro/).
+  // The file names keep their content hash, so browsers can cache them for a year.
+  // Old /_astro/ links are 301-redirected to /assets/ by the Worker (worker/src/legacy-assets.json).
+  build: { assets: 'assets' },
   // /bookmarks/ is each reader's own localStorage page, not content for search.
   integrations: [
     sitemap({

@@ -3,6 +3,8 @@
 // shortcut: device ids can be forged, so a determined person can stuff votes; the per-IP
 // rate limit only slows that down. Add Turnstile if rankings ever get abused.
 
+import legacyAssets from './legacy-assets.json';
+
 const REACTIONS = ['like', 'haha', 'wow', 'sad', 'fire'];
 const DEVICE_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -175,6 +177,17 @@ export default {
       for (const [k, v] of Object.entries(cors)) res.headers.set(k, v);
       return res;
     };
+
+    // Built files moved from /_astro/ to /assets/ (2026-11-16). Image names changed with the
+    // move, so this fixed list maps every file that ever had an /_astro/ address to its new name.
+    if (url.pathname.startsWith('/_astro/')) {
+      const target = legacyAssets[url.pathname.slice('/_astro/'.length)];
+      if (!target) return new Response('Not found', { status: 404 });
+      return new Response(null, {
+        status: 301,
+        headers: { Location: `/assets/${target}`, 'Cache-Control': 'public, max-age=31536000' },
+      });
+    }
 
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
 
