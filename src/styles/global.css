@@ -294,35 +294,24 @@ dialog.search-dialog[open] {
     transform: translateY(-12px) scale(0.98);
   }
 }
-/* The page behind blurs in softly. */
+/* The page behind dims and blurs in softly. A keyframe animation, not a transition:
+   transitions on ::backdrop can stick at their start values in Chrome, leaving no blur at all. */
 dialog.search-dialog::backdrop {
-  background: rgba(0, 0, 0, 0);
-  backdrop-filter: blur(0);
-  -webkit-backdrop-filter: blur(0);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
   overflow: hidden;
   overscroll-behavior: contain;
-  transition:
-    background 0.25s ease,
-    backdrop-filter 0.25s ease,
-    -webkit-backdrop-filter 0.25s ease,
-    overlay 0.25s allow-discrete,
-    display 0.25s allow-discrete;
+  animation: search-backdrop-in 0.25s ease;
 }
-dialog.search-dialog[open]::backdrop {
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-@starting-style {
-  dialog.search-dialog[open]::backdrop {
+@keyframes search-backdrop-in {
+  from {
     background: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0);
-    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  dialog.search-dialog,
-  dialog.search-dialog::backdrop { transition: none; }
+  dialog.search-dialog { transition: none; }
+  dialog.search-dialog::backdrop { animation: none; }
 }
 /* The box itself is the focus cue; no outline ring inside it. */
 #search-input:focus-visible { outline: none; }
