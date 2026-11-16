@@ -8,7 +8,7 @@ Designed specifically to be deployed on **Cloudflare Pages** with **zero databas
 
 ## 🌟 Key Features
 
-* **⚡ 100/100 Core Web Vitals**: Pre-rendered static HTML via Astro. Zero client-side hydration overhead for novel prose.
+* **⚡ Static rendering**: Astro pre-renders novel prose as HTML without client-side hydration. Performance scores vary by page and device and are not currently tracked in CI.
 * **📱 Immersive Mobile Reader**:
   * **4 Display Themes**: Light (Paper), Warm Sepia (Evening reading), Dark Slate, and pure AMOLED Black (OLED battery saver).
   * **Dynamic Font Scaling**: Real-time `A-` / `A+` font size scaler persisted to `localStorage`.
@@ -63,7 +63,7 @@ Because your content lives as Markdown in Git, you can push new chapters directl
 curl -X PUT \
   -H "Authorization: token YOUR_GITHUB_TOKEN" \
   -H "Accept: application/vnd.github.v3+json" \
-  https://api.github.com/repos/YOUR_USER/Katha-arana/contents/src/content/chapters/the-shadow-throne/chapter-04.md \
+  https://api.github.com/repos/harindujayakody/kathaarana/contents/src/content/chapters/the-shadow-throne/chapter-04.md \
   -d '{
     "message": "feat: Publish Chapter 4 via API",
     "content": "LS0tCm5vdmVsOiAidGhlLXNoYWRvdy10aHJvbmUiCmNoYXB0ZXJOdW1iZXI6IDQKdGl0bGU6ICJUaGUgR2F0ZXMgb2YgVmFsLUFyYW4iCnB1Ymxpc2hEYXRlOiAyMDI2LTEwLTE1CndvcmRDb3VudDogMTI1MAotLS0KClRoZSB2b3J0ZXggb2Ygc2lsdmVyIHN0YXJkdXN0..."
@@ -99,3 +99,4 @@ npm run build
 # Preview production build locally
 npm run preview
 ```
+
