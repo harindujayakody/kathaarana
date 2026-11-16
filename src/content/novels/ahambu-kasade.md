@@ -6,4 +6,5 @@ synopsis: "නෙතාරා තමන් ආදරය කරන තරූන�
 coverImage: "../../assets/covers/ahambu-kasade-redesigned-9x16.png"
 publishDate: 2026-11-10
 genres: ["කෙටිකතා"]
+status: "Completed"
 ---

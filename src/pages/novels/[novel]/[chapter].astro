@@ -45,8 +45,10 @@ const { Content } = await render(chapter);
 const shareCover = await coverShareUrl(novel.data.coverImage);
 const thumbCover = await coverThumbUrl(novel.data.coverImage);
 
+// The chapter's own source if it has one, otherwise the novel's.
 // A source that is a web address is shown as a link; anything else as plain text.
-const sourceIsLink = !!novel.data.source && /^https?:\/\//.test(novel.data.source);
+const source = chapter.data.source ?? novel.data.source;
+const sourceIsLink = !!source && /^https?:\/\//.test(source);
 
 const words = chapterWords(chapter);
 const readTimeMinutes = Math.max(1, Math.ceil(words / 180));
@@ -133,13 +135,13 @@ const reactions = [
         <Content />
       </div>
 
-      {novel.data.source && (
+      {source && (
         <p class="mx-auto mt-10 max-w-[40rem] border-t border-[var(--reader-border)] pt-4 text-sm text-[var(--reader-muted)]">
           මුලාශ්‍රය:
           {sourceIsLink ? (
-            <a href={novel.data.source} target="_blank" rel="noopener noreferrer" class="accent-text break-all underline underline-offset-2">{novel.data.source}</a>
+            <a href={source} target="_blank" rel="noopener noreferrer" class="accent-text break-all underline underline-offset-2">{source}</a>
           ) : (
-            <span>{novel.data.source}</span>
+            <span>{source}</span>
           )}
         </p>
       )}

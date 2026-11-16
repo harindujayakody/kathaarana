@@ -40,6 +40,8 @@ const chapters = defineCollection({
     title: z.string(),
     publishDate: z.coerce.date(),
     wordCount: z.number().optional(),
+    // Where this part was first published, if different from the novel's source.
+    source: z.string().optional(),
   }),
 });
 

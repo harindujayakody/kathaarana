@@ -5,6 +5,7 @@ novel: "novel-slug"        # must match the novel's file name in src/content/nov
 chapterNumber: 1           # a plain number; chapters are listed and linked in this order
 title: "පරිච්ඡේදයේ නම"
 publishDate: 2026-11-16    # YYYY-MM-DD; the home page lists the newest chapters first
+# source: "https://..."     # optional: where this part was first published (otherwise the novel's source is used)
 ---
 
 මෙතැන සිට පරිච්ඡේදයේ කතාව ලියන්න.
