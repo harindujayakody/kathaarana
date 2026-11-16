@@ -3,6 +3,7 @@ import { Font } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
 import SEO from '../components/SEO.astro';
 import Icon from '../components/Icon.astro';
+import SearchDialog from '../components/SearchDialog.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -133,6 +134,17 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
         <span class="brand-logo h-11" aria-hidden="true"></span>
       </a>
 
+      <!-- Opens the site search (also Ctrl/⌘+K or "/"). -->
+      <button
+        type="button"
+        data-search-open
+        class="tap mx-3 mb-3 flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--reader-border)] bg-[var(--reader-bg)] px-3 py-2 text-left text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)]"
+      >
+        <Icon name="search" class="h-4 w-4" />
+        <span class="flex-1">සොයන්න…</span>
+        <kbd class="rounded border border-[var(--reader-border)] px-1.5 font-sans text-xs">Ctrl K</kbd>
+      </button>
+
       <nav class="px-3" aria-label="ප්‍රධාන සංචලනය">
         {tabs.map((tab) => (
           <a
@@ -194,10 +206,13 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
         <a href="/" class="px-1.5" aria-label="කතා අරණ - මුල් පිටුව">
           <span class="brand-logo h-9" aria-hidden="true"></span>
         </a>
+        <button type="button" data-search-open class="tap ml-auto cursor-pointer rounded-lg p-2.5 text-[var(--reader-muted)]" aria-label="සොයන්න">
+          <Icon name="search" class="h-5 w-5" />
+        </button>
         <button
           type="button"
           data-theme-toggle
-          class="tap ml-auto cursor-pointer rounded-lg p-2.5 text-[var(--reader-muted)]"
+          class="tap cursor-pointer rounded-lg p-2.5 text-[var(--reader-muted)]"
           aria-label="අඳුරු / ආලෝක තේමාව මාරු කරන්න"
         >
           <Icon name="moon" class="h-5 w-5 dark:hidden" />
@@ -247,6 +262,8 @@ const parentPath = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}/` 
         ))}
       </nav>
     )}
+
+    <SearchDialog />
 
     <script>
       import '../scripts/app.ts';
