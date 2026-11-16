@@ -115,6 +115,8 @@ if (novel && chapter) {
     ],
   });
 }
+// "<" escaped as < so text like "</script>" in a title or synopsis can't end the block early.
+const jsonForScript = (data: unknown) => JSON.stringify(data).replace(/</g, '\\u003c');
 ---
 
 <title>{pageTitle}</title>
@@ -145,5 +147,5 @@ if (novel && chapter) {
 
 <!-- Structured Data (JSON-LD) for Search Engines -->
 {[...jsonLdSchemas, ...jsonLd].map(schema => (
-  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <script type="application/ld+json" set:html={jsonForScript(schema)} />
 ))}
