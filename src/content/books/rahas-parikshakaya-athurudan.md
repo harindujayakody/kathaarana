@@ -3,6 +3,7 @@ title: "Rahas Parikshakaya Athurudan - රහස්පරීක්ෂකයා �
 author: "චන්දන මෙන්ඩිස්"
 publisher: "ටයිම්ලස් බුක් - Timeless Books"
 coverImage: "../../assets/books/rahas-parikshakaya-athurudan.jpg"
+price: 240
 isbn: "9789551191061"
 pages: 108
 print: "මුද්‍රණයේ පවති - In Print"
