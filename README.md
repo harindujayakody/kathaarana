@@ -70,6 +70,23 @@ worker/                Cloudflare Worker for the /api/* endpoints
 
 ## ✍️ Publishing
 
+### Publishing dashboard (easiest)
+
+```bash
+npm run admin
+```
+
+Opens a page at `http://localhost:4400` on your own computer:
+
+- **නව කතාව (new story):** title, author, source, synopsis, cover (drag and drop), date, genres, and optionally the first chapter. You can also paste a filled template to fill the form.
+- **පරිච්ඡේදයක් (add chapter):** pick the story; the next chapter number is filled in. "Each line is a paragraph" fixes text pasted from Facebook.
+- **සංස්කරණය (edit):** change any story or chapter.
+- **ප්‍රකාශනය (publish):** shows what changed, checks every file against the site's rules, then commits only the story files and covers and pushes to `main`. The site updates a few minutes later.
+
+It only listens on this computer, uses your own git login, and only writes to `src/content/` and `src/assets/covers/`. Publishing needs the `main` branch checked out.
+
+### By hand
+
 No admin panel: a story is a few Markdown files. Copy a template, fill it in and push to `main`. The site rebuilds and goes live in a couple of minutes.
 
 | Template | Copy it to |
