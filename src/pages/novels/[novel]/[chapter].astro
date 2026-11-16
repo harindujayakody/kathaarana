@@ -44,6 +44,9 @@ const { Content } = await render(chapter);
 const shareCover = await coverShareUrl(novel.data.coverImage);
 const thumbCover = await coverThumbUrl(novel.data.coverImage);
 
+// A source that is a web address is shown as a link; anything else as plain text.
+const sourceIsLink = !!novel.data.source && /^https?:\/\//.test(novel.data.source);
+
 const readTimeMinutes = Math.ceil((chapter.data.wordCount || 850) / 180);
 const formattedDate = chapter.data.publishDate.toLocaleDateString('en-US', {
   year: 'numeric',
@@ -127,6 +130,17 @@ const reactions = [
       <div id="chapter-content" class="novel-prose font-novel-sans mx-auto mt-7 max-w-[40rem]">
         <Content />
       </div>
+
+      {novel.data.source && (
+        <p class="mx-auto mt-10 max-w-[40rem] border-t border-[var(--reader-border)] pt-4 text-sm text-[var(--reader-muted)]">
+          මුලාශ්‍රය:
+          {sourceIsLink ? (
+            <a href={novel.data.source} target="_blank" rel="noopener noreferrer" class="accent-text break-all underline underline-offset-2">{novel.data.source}</a>
+          ) : (
+            <span>{novel.data.source}</span>
+          )}
+        </p>
+      )}
     </div>
 
     <!-- Reactions -->
