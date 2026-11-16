@@ -159,7 +159,7 @@ const formatDate = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', 
 
       <!-- More novels: links readers and search engines onward -->
       {related.length > 0 && (
-        <aside data-smart-sticky style="top: 24px" class="surface min-w-0 p-4 xl:sticky" aria-labelledby="related-title">
+        <aside class="surface side-scroll min-w-0 p-4 xl:sticky xl:top-6 xl:max-h-[calc(100dvh-10rem)] xl:overflow-y-auto" aria-labelledby="related-title">
           <h2 id="related-title" class="text-lg font-bold">තවත් නවකතා</h2>
           <ul class="mt-2 divide-y divide-[var(--reader-border)]">
             {related.map((n) => (
