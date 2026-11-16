@@ -86,14 +86,28 @@ function initSettings() {
     };
   }
 
-  let size = parseFloat(localStorage.getItem('katha_font_size') || '') || 17;
+  // 17px is the normal size; the sheet shows the size as a percentage of it and can reset to it.
+  const NORMAL_SIZE = 17;
+  let size = parseFloat(localStorage.getItem('katha_font_size') || '') || NORMAL_SIZE;
+  const sizeValue = sheet.querySelector<HTMLOutputElement>('[data-size-value]');
+  const sizeReset = sheet.querySelector<HTMLButtonElement>('[data-size-reset]');
+  const showSize = () => {
+    if (sizeValue) sizeValue.textContent = `${Math.round((size / NORMAL_SIZE) * 100)}%`;
+    if (sizeReset) sizeReset.disabled = size === NORMAL_SIZE;
+  };
   const setSize = (next: number) => {
     size = Math.min(26, Math.max(14, next));
-    localStorage.setItem('katha_font_size', String(size));
+    // At the normal size nothing is saved, so a later change to the default reaches this reader too.
+    if (size === NORMAL_SIZE) localStorage.removeItem('katha_font_size');
+    else localStorage.setItem('katha_font_size', String(size));
     document.documentElement.style.setProperty('--reader-font-size', `${size}px`);
+    showSize();
   };
   document.getElementById('btn-font-dec')!.onclick = () => setSize(size - 1);
   document.getElementById('btn-font-inc')!.onclick = () => setSize(size + 1);
+  sheet.querySelectorAll<HTMLButtonElement>('[data-size-step]').forEach((b) => (b.onclick = () => setSize(size + Number(b.dataset.sizeStep))));
+  if (sizeReset) sizeReset.onclick = () => setSize(NORMAL_SIZE);
+  showSize();
 
   const themeButtons = sheet.querySelectorAll<HTMLButtonElement>('[data-set-theme]');
   const syncTheme = () => {
