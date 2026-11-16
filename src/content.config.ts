@@ -60,6 +60,8 @@ const books = defineCollection({
       print: z.string().optional(), // e.g. in print, out of print, new edition
       binding: z.string().optional(), // e.g. paperback, hardcover
       addedDate: z.coerce.date().optional(), // newest first on the shop page
+      genres: z.array(z.string()).default([]),
+      price: z.number().nonnegative().optional(), // Sri Lankan rupees
     }),
 });
 

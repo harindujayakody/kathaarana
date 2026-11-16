@@ -50,4 +50,15 @@ assert.throws(() => planBook(noBooks, { isNew: true, slug: 'x', title: 't', auth
 assert.throws(() => planBook(noBooks, { isNew: true, slug: 'x', title: 't', author: 'a' }, { cover: null }), /cover image/);
 assert.throws(() => readBook(withBook, 'constructor'), /Book not found/);
 
+// Genre and price: written after the cover; price accepts "1,250.50", refuses 3 decimals or text.
+const priced = planBook(noBooks, { isNew: true, slug: 'priced', title: 't', author: 'a', genres: ['නවකතා', ' '], price: '1,250.50' }, { cover: { bytes: new Uint8Array() } });
+assert.match(priced.files[1].content, /coverImage: "\.\.\/\.\.\/assets\/books\/priced\.jpg"\ngenres: \["නවකතා"\]\nprice: 1250\.5\n/);
+// A decimal price reads back as a number, so saving the book unchanged writes it unquoted again.
+const pricedSnap = { ...noBooks, books: { priced: priced.files[1].content } };
+assert.equal(readBook(pricedSnap, 'priced').data.price, 1250.5);
+const pricedAgain = planBook(pricedSnap, { isNew: false, slug: 'priced', title: 't', author: 'a', genres: ['නවකතා'], price: readBook(pricedSnap, 'priced').data.price }, { cover: null });
+assert.equal(pricedAgain.files[0].content, priced.files[1].content);
+assert.throws(() => planBook(noBooks, { isNew: true, slug: 'p2', title: 't', author: 'a', price: '12.345' }, { cover: { bytes: new Uint8Array() } }), /Price must be/);
+assert.throws(() => planBook(noBooks, { isNew: true, slug: 'p3', title: 't', author: 'a', price: 'free' }, { cover: { bytes: new Uint8Array() } }), /Price must be/);
+
 console.log('content rules: all checks passed');

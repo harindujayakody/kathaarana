@@ -30,7 +30,8 @@ function parseValue(raw) {
   }
   if (v.startsWith('[')) return JSON.parse(v.slice(0, v.indexOf(']') + 1));
   const bare = v.replace(/\s+#.*$/, '').trim();
-  return /^-?\d+$/.test(bare) ? Number(bare) : bare;
+  // Whole and decimal numbers (chapter numbers, pages, prices); dates like 2026-11-16 stay text.
+  return /^-?\d+(\.\d+)?$/.test(bare) ? Number(bare) : bare;
 }
 
 export function parseDoc(source) {
@@ -183,7 +184,7 @@ export function planChapter(snap, b) {
 
 /* ---------- books (the book shop: details only, no ordering) ---------- */
 
-const BOOK_KEYS = ['title', 'author', 'publisher', 'coverImage', 'isbn', 'pages', 'print', 'binding', 'addedDate'];
+const BOOK_KEYS = ['title', 'author', 'publisher', 'coverImage', 'genres', 'price', 'isbn', 'pages', 'print', 'binding', 'addedDate'];
 const BOOK_COVER_RE = /^\.\.\/\.\.\/assets\/books\/([\w.-]+\.(?:png|jpe?g|webp|avif))$/i;
 export const bookCoverFileName = (path) => BOOK_COVER_RE.exec(path ?? '')?.[1] ?? null;
 
@@ -212,6 +213,11 @@ export function planBook(snap, b, { cover }) {
   const pagesText = text(String(b.pages ?? ''), 'Pages', false);
   const pages = pagesText ? Number(pagesText) : undefined;
   if (pages !== undefined && !(Number.isInteger(pages) && pages > 0)) throw bad('Pages must be a whole number above 0');
+  // Price in rupees, up to two decimals (cents); blank means no price shown.
+  const priceText = text(String(b.price ?? ''), 'Price', false).replace(/,/g, '');
+  const price = priceText ? Number(priceText) : undefined;
+  if (price !== undefined && !(Number.isFinite(price) && price >= 0 && /^\d+(\.\d{1,2})?$/.test(priceText))) throw bad('Price must be a number of rupees, e.g. 1250 or 1250.50');
+  const genres = Array.isArray(b.genres) ? b.genres.map((g) => String(g).trim()).filter(Boolean) : [];
 
   const files = [];
   let coverImage = old.data.coverImage;
@@ -227,6 +233,8 @@ export function planBook(snap, b, { cover }) {
     author: text(b.author, 'Author'),
     publisher: text(b.publisher, 'Publisher', false) || undefined,
     coverImage,
+    genres: genres.length ? genres : undefined,
+    price,
     isbn: text(b.isbn, 'ISBN', false) || undefined,
     pages,
     print: text(b.print, 'Print status', false) || undefined,
