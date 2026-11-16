@@ -68,29 +68,23 @@ const emptyStats = (): NovelStats => ({ rating: 0, ratings: 0, likes: 0, views: 
 
 /* ---------- theme ---------- */
 
-const systemTheme = () => (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-
-// Applies a theme and saves it, or forgets the choice (null) to follow the device again.
+// Light is the default. Applies a theme and saves it; choosing light forgets the choice instead,
+// so the reader simply follows the default again.
 // Raw string, not JSON: the inline head script in BaseLayout reads it before this module loads.
-export function setTheme(theme: string | null) {
+export function setTheme(theme: string) {
   try {
-    if (theme) localStorage.setItem('katha_theme', theme);
-    else localStorage.removeItem('katha_theme');
+    if (theme === 'light') localStorage.removeItem('katha_theme');
+    else localStorage.setItem('katha_theme', theme);
   } catch {}
-  const shown = theme ?? systemTheme();
-  document.documentElement.dataset.theme = shown;
+  document.documentElement.dataset.theme = theme;
   const meta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]');
-  if (meta) meta.content = theme ? (shown === 'dark' ? 'dark' : 'light') : 'light dark';
+  if (meta) meta.content = theme === 'dark' ? 'dark' : 'light';
 }
 
-// Sidebar/header toggle: switch to the opposite of what's shown. Landing back on the device's own
-// setting forgets the choice instead of pinning it.
+// Sidebar/header toggle: switch between light and dark.
 function initTheme() {
   document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
-    btn.onclick = () => {
-      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-      setTheme(next === systemTheme() ? null : next);
-    };
+    btn.onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
   });
 }
 
