@@ -9,7 +9,9 @@
   "routes": [
     { "pattern": "kathaarana.com/api/*", "zone_name": "kathaarana.com" },
     // Permanent redirects from the old /_astro/ file addresses (see src/legacy-assets.json).
-    { "pattern": "kathaarana.com/_astro/*", "zone_name": "kathaarana.com" }
+    { "pattern": "kathaarana.com/_astro/*", "zone_name": "kathaarana.com" },
+    // Adds X-Robots-Tag: noindex to the story PDFs.
+    { "pattern": "kathaarana.com/downloads/*", "zone_name": "kathaarana.com" }
   ],
   "workers_dev": false,
   "d1_databases": [

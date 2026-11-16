@@ -187,6 +187,15 @@ export default {
       return res;
     };
 
+    // Story PDFs stay out of search results, so searchers land on the reading pages.
+    // GitHub Pages can't send this header, so the Worker passes the file through and adds it.
+    if (url.pathname.startsWith('/downloads/')) {
+      const origin = await fetch(request);
+      const res = new Response(origin.body, origin);
+      res.headers.set('X-Robots-Tag', 'noindex, nofollow');
+      return res;
+    }
+
     // Built files moved from /_astro/ to /assets/ (2026-11-16). Image names changed with the
     // move, so this fixed list maps every file that ever had an /_astro/ address to its new name.
     if (url.pathname.startsWith('/_astro/')) {
