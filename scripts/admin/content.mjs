@@ -50,7 +50,7 @@ function buildDoc(data, order, body = '') {
     .filter((k) => data[k] !== undefined && data[k] !== null && data[k] !== '')
     .map((k) => {
       const v = data[k];
-      if (k === 'publishDate' || typeof v === 'number') return `${k}: ${v}`;
+      if (k === 'publishDate' || k === 'addedDate' || typeof v === 'number') return `${k}: ${v}`;
       // JSON strings and arrays are valid YAML; arrays spaced like the hand-written files.
       if (Array.isArray(v)) return `${k}: [${v.map((x) => JSON.stringify(x)).join(', ')}]`;
       return `${k}: ${JSON.stringify(v)}`;
@@ -179,4 +179,63 @@ export function planChapter(snap, b) {
     source: text(b.source, 'Source', false) || undefined,
   };
   return [{ path: `src/content/chapters/${novel}/${name}`, content: buildDoc(data, CHAPTER_KEYS, normaliseBody(b.body, b.linesAreParagraphs !== false)) }];
+}
+
+/* ---------- books (the book shop: details only, no ordering) ---------- */
+
+const BOOK_KEYS = ['title', 'author', 'publisher', 'coverImage', 'isbn', 'pages', 'print', 'binding', 'addedDate'];
+const BOOK_COVER_RE = /^\.\.\/\.\.\/assets\/books\/([\w.-]+\.(?:png|jpe?g|webp|avif))$/i;
+export const bookCoverFileName = (path) => BOOK_COVER_RE.exec(path ?? '')?.[1] ?? null;
+
+export function listBooks(snap) {
+  return Object.entries(snap.books ?? {})
+    .map(([slug, source]) => ({ slug, ...parseDoc(source).data }))
+    .sort((a, b) => String(b.addedDate ?? '').localeCompare(String(a.addedDate ?? '')) || String(a.title).localeCompare(String(b.title)));
+}
+
+export function readBook(snap, slug) {
+  if (!has(snap.books, slug)) throw bad('Book not found');
+  return parseDoc(snap.books[slug]);
+}
+
+// cover: { bytes } prepared by the caller (sharp locally, the browser online), or null to keep the current one.
+export function planBook(snap, b, { cover }) {
+  const slug = text(b.slug, 'Web address');
+  if (!SLUG_RE.test(slug)) throw bad('Web address: lowercase English letters, numbers and hyphens only');
+  const exists = has(snap.books, slug);
+  if (b.isNew && exists) throw bad(`A book at /books/${slug}/ already exists`);
+  if (!b.isNew && !exists) throw bad('Book not found');
+  const old = exists ? parseDoc(snap.books[slug]) : { data: {}, body: '' };
+
+  const addedDate = text(b.addedDate, 'Date added', false);
+  if (addedDate && !DATE_RE.test(addedDate)) throw bad('Date added must be YYYY-MM-DD');
+  const pagesText = text(String(b.pages ?? ''), 'Pages', false);
+  const pages = pagesText ? Number(pagesText) : undefined;
+  if (pages !== undefined && !(Number.isInteger(pages) && pages > 0)) throw bad('Pages must be a whole number above 0');
+
+  const files = [];
+  let coverImage = old.data.coverImage;
+  if (cover) {
+    files.push({ path: `src/assets/books/${slug}.jpg`, content: cover.bytes });
+    coverImage = `../../assets/books/${slug}.jpg`;
+  }
+  if (!coverImage) throw bad('A cover image is required');
+
+  const data = {
+    ...old.data,
+    title: text(b.title, 'Title'),
+    author: text(b.author, 'Author'),
+    publisher: text(b.publisher, 'Publisher', false) || undefined,
+    coverImage,
+    isbn: text(b.isbn, 'ISBN', false) || undefined,
+    pages,
+    print: text(b.print, 'Print status', false) || undefined,
+    binding: text(b.binding, 'Binding', false) || undefined,
+    addedDate: addedDate || undefined,
+  };
+  for (const k of Object.keys(data)) if (data[k] === undefined) delete data[k];
+  // "About this book" is optional; same paragraph handling and HTML guard as chapters.
+  const about = typeof b.about === 'string' && b.about.trim() ? normaliseBody(b.about, b.linesAreParagraphs !== false) : '';
+  files.push({ path: `src/content/books/${slug}.md`, content: buildDoc(data, BOOK_KEYS, about) });
+  return { slug, files };
 }

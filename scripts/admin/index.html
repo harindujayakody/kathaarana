@@ -37,7 +37,7 @@
   .brand, .top-brand { display: flex; align-items: center; gap: 10px; }
   .brand { padding: 2px 10px 18px; }
   /* The site's logo, used as a mask and filled with the text colour: dark on light, white on dark. */
-  .logo { display: inline-block; height: 34px; aspect-ratio: 265 / 99; background: currentColor;
+  .logo { display: inline-block; height: 42px; aspect-ratio: 265 / 99; background: currentColor;
     -webkit-mask: var(--logo) no-repeat left center / contain; mask: var(--logo) no-repeat left center / contain; }
   @media (forced-colors: active) { .logo { background: CanvasText; } }
   .tag { font-size: 12px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 0 8px; }
@@ -46,6 +46,7 @@
     padding: 10px 12px; border-radius: 10px; cursor: pointer; text-align: left; }
   .nav button:hover { background: var(--soft); color: var(--text); }
   .nav button[aria-current="page"] { background: var(--soft); color: var(--text); font-weight: 600; }
+  .nav .short { display: none; }
   .nav .count { margin-left: auto; min-width: 22px; padding: 0 7px; border-radius: 999px; background: var(--accent); color: var(--accent-text); font-size: 12px; text-align: center; }
   .side-foot { margin-top: auto; display: grid; gap: 8px; padding: 12px 10px 0; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
   .side-foot a { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
@@ -67,12 +68,15 @@
       border-right: 0; border-top: 1px solid var(--border); }
     .brand, .side-foot { display: none; }
     .nav { grid-auto-flow: column; grid-auto-columns: 1fr; width: 100%; }
+    /* Short labels on phones so every tab stays on one line. */
+    .nav button:has(.short) > span:not(.short) { display: none; }
+    .nav .short { display: inline; }
     .nav button { flex-direction: column; gap: 2px; padding: 6px 2px; font-size: 11.5px; text-align: center; justify-content: center; }
     .nav .count { position: absolute; margin: -4px 0 0 22px; font-size: 10px; min-width: 18px; padding: 0 5px; }
     .nav button { position: relative; }
     .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 10;
       padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
-    .topbar .logo { height: 28px; }
+    .topbar .logo { height: 34px; }
     .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; }
     main { padding-top: 20px; }
     .head h1 { font-size: 23px; }
@@ -144,10 +148,13 @@
 
   /* ---------- stories ---------- */
   .stories { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
+  /* Grid gap spaces the cards; the stacked-card margin would push every card after the first down. */
+  .stories > .card { margin-top: 0; }
   .story { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
   .story .art { aspect-ratio: 4 / 3; background: var(--soft) center / cover no-repeat; border-bottom: 1px solid var(--border); }
   .story .body { padding: 14px 16px 16px; display: grid; gap: 6px; flex: 1; }
-  .story h3 { margin: 0; font-size: 16px; line-height: 1.45; }
+  /* Titles stop at two lines (full title on hover), so cards in a row line up. */
+  .story h3 { margin: 0; font-size: 16px; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: calc(2 * 1.45em); }
   .story .meta { color: var(--muted); font-size: 13.5px; }
   .pill { display: inline-block; font-size: 12px; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
   .pill.done { color: var(--ok); border-color: currentColor; }
@@ -234,6 +241,7 @@
   <symbol id="i-stats" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></symbol>
   <symbol id="i-new" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
   <symbol id="i-chapter" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4zM5 17a3 3 0 0 1 3-3h10M9 8h5" /></symbol>
+  <symbol id="i-shop" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8zM9 8a3 3 0 0 1 6 0" /></symbol>
   <symbol id="i-books" viewBox="0 0 24 24"><path d="M4 5h5v15H4zM10 5h5v15h-5zM16.5 6l4 .8-2.8 13.8-4-.8" /></symbol>
   <symbol id="i-publish" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14" /></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" /></symbol>
@@ -247,9 +255,10 @@
     <div class="brand"><span class="logo" role="img" aria-label="කතා අරණ (Katha Arana)"></span><span class="tag">Studio</span></div>
     <nav class="nav" aria-label="Sections">
       <button type="button" data-view="stats"><svg class="i"><use href="#i-stats" /></svg><span>Stats</span></button>
-      <button type="button" data-view="story"><svg class="i"><use href="#i-new" /></svg><span>New story</span></button>
-      <button type="button" data-view="chapter"><svg class="i"><use href="#i-chapter" /></svg><span>Add chapter</span></button>
+      <button type="button" data-view="story"><svg class="i"><use href="#i-new" /></svg><span>New story</span><span class="short">New</span></button>
+      <button type="button" data-view="chapter"><svg class="i"><use href="#i-chapter" /></svg><span>Add chapter</span><span class="short">Chapter</span></button>
       <button type="button" data-view="stories"><svg class="i"><use href="#i-books" /></svg><span>Stories</span></button>
+      <button type="button" data-view="books"><svg class="i"><use href="#i-shop" /></svg><span>Books</span></button>
       <button type="button" data-view="publish" data-local-only><svg class="i"><use href="#i-publish" /></svg><span>Publish</span><b class="count" id="change-count" hidden>0</b></button>
     </nav>
     <div class="side-foot">
@@ -414,6 +423,71 @@
         <div class="stories" id="story-list"></div>
       </section>
 
+      <!-- ================= Books (the book shop: details only, no ordering) ================= -->
+      <section class="page" data-panel="books" hidden>
+        <div class="head">
+          <div><h1>Books</h1><p id="books-count">Printed books in the book shop</p></div>
+          <button type="button" class="btn primary" id="new-book">+ New book</button>
+        </div>
+        <div class="stories" id="book-list"></div>
+      </section>
+
+      <section class="page" data-panel="book" hidden>
+        <div class="head"><div><h1 id="book-heading">New book</h1><p id="book-hint">Shown in the book shop with its details. There is no online ordering.</p></div></div>
+        <form id="book-form" class="form-layout" novalidate>
+          <div>
+            <div class="card">
+              <h2>Book</h2><p class="sub">Title, author and publisher.</p>
+              <div class="grid">
+                <div class="two">
+                  <label class="f">Title <input type="text" name="title" required /></label>
+                  <label class="f">Author <input type="text" name="author" required /></label>
+                </div>
+                <label class="f">Publisher <span class="opt">optional</span><input type="text" name="publisher" /></label>
+                <label class="f">Web address
+                  <div class="prefix"><span>kathaarana.com/books/</span><input type="text" name="slug" required placeholder="english-words-with-hyphens" autocapitalize="off" spellcheck="false" /></div>
+                </label>
+              </div>
+            </div>
+            <div class="card">
+              <h2>Details</h2><p class="sub">All optional.</p>
+              <div class="grid">
+                <div class="two">
+                  <label class="f">ISBN <input type="text" name="isbn" placeholder="978-955-0000-00-0" /></label>
+                  <label class="f">Pages <input type="number" name="pages" min="1" step="1" inputmode="numeric" /></label>
+                </div>
+                <div class="two">
+                  <label class="f">Print status <input type="text" name="print" placeholder="e.g. මුද්‍රණයේ ඇත" /></label>
+                  <label class="f">Binding <input type="text" name="binding" placeholder="e.g. කඩදාසි කවරය" /></label>
+                </div>
+                <label class="f" style="max-width:16rem">Date added <span class="opt">newest first in the shop</span><input type="date" name="addedDate" /></label>
+              </div>
+            </div>
+            <div class="card">
+              <h2>About this book</h2><p class="sub">Optional. Shown on the book's page.</p>
+              <div class="grid">
+                <textarea name="about" class="story" style="min-height:10rem"></textarea>
+                <label class="check"><input type="checkbox" name="aboutLines" checked /> Each line is a paragraph</label>
+              </div>
+            </div>
+          </div>
+          <div class="aside">
+            <div class="card">
+              <h2>Cover</h2><p class="sub">Portrait, about 2:3. Resized before upload.</p>
+              <div class="drop" id="book-drop" tabindex="0" role="button" aria-label="Choose a book cover">
+                <svg class="i" style="width:28px;height:28px"><use href="#i-image" /></svg>
+                <span class="drop-label" id="book-drop-text">Drop an image, or click to choose</span>
+              </div>
+              <input type="file" id="book-cover-file" accept="image/png,image/jpeg,image/webp,image/avif" hidden />
+            </div>
+            <div class="card actions">
+              <button type="submit" class="btn primary" id="book-save">Save book</button>
+              <button type="button" class="btn" id="book-cancel">Back to books</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
       <!-- ================= Publish (local only) ================= -->
       <section class="page" data-panel="publish" hidden>
         <div class="head"><div><h1>Publish</h1><p>Checks the files, commits only the story files and covers, and pushes to GitHub. The site updates a few minutes later.</p></div></div>
@@ -458,6 +532,9 @@ let chapterMode = { isNew: true };
 let cover = { dataUrl: null, path: null };
 let lastSaved = '';
 let statsPeriod = '7';
+let books = [];
+let bookMode = { isNew: true, slug: null };
+let bookCover = null;
 
 async function api(path, body) {
   const res = await fetch(CONFIG.api + path.replace(/^\/api/, ''), {
@@ -503,13 +580,14 @@ $$('.nav [data-view]').forEach((b) => (b.onclick = () => {
 
 /* ---------- data ---------- */
 async function load() {
-  ({ stories, genres } = await api('/api/stories'));
+  ({ stories, genres, books = [] } = await api('/api/stories'));
   renderGenres();
   const select = $('#chapter-novel');
   const keep = select.value;
   select.replaceChildren(...stories.map((s) => new Option(`${s.title}  (${s.chapters.length})`, s.slug)));
   if (keep) select.value = keep;
   renderStoryList();
+  renderBookList();
   refreshCount();
 }
 
@@ -544,7 +622,7 @@ function setCover(dataUrl, path = null) {
   $('#drop-text').textContent = dataUrl ? (path ? `Using ${path.split('/').pop()}` : 'Click or drop to change') : 'Drop an image, or click to choose';
 }
 // Resized here to a JPEG at most 1200px wide, so uploads stay small even from a phone.
-async function readFile(file) {
+async function resizeImage(file) {
   if (!file || !/^image\/(png|jpeg|webp|avif)$/.test(file.type)) return toast('Choose a PNG, JPEG, WebP or AVIF image', true);
   if (file.size > 25 * 1024 * 1024) return toast('That image is over 25 MB', true);
   try {
@@ -552,10 +630,14 @@ async function readFile(file) {
     const scale = Math.min(1, 1200 / img.width);
     const canvas = el('canvas', { width: Math.round(img.width * scale), height: Math.round(img.height * scale) });
     canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-    setCover(canvas.toDataURL('image/jpeg', 0.88));
+    return canvas.toDataURL('image/jpeg', 0.88);
   } catch {
     toast('Could not read that image', true);
   }
+}
+async function readFile(file) {
+  const dataUrl = await resizeImage(file);
+  if (dataUrl) setCover(dataUrl);
 }
 const drop = $('#drop');
 drop.onclick = () => $('#cover-file').click();
@@ -729,22 +811,22 @@ $('#chapter-form').onsubmit = (e) => {
 // Ask the site directly (no cache) and show "Going live…" until it's there; the image is then
 // loaded at an address the browser hasn't seen, so a failure remembered from earlier can't blank it.
 const liveKey = {};
-function watchLive(s, art, pending, tries = 0) {
+function watchLive(path, art, pending, tries = 0) {
   const show = () => {
     art.classList.remove('empty');
     art.textContent = '';
-    art.style.backgroundImage = `url("${SITE}/share/${s.slug}.jpg?v=${liveKey[s.slug]}")`;
+    art.style.backgroundImage = `url("${SITE}${path}?v=${liveKey[path]}")`;
     pending.hidden = true;
   };
-  if (liveKey[s.slug]) return show();
-  fetch(`${SITE}/share/${s.slug}.jpg?check=${Date.now()}`, { method: 'HEAD', cache: 'no-store' })
+  if (liveKey[path]) return show();
+  fetch(`${SITE}${path}?check=${Date.now()}`, { method: 'HEAD', cache: 'no-store' })
     .then((r) => r.ok)
     .catch(() => false)
     .then((ok) => {
-      if (ok) { liveKey[s.slug] = Date.now(); return show(); }
+      if (ok) { liveKey[path] = Date.now(); return show(); }
       pending.hidden = false;
-      art.textContent = 'Image appears when the story is live';
-      if (tries < 30 && art.isConnected) setTimeout(() => art.isConnected && watchLive(s, art, pending, tries + 1), 20000);
+      art.textContent = 'Image appears once it’s live on the site';
+      if (tries < 30 && art.isConnected) setTimeout(() => art.isConnected && watchLive(path, art, pending, tries + 1), 20000);
     });
 }
 function renderStoryList() {
@@ -764,7 +846,7 @@ function renderStoryList() {
     }));
     const art = el('div', { className: 'art empty' });
     const pending = el('span', { className: 'pill pending', textContent: 'Going live…', title: 'The site is rebuilding; usually 3–5 minutes after publishing', hidden: true });
-    watchLive(s, art, pending);
+    watchLive(`/share/${s.slug}.jpg`, art, pending);
     return el('article', { className: 'card story' },
       art,
       el('div', { className: 'body' },
@@ -1022,6 +1104,104 @@ $('#publish-btn').onclick = () => {
   });
 };
 
+/* ---------- books ---------- */
+function renderBookList() {
+  $('#books-count').textContent = books.length ? `${books.length} book${books.length === 1 ? '' : 's'} in the shop` : 'Printed books in the book shop';
+  $('#book-list').replaceChildren(...books.map((b) => {
+    const art = el('div', { className: 'art empty' });
+    const pending = el('span', { className: 'pill pending', textContent: 'Going live…', hidden: true });
+    watchLive(`/og/book-${b.slug}.jpg`, art, pending);
+    const edit = el('button', { type: 'button', className: 'btn small', textContent: 'Edit' });
+    edit.onclick = () => editBook(b.slug);
+    const view = el('a', { className: 'btn small ghost', href: `https://kathaarana.com/books/${b.slug}/`, target: '_blank', rel: 'noopener', textContent: 'View ↗' });
+    const facts = [b.publisher, b.pages && `${b.pages} pages`, b.binding].filter(Boolean).join(' · ');
+    return el('article', { className: 'card story' }, art,
+      el('div', { className: 'body' },
+        el('h3', { textContent: b.title, title: b.title }),
+        el('div', { className: 'meta', textContent: b.author }),
+        facts ? el('div', { className: 'meta', textContent: facts }) : '',
+        el('div', {}, pending),
+        el('div', { className: 'row' }, edit, view)));
+  }));
+  if (!books.length) $('#book-list').append(el('p', { className: 'empty', textContent: 'No books yet. Add the first one with “+ New book”.' }));
+}
+
+function setBookCover(dataUrl, label) {
+  bookCover = dataUrl && !label ? dataUrl : null;
+  const d = $('#book-drop');
+  d.style.backgroundImage = dataUrl ? `url("${dataUrl}")` : '';
+  d.classList.toggle('has', Boolean(dataUrl));
+  $('#book-drop-text').textContent = label || (dataUrl ? 'Click or drop to change' : 'Drop an image, or click to choose');
+}
+const bookDrop = $('#book-drop');
+const pickBook = async (file) => { const d = await resizeImage(file); if (d) setBookCover(d); };
+bookDrop.onclick = () => $('#book-cover-file').click();
+bookDrop.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#book-cover-file').click(); } };
+$('#book-cover-file').onchange = (e) => pickBook(e.target.files[0]);
+bookDrop.ondragover = (e) => { e.preventDefault(); bookDrop.classList.add('over'); };
+bookDrop.ondragleave = () => bookDrop.classList.remove('over');
+bookDrop.ondrop = (e) => { e.preventDefault(); bookDrop.classList.remove('over'); pickBook(e.dataTransfer.files[0]); };
+
+function resetBook() {
+  bookMode = { isNew: true, slug: null };
+  const f = $('#book-form');
+  f.reset();
+  f.slug.disabled = false;
+  f.addedDate.value = today();
+  $('#book-heading').textContent = 'New book';
+  $('#book-save').textContent = ONLINE ? 'Publish book' : 'Save book';
+  setBookCover(null);
+  fitStoryBoxes();
+}
+$('#new-book').onclick = () => { resetBook(); showView('book'); };
+$('#book-cancel').onclick = () => showView('books');
+
+async function editBook(slug) {
+  const { data, body } = await api(`/api/book?slug=${encodeURIComponent(slug)}`);
+  resetBook();
+  bookMode = { isNew: false, slug };
+  const f = $('#book-form');
+  for (const k of ['title', 'author', 'publisher', 'isbn', 'print', 'binding']) f[k].value = data[k] ?? '';
+  f.pages.value = data.pages ?? '';
+  f.addedDate.value = data.addedDate ?? '';
+  f.slug.value = slug;
+  f.slug.disabled = true;
+  f.about.value = body;
+  f.aboutLines.checked = false; // already formatted
+  $('#book-heading').textContent = data.title;
+  $('#book-save').textContent = ONLINE ? 'Publish changes' : 'Save changes';
+  showView('book');
+  const coverName = String(data.coverImage || '').split('/').pop();
+  if (coverName) {
+    try { const { dataUrl } = await api(`/api/cover?kind=books&name=${encodeURIComponent(coverName)}`); setBookCover(dataUrl, 'Drop a new image to replace'); } catch {}
+  }
+}
+
+$('#book-form').onsubmit = (e) => {
+  e.preventDefault();
+  const f = e.target;
+  busy($('#book-save'), async () => {
+    const slug = bookMode.isNew ? f.slug.value.trim() : bookMode.slug;
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error('Web address: lowercase English letters, numbers and hyphens, e.g. my-book');
+    if (bookMode.isNew && !bookCover) throw new Error('Choose a cover image');
+    if (ONLINE && !confirm(`${bookMode.isNew ? 'Add' : 'Update'} "${f.title.value.trim()}" in the book shop now?`)) return;
+    const r = await api('/api/book', {
+      isNew: bookMode.isNew, slug,
+      title: f.title.value, author: f.author.value, publisher: f.publisher.value,
+      isbn: f.isbn.value, pages: f.pages.value, print: f.print.value, binding: f.binding.value,
+      addedDate: f.addedDate.value, about: f.about.value, linesAreParagraphs: f.aboutLines.checked,
+      cover: bookCover,
+    });
+    lastSaved = `${bookMode.isNew ? 'Add' : 'Update'} book ${f.title.value.trim()}`;
+    const wasNew = bookMode.isNew;
+    await load();
+    resetBook();
+    if (ONLINE) { published(r); return showView('books'); }
+    toast(wasNew ? 'Book saved. Publish it when you are ready.' : 'Book updated.');
+    showView('publish');
+  });
+};
+
 /* ---------- long text ---------- */
 function fitStoryBox(t) {
   t.style.height = 'auto';
@@ -1045,6 +1225,7 @@ if (ONLINE) {
   $$('[data-local-only]').forEach((n) => (n.hidden = true));
 }
 resetStory();
+resetBook();
 showView(ONLINE ? 'stats' : 'story');
 load().then(() => resetChapter()).catch((e) => toast(e.message, true));
 </script>

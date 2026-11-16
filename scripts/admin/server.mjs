@@ -9,13 +9,15 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import sharp from 'sharp';
-import { bad, genreNames, listStories, planChapter, planStory, readChapter } from './content.mjs';
+import { bad, genreNames, listBooks, listStories, planBook, planChapter, planStory, readBook, readChapter } from './content.mjs';
 
 const run = promisify(execFile);
 const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 const NOVELS = join(ROOT, 'src/content/novels');
 const CHAPTERS = join(ROOT, 'src/content/chapters');
 const COVERS = join(ROOT, 'src/assets/covers');
+const BOOKS = join(ROOT, 'src/content/books');
+const BOOK_COVERS = join(ROOT, 'src/assets/books');
 const PAGE = join(dirname(fileURLToPath(import.meta.url)), 'index.html');
 const PORT = Number(process.env.ADMIN_PORT) || 4400;
 // Only this page may call the API: other websites open in your browser can't read it.
@@ -35,7 +37,8 @@ function snapshot() {
   for (const dir of existsSync(CHAPTERS) ? readdirSync(CHAPTERS) : []) {
     chapters[dir] = Object.fromEntries(mdIn(join(CHAPTERS, dir)).map((f) => [f, read(join(CHAPTERS, dir, f))]));
   }
-  return { novels, chapters, genresTs: read(join(ROOT, 'src/utils/genres.ts')) };
+  const books = Object.fromEntries(mdIn(BOOKS).map((f) => [f.replace(/\.mdx?$/, ''), read(join(BOOKS, f))]));
+  return { novels, chapters, books, genresTs: read(join(ROOT, 'src/utils/genres.ts')) };
 }
 
 async function coverBytes(dataUrl) {
@@ -68,6 +71,12 @@ async function saveStory(b) {
   return { slug };
 }
 
+async function saveBook(b) {
+  const { slug, files } = planBook(snapshot(), b, { cover: b.cover ? await coverBytes(b.cover) : null });
+  writeFiles(files);
+  return { slug };
+}
+
 function saveChapter(b) {
   writeFiles(planChapter(snapshot(), b));
   return { novel: b.novel, chapterNumber: Number(b.chapterNumber) };
@@ -75,7 +84,7 @@ function saveChapter(b) {
 
 /* ---------- checking and publishing ---------- */
 
-const CONTENT_PATHS = ['src/content', 'src/assets/covers'];
+const CONTENT_PATHS = ['src/content', 'src/assets/covers', 'src/assets/books'];
 const git = (...args) => run('git', args, { cwd: ROOT, maxBuffer: 1 << 20 });
 
 async function changes() {
@@ -145,17 +154,21 @@ function readBody(req, limit = 20 << 20) {
 const routes = {
   'GET /api/stories': () => {
     const snap = snapshot();
-    return { stories: listStories(snap), genres: genreNames(snap) };
+    return { stories: listStories(snap), genres: genreNames(snap), books: listBooks(snap) };
   },
+  'GET /api/book': (_b, url) => readBook(snapshot(), url.searchParams.get('slug') ?? ''),
   'GET /api/chapter': (_b, url) => readChapter(snapshot(), url.searchParams.get('novel') ?? '', Number(url.searchParams.get('n'))),
   'GET /api/changes': () => changes(),
   'GET /api/cover': (_b, url) => {
+    // kind=books reads from src/assets/books; otherwise the story covers.
+    const dir = url.searchParams.get('kind') === 'books' ? BOOK_COVERS : COVERS;
     const name = /^[\w.-]+\.(?:png|jpe?g|webp|avif)$/i.exec(url.searchParams.get('name') ?? '')?.[0];
-    if (!name || !existsSync(join(COVERS, name))) throw bad('Cover not found');
-    return { dataUrl: `data:image/${name.split('.').pop().replace('jpg', 'jpeg')};base64,${readFileSync(join(COVERS, name)).toString('base64')}` };
+    if (!name || !existsSync(join(dir, name))) throw bad('Cover not found');
+    return { dataUrl: `data:image/${name.split('.').pop().replace('jpg', 'jpeg')};base64,${readFileSync(join(dir, name)).toString('base64')}` };
   },
   'POST /api/story': (b) => saveStory(b),
   'POST /api/chapter': (b) => saveChapter(b),
+  'POST /api/book': (b) => saveBook(b),
   'POST /api/check': () => check(),
   'POST /api/publish': (b) => publish(b),
 };
