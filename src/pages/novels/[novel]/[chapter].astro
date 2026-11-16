@@ -99,7 +99,7 @@ const reactions = [
   }}
 >
   <article
-    class="mx-auto max-w-3xl space-y-4 sm:px-6 sm:py-6 lg:py-8"
+    class="mx-auto max-w-[54rem] space-y-4 sm:px-6 sm:py-6 lg:py-8"
     data-chapter-page
     data-novel-id={novel.id}
     data-novel-title={novel.data.title}
@@ -131,12 +131,12 @@ const reactions = [
         </p>
       </header>
 
-      <div id="chapter-content" class="novel-prose font-novel-sans mx-auto mt-7 max-w-[40rem]">
+      <div id="chapter-content" class="novel-prose font-novel-sans mx-auto mt-7 max-w-[46rem]">
         <Content />
       </div>
 
       {source && (
-        <p class="mx-auto mt-10 max-w-[40rem] border-t border-[var(--reader-border)] pt-4 text-sm text-[var(--reader-muted)]">
+        <p class="mx-auto mt-10 max-w-[46rem] border-t border-[var(--reader-border)] pt-4 text-sm text-[var(--reader-muted)]">
           මුලාශ්‍රය:
           {sourceIsLink ? (
             <a href={source} target="_blank" rel="noopener noreferrer" class="accent-text break-all underline underline-offset-2">{source}</a>
