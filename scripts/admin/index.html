@@ -151,6 +151,8 @@
   .story .meta { color: var(--muted); font-size: 13.5px; }
   .pill { display: inline-block; font-size: 12px; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
   .pill.done { color: var(--ok); border-color: currentColor; }
+  .pill.pending { color: var(--warn); border-color: currentColor; }
+  .story .art.empty { display: grid; place-items: center; color: var(--faint); font-size: 13px; }
   .story .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 8px; }
   .story details { border-top: 1px solid var(--border); }
   .story details summary { cursor: pointer; padding: 10px 16px; font-size: 13.5px; color: var(--muted); }
@@ -723,6 +725,28 @@ $('#chapter-form').onsubmit = (e) => {
 };
 
 /* ---------- stories ---------- */
+// A new story's page and share image exist only after the site rebuilds (3–5 minutes).
+// Ask the site directly (no cache) and show "Going live…" until it's there; the image is then
+// loaded at an address the browser hasn't seen, so a failure remembered from earlier can't blank it.
+const liveKey = {};
+function watchLive(s, art, pending, tries = 0) {
+  const show = () => {
+    art.classList.remove('empty');
+    art.textContent = '';
+    art.style.backgroundImage = `url("${SITE}/share/${s.slug}.jpg?v=${liveKey[s.slug]}")`;
+    pending.hidden = true;
+  };
+  if (liveKey[s.slug]) return show();
+  fetch(`${SITE}/share/${s.slug}.jpg?check=${Date.now()}`, { method: 'HEAD', cache: 'no-store' })
+    .then((r) => r.ok)
+    .catch(() => false)
+    .then((ok) => {
+      if (ok) { liveKey[s.slug] = Date.now(); return show(); }
+      pending.hidden = false;
+      art.textContent = 'Image appears when the story is live';
+      if (tries < 30 && art.isConnected) setTimeout(() => art.isConnected && watchLive(s, art, pending, tries + 1), 20000);
+    });
+}
 function renderStoryList() {
   const q = $('#story-search').value.trim().toLowerCase();
   const shown = stories.filter((s) => !q || `${s.title} ${s.author} ${s.slug}`.toLowerCase().includes(q));
@@ -738,15 +762,16 @@ function renderStoryList() {
       b.onclick = () => editChapter(s.slug, c.number);
       return el('li', {}, el('span', { className: 'n', textContent: c.number }), el('span', { className: 't', textContent: c.title }), b);
     }));
-    const art = el('div', { className: 'art' });
-    art.style.backgroundImage = `url("${SITE}/share/${s.slug}.jpg")`;
+    const art = el('div', { className: 'art empty' });
+    const pending = el('span', { className: 'pill pending', textContent: 'Going live…', title: 'The site is rebuilding; usually 3–5 minutes after publishing', hidden: true });
+    watchLive(s, art, pending);
     return el('article', { className: 'card story' },
       art,
       el('div', { className: 'body' },
         el('h3', { textContent: s.title }),
         el('div', { className: 'meta', textContent: `${s.author} · ${s.publishDate}` }),
         el('div', {}, el('span', { className: `pill${s.status === 'Completed' ? ' done' : ''}`, textContent: s.status === 'Completed' ? 'Completed' : 'Ongoing' }), ' ',
-          el('span', { className: 'pill', textContent: `${s.chapters.length} part${s.chapters.length === 1 ? '' : 's'}` })),
+          el('span', { className: 'pill', textContent: `${s.chapters.length} part${s.chapters.length === 1 ? '' : 's'}` }), ' ', pending),
         el('div', { className: 'row' }, edit, add, view)),
       el('details', {}, el('summary', { textContent: `Chapters (${s.chapters.length})` }), chapters));
   }));
@@ -911,7 +936,8 @@ async function loadStats() {
     }
     return out;
   };
-  const novels = st ? Object.entries(st.novels) : [];
+  const zero = { reads: 0, readsRecent: 0, rating: 0, ratings: 0, likes: 0, sad: 0, reactions: 0, downloads: 0, downloadsRecent: 0 };
+  const novels = st ? Object.entries({ ...Object.fromEntries(stories.map((x) => [x.slug, zero])), ...st.novels }) : [];
   const readers = [];
   if (w) readers.push(tile('Visits', compact(sum(w.daily, 'visits')), 'Web Analytics'), tile('Page views', compact(sum(w.daily, 'views')), 'Real browsers only'));
   if (st) readers.push(tile('Chapter reads', compact(sum(st.daily, 'reads')), 'Unique daily'), tile('PDF downloads', compact(novels.reduce((n, [, v]) => n + (v.downloadsRecent || 0), 0)), `${compact(novels.reduce((n, [, v]) => n + v.downloads, 0))} all time`));
