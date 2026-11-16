@@ -42,10 +42,9 @@
     //   ADMIN_EMAILS  who may sign in, comma-separated
     // While any of the last three is missing, /admin refuses everyone.
     "GITHUB_REPO": "harindujayakody/kathaarana",
-    // Dashboard stats from Cloudflare's analytics API; needs the CF_ANALYTICS_TOKEN secret
-    // (Account Analytics: Read, Zone Analytics: Read). These ids are not secret.
+    // Dashboard stats from Cloudflare Web Analytics; needs the CF_ANALYTICS_TOKEN secret
+    // (Account Analytics: Read). The account id is not secret.
     "CF_ACCOUNT_ID": "0426aaf804f668559bbdf8522547f783",
-    "CF_ZONE_ID": "f07a2cbcc7975bd55253d162cd4fe20c",
     "SITE_HOST": "kathaarana.com"
   },
   "env": {
@@ -56,7 +55,6 @@
         "CATALOG_URL": "http://localhost:4321/catalog.json",
         "GITHUB_REPO": "harindujayakody/kathaarana",
         "CF_ACCOUNT_ID": "0426aaf804f668559bbdf8522547f783",
-        "CF_ZONE_ID": "f07a2cbcc7975bd55253d162cd4fe20c",
         "SITE_HOST": "kathaarana.com",
         // Skips sign-in on localhost only, for testing the dashboard with `wrangler dev`.
         "ADMIN_INSECURE_DEV": "1"
