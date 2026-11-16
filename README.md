@@ -27,6 +27,17 @@ Designed specifically to be deployed on **Cloudflare Pages** with **zero databas
 
 ## 🚀 Publishing Workflow (No Admin Panel Needed)
 
+### Starting files
+
+Copy these and fill them in, rather than writing the front matter from scratch:
+
+| Template | Copy it to |
+|---|---|
+| [`templates/novel.md`](templates/novel.md) | `src/content/novels/<novel-slug>.md` (plus a 2:3 cover in `src/assets/covers/`) |
+| [`templates/chapter.md`](templates/chapter.md) | `src/content/chapters/<novel-slug>/<number>.md` |
+
+Both files explain each field in comments. The build stops with a clear message if a field is missing or wrong.
+
 ### 1. Adding a New Chapter via Git Push
 
 To publish a new chapter, simply create a new Markdown file inside `src/content/chapters/[novel-slug]/`:
