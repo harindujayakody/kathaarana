@@ -47,18 +47,19 @@ const { id, title, author, authorSlug, coverImage, synopsis, genres, status, cha
     </h3>
     <!-- py-1 on the link: a 24px+ tap target that doesn't crowd the title link above. -->
     <p class="mt-1 flex min-w-0 items-center text-sm text-[var(--reader-muted)]">
-      <a href={`/authors/${authorSlug}/`} class="truncate py-1 hover:text-[var(--reader-text)]">{author}</a>
-      {genres[0] && <span class="shrink-0 whitespace-pre"><span aria-hidden="true"> · </span>{genres[0]}</span>}
+      <!-- The author's name wins the space; the genre is what gets cut short. -->
+      <a href={`/authors/${authorSlug}/`} class="max-w-full shrink-0 truncate py-1 hover:text-[var(--reader-text)]">{author}</a>
+      {genres[0] && <span class="min-w-0 truncate whitespace-pre"><span aria-hidden="true"> · </span>{genres[0]}</span>}
     </p>
     {synopsis && <p class="mt-2 line-clamp-2 text-sm leading-relaxed">{synopsis}</p>}
 
     <div class="mt-auto flex items-center gap-3 pt-3 text-sm">
-      <span class="inline-flex items-center gap-1">
+      <span class="inline-flex shrink-0 items-center gap-1">
         <Icon name="star" class="h-4 w-4 fill-current text-[var(--star)]" />
         <span data-s="rating" class="font-semibold tabular-nums">–</span>
         <span data-s="ratings" class="text-xs text-[var(--reader-muted)]"></span>
       </span>
-      <span class="truncate text-xs text-[var(--reader-muted)]">
+      <span class="min-w-0 truncate text-xs text-[var(--reader-muted)]">
         පරිච්ඡේද {chapterCount} · {status === 'Completed' ? 'සම්පූර්ණයි' : 'ලියවෙමින්'}
       </span>
       <button

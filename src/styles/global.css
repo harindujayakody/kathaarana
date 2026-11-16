@@ -195,6 +195,13 @@ p, span, a, li, input, button, .font-sans {
 }
 
 /* Bottom sheet on phones, centred dialog on larger screens. */
+/* Live numbers (ratings, likes, views) never break inside: body's overflow-wrap:anywhere
+   would otherwise split "5.0 (1)" into "5." / "0" in a tight row. */
+[data-s] {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 dialog.sheet {
   margin: auto auto 0;
   width: 100%;
