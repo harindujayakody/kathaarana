@@ -230,6 +230,25 @@ function initShareCards() {
   });
 }
 
+// A book page counts one view per day from this device; the server enforces the same rule.
+function initBookView() {
+  const key = document.querySelector<HTMLElement>('[data-book-view]')?.dataset.bookView;
+  if (!key) return;
+  const day = new Date().toISOString().slice(0, 10);
+  let viewed: { day: string; keys: string[] } = { day, keys: [] };
+  try {
+    viewed = JSON.parse(localStorage.getItem('katha_viewed') ?? '') ?? viewed;
+  } catch {}
+  if (viewed.day !== day) viewed = { day, keys: [] };
+  const id = `${key}/1`;
+  if (viewed.keys.includes(id)) return;
+  viewed.keys.push(id);
+  try {
+    localStorage.setItem('katha_viewed', JSON.stringify(viewed));
+  } catch {}
+  post('/view', { novel: key, chapter: 1 }).catch(() => {});
+}
+
 function initVoting() {
   // The link still downloads the file; this only counts it (once per device, on the server).
   document.querySelectorAll<HTMLAnchorElement>('[data-download]').forEach((link) => {
@@ -362,6 +381,7 @@ document.addEventListener('astro:page-load', () => {
   initHistory();
   initVoting();
   initShareCards();
+  initBookView();
   initChart();
   renderStats();
   loadStats().then(renderStats);

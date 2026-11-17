@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import BookGrid from '../../components/BookGrid.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
 import RatingStars from '../../components/RatingStars.astro';
 import { coverShareUrl } from '../../utils/covers';
 import { buildStats } from '../../utils/buildStats';
@@ -127,7 +128,7 @@ const jsonLd = [
        details and rating in a right column that stays in view. -->
   <div class="mx-auto flex max-w-[90rem] flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8 lg:py-8 xl:grid xl:grid-cols-[minmax(0,1fr)_21rem] xl:items-start">
     <div class="contents xl:block xl:min-w-0 xl:space-y-6">
-        <section class="surface order-1 p-4 sm:p-6" data-stats={ratingKey}>
+        <section class="surface order-1 p-4 sm:p-6" data-stats={ratingKey} data-book-view={ratingKey}>
           <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-x-4 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-x-6">
             <Image
               src={coverImage}
@@ -141,11 +142,18 @@ const jsonLd = [
             <div class="min-w-0">
               <h1 class="text-2xl font-bold leading-snug sm:text-3xl">{title}</h1>
               <p class="mt-1 text-[0.9375rem] font-medium"><a href={`/books/author/${slugFromName(author)}/`} class="hover:accent-text hover:underline">{author}</a></p>
-              <p class="mt-3 inline-flex items-center gap-1 text-sm">
-                <Icon name="star" class="h-4 w-4 fill-current text-[var(--star)]" />
-                <span data-s="rating" class="font-semibold tabular-nums">–</span>
-                <span data-s="ratings" class="text-xs text-[var(--reader-muted)]"></span>
+              <p class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[var(--reader-muted)]">
+                <span class="inline-flex items-center gap-1">
+                  <Icon name="star" class="h-4 w-4 fill-current text-[var(--star)]" />
+                  <span data-s="rating" class="font-semibold tabular-nums text-[var(--reader-text)]">–</span>
+                  <span data-s="ratings" class="text-xs"></span>
+                </span>
+                <span class="inline-flex items-center gap-1" title="නැරඹුම්">
+                  <Icon name="eye" class="h-4 w-4" /><span data-s="views" class="tabular-nums">0</span>
+                  <span class="sr-only">නැරඹුම්</span>
+                </span>
               </p>
+              <ShareButtons url={url} title={`${title} - ${author}`} card={`/share/book-${book.id}.jpg`} class="mt-4" />
             </div>
           </div>
         </section>
