@@ -215,21 +215,61 @@ dialog.sheet {
   border-radius: 20px 20px 0 0;
 }
 dialog.sheet::backdrop {
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
   /* With overscroll-behavior on the sheet: scrolling the chapter list doesn't scroll the page behind. */
   overflow: hidden;
   overscroll-behavior: contain;
+  animation: sheet-backdrop-in 0.25s ease;
+}
+@keyframes sheet-backdrop-in {
+  from {
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+  }
 }
 dialog.sheet:modal {
   overscroll-behavior: contain;
 }
+/* Opens and closes with motion: slides up from the bottom on phones, fades and lifts on wider screens. */
+dialog.sheet {
+  --sheet-hidden: translateY(100%);
+  opacity: 0;
+  transform: var(--sheet-hidden);
+  transition:
+    opacity 0.2s ease,
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    overlay 0.28s allow-discrete,
+    display 0.28s allow-discrete;
+}
+dialog.sheet[open] {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  dialog.sheet[open] {
+    opacity: 0;
+    transform: var(--sheet-hidden);
+  }
+}
 @media (min-width: 640px) {
   dialog.sheet {
+    --sheet-hidden: translateY(12px) scale(0.98);
     margin: auto;
     max-width: 28rem;
     border-bottom: 1px solid var(--reader-border);
     border-radius: 16px;
   }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.sheet { transition: none; }
+  dialog.sheet::backdrop { animation: none; }
+}
+/* Selected text on a filled button (e.g. "පුස්තකාලයට එක් කරන්න" in dark mode) stays readable. */
+.accent-bg::selection,
+.accent-bg ::selection {
+  background: var(--theme-accent-text);
+  color: var(--theme-accent);
 }
 
 /* Feedback when a reader reacts, likes or rates: a short springy bounce and a ring that fades out.
