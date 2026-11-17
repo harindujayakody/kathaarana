@@ -1,0 +1,104 @@
+---
+// "Add to library" (pick one of four shelves) and a wishlist heart (the Want to Read shelf) for a book.
+// Saved on this device only; the library page lists them. Logic: scripts/shelves.ts.
+import Icon from './Icon.astro';
+import { SHELVES } from '../scripts/shelves';
+
+interface Props {
+  id: string;
+  title: string;
+  author: string;
+  cover: string;
+  url: string;
+  class?: string;
+}
+
+const { id, title, author, cover, url, class: className = '' } = Astro.props;
+---
+
+<div class={`flex items-center gap-2 ${className}`} data-shelf-book={id} data-title={title} data-author={author} data-cover={cover} data-url={url}>
+  <button type="button" data-shelf-open class="accent-bg tap inline-flex min-w-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 font-semibold">
+    <Icon name="bookmark" class="h-5 w-5 shrink-0" />
+    <span data-shelf-label class="truncate">පුස්තකාලයට එක් කරන්න</span>
+  </button>
+  <button
+    type="button"
+    data-wish
+    aria-pressed="false"
+    aria-label="කියවීමට කැමති ලැයිස්තුවට (Wishlist)"
+    title="Wishlist"
+    class="tap grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-lg border border-[var(--reader-border)] text-[var(--reader-muted)]"
+  >
+    <Icon name="heart" />
+  </button>
+</div>
+
+<dialog id="shelf-sheet" class="sheet" closedby="any" aria-labelledby="shelf-sheet-title">
+  <div class="flex items-center justify-between gap-3 border-b border-[var(--reader-border)] px-5 py-3">
+    <div>
+      <h2 id="shelf-sheet-title" class="text-lg font-bold">රාක්කය තෝරන්න</h2>
+      <p class="text-xs text-[var(--reader-muted)]">Select Shelf</p>
+    </div>
+    <button type="button" data-shelf-close class="tap -mr-2 cursor-pointer rounded-lg p-2 text-[var(--reader-muted)]" aria-label="වසන්න">
+      <Icon name="close" />
+    </button>
+  </div>
+  <div class="space-y-2 px-5 py-4">
+    {SHELVES.map((s) => (
+      <button type="button" data-shelf={s.id} aria-pressed="false" class="tap flex w-full cursor-pointer items-center gap-3 rounded-xl border border-[var(--reader-border)] px-4 py-3 text-left">
+        <span class="min-w-0 flex-1">
+          <span class="block font-semibold">{s.si}</span>
+          <span class="block text-sm text-[var(--reader-muted)]">{s.en}</span>
+        </span>
+        <Icon name="check" class="shelf-check h-5 w-5 shrink-0 accent-text" />
+      </button>
+    ))}
+    <button type="button" data-shelf-remove hidden class="tap w-full cursor-pointer rounded-lg px-2 py-2.5 text-sm text-[var(--reader-muted)] hover:text-[var(--like)]">
+      පුස්තකාලයෙන් ඉවත් කරන්න
+    </button>
+  </div>
+</dialog>
+
+<script>
+  import { setShelf, readShelves, shelfName, type ShelfId } from '../scripts/shelves';
+  import { pop } from '../scripts/app';
+
+  document.addEventListener('astro:page-load', () => {
+    const root = document.querySelector<HTMLElement>('[data-shelf-book]');
+    const sheet = document.getElementById('shelf-sheet') as HTMLDialogElement | null;
+    if (!root || !sheet) return;
+    const d = root.dataset;
+    const book = { id: d.shelfBook!, title: d.title!, author: d.author!, cover: d.cover!, url: d.url! };
+    const label = root.querySelector('[data-shelf-label]')!;
+    const wish = root.querySelector<HTMLButtonElement>('[data-wish]')!;
+
+    const sync = () => {
+      const shelf = readShelves()[book.id]?.shelf;
+      label.textContent = shelf ? shelfName(shelf) : 'පුස්තකාලයට එක් කරන්න';
+      wish.setAttribute('aria-pressed', String(shelf === 'want'));
+      sheet.querySelectorAll<HTMLButtonElement>('[data-shelf]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.shelf === shelf)));
+      sheet.querySelector<HTMLElement>('[data-shelf-remove]')!.hidden = !shelf;
+    };
+    const put = (shelf: ShelfId | null, from: Element) => {
+      setShelf(book, shelf);
+      sync();
+      pop(from);
+    };
+
+    root.querySelector<HTMLButtonElement>('[data-shelf-open]')!.onclick = () => sheet.showModal();
+    sheet.querySelector<HTMLButtonElement>('[data-shelf-close]')!.onclick = () => sheet.close();
+    sheet.querySelectorAll<HTMLButtonElement>('[data-shelf]').forEach((b) => {
+      b.onclick = () => {
+        put(b.dataset.shelf as ShelfId, root.querySelector('[data-shelf-open]')!);
+        sheet.close();
+      };
+    });
+    sheet.querySelector<HTMLButtonElement>('[data-shelf-remove]')!.onclick = () => {
+      put(null, root.querySelector('[data-shelf-open]')!);
+      sheet.close();
+    };
+    // The heart is a quick wishlist: on = Want to Read, off = out of the library.
+    wish.onclick = () => put(wish.getAttribute('aria-pressed') === 'true' ? null : 'want', wish);
+    sync();
+  });
+</script>

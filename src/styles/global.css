@@ -348,7 +348,21 @@ dialog.search-dialog::backdrop {
 }
 
 /* Pressed states for likes, stars, reactions and chart tabs. */
-[data-like][aria-pressed="true"] { color: var(--like); }
+[data-like][aria-pressed="true"],
+[data-wish][aria-pressed="true"] { color: var(--like); }
+[data-wish][aria-pressed="true"] svg { fill: currentColor; }
+/* Shelf picker (components/ShelfButton.astro): the chosen shelf is outlined, with a tick. */
+[data-shelf][aria-pressed="true"] {
+  border-color: var(--theme-accent);
+  background: var(--theme-accent-soft);
+}
+[data-shelf]:not([aria-pressed="true"]) .shelf-check { visibility: hidden; }
+[data-shelf-filter][aria-pressed="true"] {
+  border-color: var(--reader-text);
+  background: var(--reader-text);
+  color: var(--reader-panel);
+}
+[data-shelf-filter][aria-pressed="true"] span { color: inherit; opacity: 0.75; }
 [data-like][aria-pressed="true"] svg,
 [data-star][aria-pressed="true"] svg { fill: currentColor; }
 [data-star] { color: var(--reader-muted); }
