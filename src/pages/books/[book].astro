@@ -5,6 +5,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Icon from '../../components/Icon.astro';
 import BookGrid from '../../components/BookGrid.astro';
 import ShareButtons from '../../components/ShareButtons.astro';
+import ShelfButton from '../../components/ShelfButton.astro';
+import { getImage } from 'astro:assets';
 import RatingStars from '../../components/RatingStars.astro';
 import { coverShareUrl } from '../../utils/covers';
 import { buildStats } from '../../utils/buildStats';
@@ -65,6 +67,8 @@ const details = shown.map(([label, parts, wide]) => ({
 const site = Astro.site ?? new URL('https://kathaarana.com');
 const url = new URL(`/books/${book.id}/`, site).toString();
 const shareCover = new URL(await coverShareUrl(coverImage), site).toString();
+// Small cover for the library list.
+const shelfCover = (await getImage({ src: coverImage, width: 96, format: 'webp' })).src;
 const jsonLd = [
   {
     '@context': 'https://schema.org',
@@ -129,7 +133,8 @@ const jsonLd = [
   <div class="mx-auto flex max-w-[90rem] flex-col gap-6 px-4 py-5 sm:px-6 lg:px-8 lg:py-8 xl:grid xl:grid-cols-[minmax(0,1fr)_21rem] xl:items-start">
     <div class="contents xl:block xl:min-w-0 xl:space-y-6">
         <section class="surface order-1 p-4 sm:p-6" data-stats={ratingKey} data-book-view={ratingKey}>
-          <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-x-4 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-x-6">
+          <!-- Phones: library and share buttons get a full-width row under the cover; wider: they sit under the title. -->
+          <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-x-4 sm:grid-cols-[13rem_minmax(0,1fr)] sm:grid-rows-[auto_1fr] sm:gap-x-6">
             <Image
               src={coverImage}
               alt={`${title} කවරය`}
@@ -137,7 +142,7 @@ const jsonLd = [
               sizes="(min-width: 640px) 208px, 128px"
               loading="eager"
               fetchpriority="high"
-              class="aspect-[2/3] w-full self-start rounded-lg object-cover shadow-[var(--lift-shadow)]"
+              class="aspect-[2/3] w-full self-start rounded-lg object-cover shadow-[var(--lift-shadow)] sm:row-span-2"
             />
             <div class="min-w-0">
               <h1 class="text-2xl font-bold leading-snug sm:text-3xl">{title}</h1>
@@ -153,6 +158,9 @@ const jsonLd = [
                   <span class="sr-only">නැරඹුම්</span>
                 </span>
               </p>
+            </div>
+            <div class="col-span-2 mt-4 sm:col-span-1 sm:col-start-2">
+              <ShelfButton id={book.id} title={title} author={author} cover={shelfCover} url={`/books/${book.id}/`} class="[&>[data-shelf-open]]:flex-1 sm:[&>[data-shelf-open]]:flex-none" />
               <ShareButtons url={url} title={`${title} - ${author}`} card={`/share/book-${book.id}.jpg`} class="mt-4" />
             </div>
           </div>

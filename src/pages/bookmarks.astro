@@ -1,20 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
+import { SHELVES } from '../scripts/shelves';
 ---
 
 <BaseLayout
   title="මගේ පුස්තකාලය"
-  description="ඔබ කියවූ නවකතා ඉතිහාසය, සුරැකි පිටුසන් සහ කියවීමේ ප්‍රගතිය. සියල්ල ඔබගේ උපාංගයේම සුරැකේ."
+  description="ඔබ කියවූ නවකතා ඉතිහාසය, සුරැකි පිටුසන්, පොත් රාක්ක සහ කියවීමේ ප්‍රගතිය. සියල්ල ඔබගේ උපාංගයේම සුරැකේ."
   noindex
 >
   <div class="mx-auto max-w-3xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8" data-library>
     <header>
       <h1 class="text-2xl font-bold leading-snug sm:text-3xl">මගේ පුස්තකාලය</h1>
-      <p class="mt-1 text-[0.9375rem] text-[var(--reader-muted)]">ඔබ කියවූ දේ සහ සුරැකි පරිච්ඡේද. මේවා මෙම උපාංගයේ පමණක් සුරැකේ.</p>
+      <p class="mt-1 text-[0.9375rem] text-[var(--reader-muted)]">ඔබ කියවූ දේ, සුරැකි පරිච්ඡේද සහ ඔබේ පොත් රාක්ක. මේවා මෙම උපාංගයේ පමණක් සුරැකේ.</p>
     </header>
 
-    <dl class="surface mt-5 grid grid-cols-3 divide-x divide-[var(--reader-border)] py-4 text-center">
+    <dl class="surface mt-5 grid grid-cols-4 divide-x divide-[var(--reader-border)] py-4 text-center">
       <div class="flex flex-col-reverse">
         <dt class="mt-0.5 text-sm text-[var(--reader-muted)]">නවකතා</dt>
         <dd data-lib-count="novels" class="font-serif text-2xl font-bold tabular-nums">0</dd>
@@ -27,15 +28,30 @@ import Icon from '../components/Icon.astro';
         <dt class="mt-0.5 text-sm text-[var(--reader-muted)]">පිටුසන්</dt>
         <dd data-lib-count="bookmarks" class="font-serif text-2xl font-bold tabular-nums">0</dd>
       </div>
+      <div class="flex flex-col-reverse">
+        <dt class="mt-0.5 text-sm text-[var(--reader-muted)]">පොත්</dt>
+        <dd data-lib-count="books" class="font-serif text-2xl font-bold tabular-nums">0</dd>
+      </div>
     </dl>
 
-    <div class="mt-6 flex gap-2" role="tablist" aria-label="පුස්තකාලය">
+    <div class="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="පුස්තකාලය">
       <button type="button" role="tab" data-lib-tab="history" aria-selected="true" class="tap cursor-pointer rounded-full border border-[var(--reader-border)] px-4 py-1.5 text-sm text-[var(--reader-muted)]">
         ඉතිහාසය <span data-lib-count="history" class="tabular-nums">0</span>
       </button>
       <button type="button" role="tab" data-lib-tab="bookmarks" aria-selected="false" class="tap cursor-pointer rounded-full border border-[var(--reader-border)] px-4 py-1.5 text-sm text-[var(--reader-muted)]">
         පිටුසන් <span data-lib-count="bookmarks" class="tabular-nums">0</span>
       </button>
+      <button type="button" role="tab" data-lib-tab="books" aria-selected="false" class="tap cursor-pointer rounded-full border border-[var(--reader-border)] px-4 py-1.5 text-sm text-[var(--reader-muted)]">
+        පොත් රාක්ක <span data-lib-count="books" class="tabular-nums">0</span>
+      </button>
+    </div>
+
+    <!-- Book shelves: filter by shelf; only on the shelves tab. -->
+    <div data-shelf-filters hidden class="mt-3 flex flex-wrap gap-2 text-sm">
+      <button type="button" data-shelf-filter="all" class="tap shrink-0 cursor-pointer rounded-lg border border-[var(--reader-border)] px-3 py-1.5">සියල්ල <span data-shelf-count="all" class="tabular-nums text-[var(--reader-muted)]">0</span></button>
+      {SHELVES.map((s) => (
+        <button type="button" data-shelf-filter={s.id} class="tap shrink-0 cursor-pointer rounded-lg border border-[var(--reader-border)] px-3 py-1.5">{s.si} <span data-shelf-count={s.id} class="tabular-nums text-[var(--reader-muted)]">0</span></button>
+      ))}
     </div>
 
     <section class="surface mt-3 px-4" aria-live="polite">
@@ -44,7 +60,7 @@ import Icon from '../components/Icon.astro';
       <div data-lib-empty hidden class="py-12 text-center">
         <Icon name="book" class="mx-auto h-8 w-8 text-[var(--reader-muted)]" />
         <p data-lib-empty-text class="mx-auto mt-3 max-w-xs text-[0.9375rem] text-[var(--reader-muted)]"></p>
-        <a href="/novels/" class="accent-bg tap mt-5 inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold">නවකතා බලන්න</a>
+        <a href="/novels/" data-lib-empty-link class="accent-bg tap mt-5 inline-flex items-center justify-center rounded-lg px-5 py-2.5 font-semibold">නවකතා බලන්න</a>
       </div>
     </section>
 
@@ -58,15 +74,59 @@ import Icon from '../components/Icon.astro';
 
   <script>
     import { initHistory, type HistoryItem } from '../scripts/app';
+    import { readShelves, setShelf, shelfName, type ShelfBook, type ShelfId } from '../scripts/shelves';
 
     type Item = HistoryItem & { savedAt?: number };
-    type Tab = 'history' | 'bookmarks';
+    type Tab = 'history' | 'bookmarks' | 'books';
 
-    const KEYS: Record<Tab, string> = { history: 'katha_history', bookmarks: 'katha_bookmarks' };
+    const KEYS: Record<'history' | 'bookmarks', string> = { history: 'katha_history', bookmarks: 'katha_bookmarks' };
     const EMPTY: Record<Tab, string> = {
       history: 'ඔබ කියවන පරිච්ඡේද මෙහි ස්වයංක්‍රීයව සටහන් වේ.',
       bookmarks: 'පරිච්ඡේදයක් කියවන විට පිටුසන් බොත්තම ඔබා එය මෙහි සුරකින්න.',
+      books: 'පොතක පිටුවේ "පුස්තකාලයට එක් කරන්න" ඔබා එය රාක්කයකට දමන්න.',
     };
+    let shelfFilter: ShelfId | 'all' = 'all';
+
+    // A book on a shelf: cover, title, author and its shelf; the x takes it off the shelf.
+    function bookRow(book: ShelfBook) {
+      const li = document.createElement('li');
+      li.className = 'flex items-center gap-3 py-3';
+      const link = document.createElement('a');
+      link.href = book.url;
+      link.className = 'tap flex min-w-0 flex-1 items-center gap-3';
+      if (book.cover) {
+        const img = document.createElement('img');
+        img.src = book.cover;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.className = 'h-[4.5rem] w-12 shrink-0 rounded object-cover';
+        link.append(img);
+      }
+      const text = document.createElement('span');
+      text.className = 'min-w-0 flex-1';
+      const title = document.createElement('span');
+      title.className = 'block truncate font-serif font-semibold';
+      title.textContent = book.title;
+      const author = document.createElement('span');
+      author.className = 'block truncate text-sm text-[var(--reader-muted)]';
+      author.textContent = book.author;
+      const shelf = document.createElement('span');
+      shelf.className = 'mt-1 inline-block rounded-full border border-[var(--reader-border)] px-2 py-0.5 text-xs text-[var(--reader-muted)]';
+      shelf.textContent = shelfName(book.shelf);
+      text.append(title, author, shelf);
+      link.append(text);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'tap grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-lg text-[var(--reader-muted)] hover:text-[var(--reader-text)]';
+      remove.setAttribute('aria-label', `${book.title} රාක්කයෙන් ඉවත් කරන්න`);
+      remove.append((document.getElementById('lib-remove-icon') as HTMLTemplateElement).content.cloneNode(true));
+      remove.onclick = () => {
+        setShelf(book, null);
+        render();
+      };
+      li.append(link, remove);
+      return li;
+    }
 
     const load = <T,>(key: string, fallback: T): T => {
       try {
@@ -127,34 +187,64 @@ import Icon from '../components/Icon.astro';
       const history = load<Item[]>(KEYS.history, []);
       const bookmarks = load<Item[]>(KEYS.bookmarks, []);
       const stats = load<{ chaptersRead?: string[]; novelsRead?: string[] }>('katha_stats', {});
+      const books = Object.values(readShelves()).sort((a, b) => b.savedAt - a.savedAt);
 
       const counts: Record<string, number> = {
         novels: Math.max(stats.novelsRead?.length ?? 0, history.length),
         chapters: stats.chaptersRead?.length ?? 0,
         bookmarks: bookmarks.length,
         history: history.length,
+        books: books.length,
       };
       root.querySelectorAll<HTMLElement>('[data-lib-count]').forEach((n) => (n.textContent = String(counts[n.dataset.libCount!])));
       root.querySelectorAll<HTMLButtonElement>('[data-lib-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.libTab === tab)));
 
-      const items = tab === 'history' ? history : bookmarks;
-      const remove = (i: number) => {
-        const current = load<Item[]>(KEYS[tab], []);
-        current.splice(i, 1);
-        localStorage.setItem(KEYS[tab], JSON.stringify(current));
-        render();
-        initHistory();
-      };
-      root.querySelector('[data-lib-list]')!.replaceChildren(...items.map((item, i) => row(item, i, remove)));
-      root.querySelector<HTMLElement>('[data-lib-empty]')!.hidden = items.length > 0;
-      root.querySelector('[data-lib-empty-text]')!.textContent = EMPTY[tab];
+      const filters = root.querySelector<HTMLElement>('[data-shelf-filters]')!;
+      filters.hidden = tab !== 'books';
+      filters.querySelectorAll<HTMLElement>('[data-shelf-count]').forEach((n) => {
+        const id = n.dataset.shelfCount;
+        n.textContent = String(id === 'all' ? books.length : books.filter((b) => b.shelf === id).length);
+      });
+      filters.querySelectorAll<HTMLButtonElement>('[data-shelf-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.shelfFilter === shelfFilter)));
+
+      const emptyLink = root.querySelector<HTMLAnchorElement>('[data-lib-empty-link]')!;
+      emptyLink.href = tab === 'books' ? '/books/' : '/novels/';
+      emptyLink.textContent = tab === 'books' ? 'පොත් බලන්න' : 'නවකතා බලන්න';
+
+      let shown: HTMLLIElement[];
+      if (tab === 'books') {
+        shown = books.filter((b) => shelfFilter === 'all' || b.shelf === shelfFilter).map(bookRow);
+      } else {
+        const key = KEYS[tab];
+        const items = tab === 'history' ? history : bookmarks;
+        const remove = (i: number) => {
+          const current = load<Item[]>(key, []);
+          current.splice(i, 1);
+          localStorage.setItem(key, JSON.stringify(current));
+          render();
+          initHistory();
+        };
+        shown = items.map((item, i) => row(item, i, remove));
+      }
+      root.querySelector('[data-lib-list]')!.replaceChildren(...shown);
+      root.querySelector<HTMLElement>('[data-lib-empty]')!.hidden = shown.length > 0;
+      root.querySelector('[data-lib-empty-text]')!.textContent =
+        tab === 'books' && books.length > 0 ? 'මෙම රාක්කයේ තවම පොත් නැත.' : EMPTY[tab];
       root.querySelector<HTMLElement>('[data-lib-clear]')!.hidden = history.length + bookmarks.length === 0;
     }
 
     document.addEventListener('astro:page-load', () => {
       const root = document.querySelector('[data-library]');
       if (!root) return;
-      tab = 'history';
+      // /bookmarks/#books opens straight on the shelves.
+      tab = location.hash === '#books' ? 'books' : 'history';
+      shelfFilter = 'all';
+      root.querySelectorAll<HTMLButtonElement>('[data-shelf-filter]').forEach((b) => {
+        b.onclick = () => {
+          shelfFilter = b.dataset.shelfFilter as ShelfId | 'all';
+          render();
+        };
+      });
       root.querySelectorAll<HTMLButtonElement>('[data-lib-tab]').forEach((b) => {
         b.onclick = () => {
           tab = b.dataset.libTab as Tab;
