@@ -5,8 +5,10 @@ import buildPrints from './scripts/build-prints.mjs';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { listSlug, slugFromName } from './src/utils/slug.ts';
+import { getGenreSlug } from './src/utils/genres.ts';
 
-// Sitemap <lastmod>: chapter publish dates, read straight from frontmatter because
+// Sitemap <lastmod>: chapter publish dates and book "date added" dates, read straight from frontmatter because
 // content collections aren't available in the config.
 // shortcut: regex frontmatter parsing, fine for the flat `key: value` lines in src/content; switch to a YAML parser if frontmatter gets nested.
 function chapterLastmods() {
@@ -27,6 +29,43 @@ function chapterLastmods() {
     bump(`/novels/${novel}/`, date);
     bump('/novels/', date);
     bump('/', date);
+  }
+  // Story author and genre pages change when one of their stories gets a chapter: they take the story's latest date.
+  const novelsDir = fileURLToPath(new URL('./src/content/novels', import.meta.url));
+  for (const file of readdirSync(novelsDir)) {
+    if (!/\.mdx?$/.test(file)) continue;
+    const date = dates.get(`/novels/${file.replace(/\.mdx?$/, '')}/`);
+    if (!date) continue;
+    const text = readFileSync(join(novelsDir, file), 'utf8');
+    const author = text.match(/^authorSlug:\s*["']?([^"'\r\n]+)/m)?.[1] ?? slugFromName(text.match(/^author:\s*"((?:[^"\\]|\\.)*)"/m)?.[1] ?? '');
+    if (author) bump(`/authors/${author}/`, date);
+    bump('/authors/', date);
+    let genres = [];
+    try {
+      genres = JSON.parse(text.match(/^genres:\s*(\[.*\])/m)?.[1] ?? '[]');
+    } catch {}
+    for (const g of genres) bump(`/genres/${decodeURIComponent(getGenreSlug(g))}/`, date);
+    if (genres.length) bump('/genres/', date);
+  }
+  // Books: their "date added" dates the book page, the shop, the home page (it lists new books) and the
+  // author, publisher and genre lists the book is on, so Google sees when a book is added.
+  const books = fileURLToPath(new URL('./src/content/books', import.meta.url));
+  for (const file of readdirSync(books)) {
+    if (!/\.mdx?$/.test(file)) continue;
+    const text = readFileSync(join(books, file), 'utf8');
+    const date = new Date(text.match(/^addedDate:\s*["']?([^"'\r\n]+)/m)?.[1]);
+    if (isNaN(date)) continue;
+    const field = (key) => text.match(new RegExp(`^${key}:\\s*"((?:[^"\\\\]|\\\\.)*)"`, 'm'))?.[1];
+    let genres = [];
+    try {
+      genres = JSON.parse(text.match(/^genres:\s*(\[.*\])/m)?.[1] ?? '[]');
+    } catch {}
+    bump(`/books/${file.replace(/\.mdx?$/, '')}/`, date);
+    bump('/books/', date);
+    bump('/', date);
+    for (const [kind, names] of [['author', [field('author')]], ['publisher', [field('publisher')]], ['genre', genres]]) {
+      for (const name of names) if (name) bump(`/books/${kind}/${listSlug(name)}/`, date);
+    }
   }
   return dates;
 }
@@ -55,7 +94,8 @@ export default defineConfig({
         // new ones are English-only or Sinhala-only (utils/slug.ts listSlug).
         !/\/books\/(author|publisher|genre)\/(?=[^/]*[a-z])(?=[^/]*[඀-෿])[^/]+\/$/.test(decodeURI(page)),
       serialize(item) {
-        const date = lastmods.get(new URL(item.url).pathname);
+        // Decoded: Sinhala addresses (e.g. /books/author/චන්දන-මෙන්ඩිස්/) are stored as written.
+        const date = lastmods.get(decodeURI(new URL(item.url).pathname));
         if (date) item.lastmod = date.toISOString();
         return item;
       },
