@@ -6,3 +6,14 @@ export const slugFromName = (name: string) =>
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[^\p{L}\p{M}\p{N}\p{Cf}-]/gu, '');
+
+// Address for a book list (/books/author|publisher|genre/<this>/): the English part of the name when it
+// has one ("බිසෝ ප්‍රකාශන - Biso Prakashana" -> "biso-prakashana"), otherwise the Sinhala name.
+export const listSlug = (name: string) =>
+  /[a-z]/i.test(name)
+    ? name
+        .replace(/[^a-z0-9]+/gi, ' ')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+    : slugFromName(name);

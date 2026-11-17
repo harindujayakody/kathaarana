@@ -48,7 +48,12 @@ export default defineConfig({
   // /print/ pages are the sources for the PDFs and share cards; deleted once those are written.
   integrations: [
     sitemap({
-      filter: (page) => !page.endsWith('/bookmarks/') && !page.includes('/print/'),
+      filter: (page) =>
+        !page.endsWith('/bookmarks/') &&
+        !page.includes('/print/') &&
+        // Old book-list addresses (Sinhala + English in one, e.g. "බිසෝ-ප්‍රකාශන---biso-prakashana") only redirect;
+        // new ones are English-only or Sinhala-only (utils/slug.ts listSlug).
+        !/\/books\/(author|publisher|genre)\/(?=[^/]*[a-z])(?=[^/]*[඀-෿])[^/]+\/$/.test(decodeURI(page)),
       serialize(item) {
         const date = lastmods.get(new URL(item.url).pathname);
         if (date) item.lastmod = date.toISOString();

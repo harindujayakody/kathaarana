@@ -5,7 +5,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import BookGrid from '../../../components/BookGrid.astro';
 import Icon from '../../../components/Icon.astro';
-import { slugFromName } from '../../../utils/slug';
+import { listSlug, slugFromName } from '../../../utils/slug';
 
 type Kind = 'author' | 'publisher' | 'genre';
 
@@ -13,22 +13,30 @@ export async function getStaticPaths() {
   const books = await getCollection('books');
   const labelsOf = (book: CollectionEntry<'books'>, kind: Kind) =>
     kind === 'genre' ? book.data.genres : book.data[kind] ? [book.data[kind]] : [];
-  const paths: { params: { kind: string; name: string }; props: { kind: Kind; label: string; books: CollectionEntry<'books'>[] } }[] = [];
+  const paths: { params: { kind: string; name: string }; props: { kind: Kind; label: string; books: CollectionEntry<'books'>[]; redirect?: string } }[] = [];
   for (const kind of ['author', 'publisher', 'genre'] as const) {
     const groups = new Map<string, { label: string; books: CollectionEntry<'books'>[] }>();
     for (const book of books) {
       for (const label of labelsOf(book, kind)) {
-        const slug = slugFromName(label);
+        const slug = listSlug(label);
         if (!groups.has(slug)) groups.set(slug, { label, books: [] });
         groups.get(slug)!.books.push(book);
       }
     }
-    for (const [slug, group] of groups) paths.push({ params: { kind, name: slug }, props: { kind, ...group } });
+    for (const [slug, group] of groups) {
+      paths.push({ params: { kind, name: slug }, props: { kind, ...group } });
+      // The address before English names were used ("බිසෝ-ප්‍රකාශන---biso-prakashana") forwards to the new one.
+      const old = slugFromName(group.label);
+      if (old !== slug && !groups.has(old)) {
+        paths.push({ params: { kind, name: old }, props: { kind, ...group, redirect: `/books/${kind}/${slug}/` } });
+      }
+    }
   }
   return paths;
 }
 
-const { kind, label, books } = Astro.props;
+const { kind, label, books, redirect } = Astro.props;
+if (redirect) return Astro.redirect(redirect, 301);
 books.sort((a, b) => (b.data.addedDate?.getTime() ?? 0) - (a.data.addedDate?.getTime() ?? 0) || a.data.title.localeCompare(b.data.title, 'si'));
 const role = { author: 'කතුවරයා', publisher: 'ප්‍රකාශක', genre: 'ප්‍රභේදය' }[kind];
 const title = { author: `${label} ගේ පොත්`, publisher: `${label} ප්‍රකාශන`, genre: `${label} පොත්` }[kind];
