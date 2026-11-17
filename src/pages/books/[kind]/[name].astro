@@ -39,7 +39,9 @@ const { kind, label, books, redirect } = Astro.props;
 if (redirect) return Astro.redirect(redirect, 301);
 books.sort((a, b) => (b.data.addedDate?.getTime() ?? 0) - (a.data.addedDate?.getTime() ?? 0) || a.data.title.localeCompare(b.data.title, 'si'));
 const role = { author: 'කතුවරයා', publisher: 'ප්‍රකාශක', genre: 'ප්‍රභේදය' }[kind];
-const title = { author: `${label} ගේ පොත්`, publisher: `${label} ප්‍රකාශන`, genre: `${label} පොත්` }[kind];
+// A publisher already called "... ප්‍රකාශන" / "... Publishing" doesn't get the word twice.
+const namesItself = /ප්‍?රකාශ|publish|prakash/i.test(label);
+const title = { author: `${label} ගේ පොත්`, publisher: namesItself ? label : `${label} ප්‍රකාශන`, genre: `${label} පොත්` }[kind];
 const description =
   kind === 'genre'
     ? `${label} ප්‍රභේදයේ සිංහල පොත් ${books.length}ක්: ${books.slice(0, 3).map((b) => b.data.title).join(', ')}. කතා අරණ පොත් සාප්පුව.`
