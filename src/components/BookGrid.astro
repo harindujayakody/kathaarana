@@ -6,13 +6,15 @@ interface Props {
   books: CollectionEntry<'books'>[];
   /** Below the fold: every cover loads lazily. */
   lazy?: boolean;
+  /** Column classes, replacing the shop's 2 / 3 / 4 / 5. */
+  columns?: string;
 }
 
-const { books, lazy = false } = Astro.props;
+const { books, lazy = false, columns = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5' } = Astro.props;
 ---
 
 <!-- 2 columns on phones, 3 on tablets, 4 on laptops, 5 on wide screens. -->
-<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 2xl:grid-cols-5">
+<div class={`grid gap-3 sm:gap-5 ${columns}`}>
   {books.map((book, i) => (
     <BookCard
       id={book.id}

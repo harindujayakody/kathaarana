@@ -1,22 +1,27 @@
 ---
-// Every book by one author (/books/author/<name>/) or from one publisher (/books/publisher/<name>/).
+// Every book by one author (/books/author/<name>/), from one publisher (/books/publisher/<name>/)
+// or in one genre (/books/genre/<name>/).
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import BookGrid from '../../../components/BookGrid.astro';
 import Icon from '../../../components/Icon.astro';
 import { slugFromName } from '../../../utils/slug';
 
+type Kind = 'author' | 'publisher' | 'genre';
+
 export async function getStaticPaths() {
   const books = await getCollection('books');
-  const paths: { params: { kind: string; name: string }; props: { kind: string; label: string; books: CollectionEntry<'books'>[] } }[] = [];
-  for (const kind of ['author', 'publisher'] as const) {
+  const labelsOf = (book: CollectionEntry<'books'>, kind: Kind) =>
+    kind === 'genre' ? book.data.genres : book.data[kind] ? [book.data[kind]] : [];
+  const paths: { params: { kind: string; name: string }; props: { kind: Kind; label: string; books: CollectionEntry<'books'>[] } }[] = [];
+  for (const kind of ['author', 'publisher', 'genre'] as const) {
     const groups = new Map<string, { label: string; books: CollectionEntry<'books'>[] }>();
     for (const book of books) {
-      const label = book.data[kind];
-      if (!label) continue;
-      const slug = slugFromName(label);
-      if (!groups.has(slug)) groups.set(slug, { label, books: [] });
-      groups.get(slug)!.books.push(book);
+      for (const label of labelsOf(book, kind)) {
+        const slug = slugFromName(label);
+        if (!groups.has(slug)) groups.set(slug, { label, books: [] });
+        groups.get(slug)!.books.push(book);
+      }
     }
     for (const [slug, group] of groups) paths.push({ params: { kind, name: slug }, props: { kind, ...group } });
   }
@@ -25,18 +30,53 @@ export async function getStaticPaths() {
 
 const { kind, label, books } = Astro.props;
 books.sort((a, b) => (b.data.addedDate?.getTime() ?? 0) - (a.data.addedDate?.getTime() ?? 0) || a.data.title.localeCompare(b.data.title, 'si'));
-const role = kind === 'author' ? 'කතුවරයා' : 'ප්‍රකාශක';
-const title = kind === 'author' ? `${label} ගේ පොත්` : `${label} ප්‍රකාශන`;
+const role = { author: 'කතුවරයා', publisher: 'ප්‍රකාශක', genre: 'ප්‍රභේදය' }[kind];
+const title = { author: `${label} ගේ පොත්`, publisher: `${label} ප්‍රකාශන`, genre: `${label} පොත්` }[kind];
+const description =
+  kind === 'genre'
+    ? `${label} ප්‍රභේදයේ සිංහල පොත් ${books.length}ක්: ${books.slice(0, 3).map((b) => b.data.title).join(', ')}. කතා අරණ පොත් සාප්පුව.`
+    : `${role}: ${label}. කතා අරණ පොත් සාප්පුවේ පොත් ${books.length}ක්: ${books.slice(0, 3).map((b) => b.data.title).join(', ')}.`;
+
+const site = Astro.site ?? new URL('https://kathaarana.com');
+const url = new URL(Astro.url.pathname, site).toString();
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    url,
+    inLanguage: 'si',
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: books.map((b, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: b.data.title,
+        url: new URL(`/books/${b.id}/`, site).toString(),
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'කතා අරණ', item: site.toString() },
+      { '@type': 'ListItem', position: 2, name: 'පොත් සාප්පුව', item: new URL('/books/', site).toString() },
+      { '@type': 'ListItem', position: 3, name: title, item: url },
+    ],
+  },
+];
 ---
 
-<BaseLayout title={title} description={`${role}: ${label}. කතා අරණ පොත් සාප්පුවේ පොත් ${books.length}ක්.`}>
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
   <div class="mx-auto max-w-[90rem] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
     <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-sm text-[var(--reader-muted)]">
       <a href="/books/" class="inline-flex items-center gap-1 hover:text-[var(--reader-text)]"><Icon name="left" class="h-4 w-4" />පොත් සාප්පුව</a>
     </nav>
     <header class="mt-3">
       <p class="text-sm text-[var(--reader-muted)]">{role}</p>
-      <h1 class="text-2xl font-bold leading-snug sm:text-3xl">{label}</h1>
+      <h1 class="text-2xl font-bold leading-snug sm:text-3xl">{title}</h1>
       <p class="mt-1 text-[0.9375rem] text-[var(--reader-muted)]">පොත් {books.length}</p>
     </header>
     <div class="mt-5">
