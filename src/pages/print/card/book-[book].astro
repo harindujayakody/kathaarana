@@ -1,0 +1,54 @@
+---
+// 1200x900 (4:3) book card that the WhatsApp button attaches when sharing from a phone.
+// scripts/build-prints.mjs screenshots it to /share/book-<book>.jpg, then deletes this page.
+import { Font, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import { formatPrice } from '../../../utils/price';
+
+export async function getStaticPaths() {
+  return (await getCollection('books')).map((book) => ({ params: { book: book.id }, props: { book } }));
+}
+
+const { book } = Astro.props;
+const { title, author, publisher, price, coverImage } = book.data;
+const cover = await getImage({ src: coverImage, width: 760, format: 'jpeg', quality: 85 });
+---
+
+<!doctype html>
+<html lang="si">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>{title}</title>
+    <Font cssVariable="--font-si-sans" />
+    <style is:global>
+      html, body { margin: 0; width: 1200px; height: 900px; overflow: hidden; }
+      body { font-family: var(--font-si-sans); color: #fff; background: #111; position: relative; }
+      .bg { position: absolute; inset: -60px; background: center / cover; filter: blur(40px) brightness(0.45) saturate(1.2); }
+      .card { position: relative; display: grid; grid-template-columns: 420px 1fr; gap: 64px; align-items: center; height: 100%; padding: 0 80px; box-sizing: border-box; }
+      .cover { width: 420px; height: 630px; object-fit: cover; border-radius: 18px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55); }
+      .logo { height: 58px; filter: invert(1); }
+      h1 { font-size: 50px; line-height: 1.35; margin: 28px 0 0; font-weight: 700; text-wrap: balance; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+      .author { font-size: 30px; margin-top: 18px; opacity: 0.85; }
+      .meta { margin-top: 14px; font-size: 24px; opacity: 0.7; }
+      .price { margin-top: 26px; font-size: 40px; font-weight: 700; }
+      .cta { display: inline-block; margin-top: 30px; padding: 16px 30px; border-radius: 999px; background: #fff; color: #111; font-size: 26px; font-weight: 700; }
+      .site { margin-top: 18px; font-size: 24px; opacity: 0.8; letter-spacing: 0.02em; }
+    </style>
+  </head>
+  <body>
+    <div class="bg" style={`background-image:url(${cover.src})`}></div>
+    <div class="card">
+      <img class="cover" src={cover.src} alt="" />
+      <div>
+        <img class="logo" src="/brand/logo.png" alt="කතා අරණ" />
+        <h1>{title}</h1>
+        <p class="author">{author}</p>
+        {publisher && <p class="meta">{publisher}</p>}
+        {price !== undefined && <p class="price">{formatPrice(price)}</p>}
+        <span class="cta">පොත බලන්න</span>
+        <p class="site">kathaarana.com</p>
+      </div>
+    </div>
+  </body>
+</html>
