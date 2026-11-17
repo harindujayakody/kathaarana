@@ -100,11 +100,39 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
 // History comes from localStorage, so only links back into this site are used.
 const localPath = (url: string) => (url.startsWith('/') && !url.startsWith('//') ? url : '/');
 
+// A cover saved on this device (history, bookmarks, shelves) goes stale when the site rebuilds its pictures
+// under new file names. If one fails to load, take the current one from the search index and remember it.
+let coverIndex: Promise<Map<string, string>> | null = null;
+export function healCover(img: HTMLImageElement, pageUrl: string) {
+  img.addEventListener(
+    'error',
+    async () => {
+      const old = img.getAttribute('src');
+      coverIndex ??= fetch('/search.json')
+        .then((r) => (r.ok ? r.json() : []))
+        .then((all: { u: string; i?: string }[]) => new Map(all.filter((e) => e.i && /^\/(novels|books)\/[^/]+\/$/.test(e.u)).map((e) => [e.u, e.i!])))
+        .catch(() => new Map());
+      const page = /^\/(novels|books)\/[^/]+\//.exec(pageUrl)?.[0];
+      const fresh = page ? (await coverIndex).get(page) : undefined;
+      if (!fresh || !old || fresh === old) return;
+      img.src = fresh;
+      for (const key of ['katha_history', 'katha_bookmarks', 'katha_shelves']) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw?.includes(old)) localStorage.setItem(key, raw.split(old).join(fresh));
+        } catch {}
+      }
+    },
+    { once: true },
+  );
+}
+
 function historyRow(item: HistoryItem) {
   const a = el('a', 'tap flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-[var(--reader-bg)]');
   a.href = localPath(item.url);
   if (item.novelCover) {
     const img = el('img', 'h-12 w-8 shrink-0 rounded object-cover');
+    healCover(img, item.url);
     img.src = item.novelCover;
     img.alt = '';
     img.loading = 'lazy';
@@ -124,6 +152,7 @@ function historyCard(item: HistoryItem) {
   a.href = localPath(item.url);
   if (item.novelCover) {
     const img = el('img', 'h-20 w-[3.35rem] shrink-0 rounded-md object-cover');
+    healCover(img, item.url);
     img.src = item.novelCover;
     img.alt = '';
     a.append(img);

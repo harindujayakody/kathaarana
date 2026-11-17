@@ -61,4 +61,18 @@ assert.equal(pricedAgain.files[0].content, priced.files[1].content);
 assert.throws(() => planBook(noBooks, { isNew: true, slug: 'p2', title: 't', author: 'a', price: '12.345' }, { cover: { bytes: new Uint8Array() } }), /Price must be/);
 assert.throws(() => planBook(noBooks, { isNew: true, slug: 'p3', title: 't', author: 'a', price: 'free' }, { cover: { bytes: new Uint8Array() } }), /Price must be/);
 
+// Extra pictures: new ones become <slug>--<n>.jpg after the highest number kept; order is kept; only the
+// book's own pictures can be kept; leaving `images` out keeps them as they are.
+const pics = planBook(noBooks, { isNew: true, slug: 'pics', title: 't', author: 'a' }, { cover: { bytes: new Uint8Array() }, images: [{ bytes: new Uint8Array([1]) }, { bytes: new Uint8Array([2]) }] });
+assert.deepEqual(pics.files.map((f) => f.path), ['src/assets/books/pics.jpg', 'src/assets/books/pics--1.jpg', 'src/assets/books/pics--2.jpg', 'src/content/books/pics.md']);
+assert.match(pics.files[3].content, /images: \["\.\.\/\.\.\/assets\/books\/pics--1\.jpg", "\.\.\/\.\.\/assets\/books\/pics--2\.jpg"\]\n/);
+const picsSnap = { ...noBooks, books: { pics: pics.files[3].content } };
+const reordered = planBook(picsSnap, { isNew: false, slug: 'pics', title: 't', author: 'a' }, { cover: null, images: [{ bytes: new Uint8Array([3]) }, { keep: '../../assets/books/pics--2.jpg' }] });
+assert.deepEqual(reordered.files.map((f) => f.path), ['src/assets/books/pics--3.jpg', 'src/content/books/pics.md']);
+assert.match(reordered.files[1].content, /images: \["\.\.\/\.\.\/assets\/books\/pics--3\.jpg", "\.\.\/\.\.\/assets\/books\/pics--2\.jpg"\]\n/);
+assert.equal(planBook(picsSnap, { isNew: false, slug: 'pics', title: 't', author: 'a' }, { cover: null }).files[0].content, pics.files[3].content);
+assert.doesNotMatch(planBook(picsSnap, { isNew: false, slug: 'pics', title: 't', author: 'a' }, { cover: null, images: [] }).files[0].content, /images:/);
+assert.throws(() => planBook(picsSnap, { isNew: false, slug: 'pics', title: 't', author: 'a' }, { cover: null, images: [{ keep: '../../assets/books/other.jpg' }] }), /Picture not found/);
+assert.throws(() => planBook(noBooks, { isNew: true, slug: 'x', title: 't', author: 'a' }, { cover: { bytes: new Uint8Array() }, images: Array(9).fill({ bytes: new Uint8Array() }) }), /Up to 8/);
+
 console.log('content rules: all checks passed');

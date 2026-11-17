@@ -184,7 +184,8 @@ export function planChapter(snap, b) {
 
 /* ---------- books (the book shop: details only, no ordering) ---------- */
 
-const BOOK_KEYS = ['title', 'author', 'publisher', 'coverImage', 'genres', 'price', 'isbn', 'pages', 'print', 'binding', 'addedDate'];
+const BOOK_KEYS = ['title', 'author', 'publisher', 'coverImage', 'images', 'genres', 'price', 'isbn', 'pages', 'print', 'binding', 'addedDate'];
+export const MAX_BOOK_IMAGES = 8;
 const BOOK_COVER_RE = /^\.\.\/\.\.\/assets\/books\/([\w.-]+\.(?:png|jpe?g|webp|avif))$/i;
 export const bookCoverFileName = (path) => BOOK_COVER_RE.exec(path ?? '')?.[1] ?? null;
 
@@ -200,7 +201,9 @@ export function readBook(snap, slug) {
 }
 
 // cover: { bytes } prepared by the caller (sharp locally, the browser online), or null to keep the current one.
-export function planBook(snap, b, { cover }) {
+// images: the optional extra pictures in order, each { keep: <path already in the book> } or { bytes } (new);
+// leave it out to keep the current ones.
+export function planBook(snap, b, { cover, images: pictures }) {
   const slug = text(b.slug, 'Web address');
   if (!SLUG_RE.test(slug)) throw bad('Web address: lowercase English letters, numbers and hyphens only');
   const exists = has(snap.books, slug);
@@ -227,12 +230,32 @@ export function planBook(snap, b, { cover }) {
   }
   if (!coverImage) throw bad('A cover image is required');
 
+  // Extra pictures are src/assets/books/<slug>--<n>.jpg: the double hyphen can't be another book's cover name.
+  let images = old.data.images;
+  if (pictures) {
+    if (pictures.length > MAX_BOOK_IMAGES) throw bad(`Up to ${MAX_BOOK_IMAGES} more pictures`);
+    const current = Array.isArray(old.data.images) ? old.data.images : [];
+    const numberOf = (p) => Number(new RegExp(`^\\.\\./\\.\\./assets/books/${slug}--(\\d+)\\.jpg$`).exec(p)?.[1] ?? 0);
+    let next = Math.max(0, ...current.map(numberOf)) + 1;
+    images = pictures.map((p) => {
+      if (p.keep !== undefined) {
+        if (!current.includes(p.keep)) throw bad('Picture not found in this book');
+        return p.keep;
+      }
+      const name = `${slug}--${next++}.jpg`;
+      files.push({ path: `src/assets/books/${name}`, content: p.bytes });
+      return `../../assets/books/${name}`;
+    });
+    // shortcut: a removed picture's file stays in src/assets/books; delete it by hand if the folder gets big.
+  }
+
   const data = {
     ...old.data,
     title: text(b.title, 'Title'),
     author: text(b.author, 'Author'),
     publisher: text(b.publisher, 'Publisher', false) || undefined,
     coverImage,
+    images: images?.length ? images : undefined,
     genres: genres.length ? genres : undefined,
     price,
     isbn: text(b.isbn, 'ISBN', false) || undefined,

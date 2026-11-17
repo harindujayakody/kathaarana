@@ -40,6 +40,7 @@ A fast, free Sinhala web-novel library. Read chapter by chapter, no account need
 
 **Library**
 - Novels, short stories (කෙටිකතා), author pages, genre pages and a book shop catalogue (details only, no online ordering yet).
+- Books can have up to 8 extra pictures (back cover, inside pages) in a full-screen viewer. Every book picture the site shows gets a small kathaarana logo in the corner; the original files are never changed (`src/utils/image-service.mjs`).
 - Star ratings, ❤️/😢 reactions, view and download counts shared across readers, with "top novels" rankings.
 - Every story credits its author and links the original source (මුලාශ්‍රය).
 
@@ -92,6 +93,7 @@ Opens a page at `http://localhost:4400` on your own computer:
 - **නව කතාව (new story):** title, author, source, synopsis, cover (drag and drop), date, genres, and optionally the first chapter. You can also paste a filled template to fill the form.
 - **පරිච්ඡේදයක් (add chapter):** pick the story; the next chapter number is filled in. "Each line is a paragraph" fixes text pasted from Facebook.
 - **සංස්කරණය (edit):** change any story or chapter.
+- **Books:** add or edit a book in the shop, with its cover and up to 8 optional extra pictures (removable, kept in order).
 - **ප්‍රකාශනය (publish):** shows what changed, checks every file against the site's rules, then commits only the story files and covers and pushes to `main`. The site updates a few minutes later.
 
 It only listens on this computer, uses your own git login, and only writes to `src/content/` and `src/assets/covers/`. Publishing needs the `main` branch checked out.

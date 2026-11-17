@@ -49,6 +49,7 @@ const books = defineCollection({
       author: z.string(),
       publisher: z.string().optional(),
       coverImage: image(),
+      images: z.array(image()).default([]), // optional extra pictures: back cover, inside pages…
       isbn: z.string().optional(),
       pages: z.number().int().positive().optional(),
       print: z.string().optional(), // e.g. in print, out of print, new edition

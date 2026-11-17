@@ -72,7 +72,11 @@ async function saveStory(b) {
 }
 
 async function saveBook(b) {
-  const { slug, files } = planBook(snapshot(), b, { cover: b.cover ? await coverBytes(b.cover) : null });
+  // Extra pictures: a string is a new image (resized like the cover), { keep } one already in the book.
+  const images = Array.isArray(b.images)
+    ? await Promise.all(b.images.map(async (p) => (typeof p === 'string' ? coverBytes(p) : { keep: String(p?.keep ?? '') })))
+    : undefined;
+  const { slug, files } = planBook(snapshot(), b, { cover: b.cover ? await coverBytes(b.cover) : null, images });
   writeFiles(files);
   return { slug };
 }
