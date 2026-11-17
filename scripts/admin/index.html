@@ -159,7 +159,8 @@
   .story .art { aspect-ratio: 4 / 3; background: var(--soft) center / cover no-repeat; border-bottom: 1px solid var(--border); }
   .story .body { padding: 14px 16px 16px; display: grid; gap: 6px; flex: 1; }
   /* Titles stop at two lines (full title on hover), so cards in a row line up. */
-  .story h3 { margin: 0; font-size: 16px; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-height: calc(2 * 1.45em); }
+  /* Exactly two lines tall: a fixed height (not just line-clamp) so tall Sinhala letters can't let a third line peek through. */
+  .story h3 { margin: 0; font-size: 16px; line-height: 1.5; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; height: calc(2 * 1.5em); }
   .story .meta { color: var(--muted); font-size: 13.5px; }
   .pill { display: inline-block; font-size: 12px; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
   .pill.done { color: var(--ok); border-color: currentColor; }
