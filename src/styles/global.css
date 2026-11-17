@@ -265,6 +265,32 @@ dialog.sheet[open] {
   dialog.sheet { transition: none; }
   dialog.sheet::backdrop { animation: none; }
 }
+/* Book picture viewer ([book].astro): full screen, dark, fades in and out. */
+dialog.gallery {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.92);
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    overlay 0.2s allow-discrete,
+    display 0.2s allow-discrete;
+}
+dialog.gallery[open] { opacity: 1; }
+@starting-style {
+  dialog.gallery[open] { opacity: 0; }
+}
+dialog.gallery::backdrop { background: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  dialog.gallery { transition: none; }
+}
+
 /* Selected text on a filled button (e.g. "පුස්තකාලයට එක් කරන්න" in dark mode) stays readable. */
 .accent-bg::selection,
 .accent-bg ::selection {

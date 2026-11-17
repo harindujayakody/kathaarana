@@ -26,6 +26,7 @@ const { id, title, author, publisher, coverImage, price, eager = false } = Astro
       src={coverImage}
       alt=""
       widths={[200, 280, 400, 560]}
+      watermark
       sizes="(min-width: 1536px) 270px, (min-width: 1024px) 22vw, (min-width: 640px) 30vw, 46vw"
       loading={eager ? 'eager' : 'lazy'}
       class="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"

@@ -73,7 +73,7 @@ import { SHELVES } from '../scripts/shelves';
   <template id="lib-remove-icon"><Icon name="close" class="h-[18px] w-[18px]" /></template>
 
   <script>
-    import { initHistory, type HistoryItem } from '../scripts/app';
+    import { healCover, initHistory, type HistoryItem } from '../scripts/app';
     import { readShelves, setShelf, shelfName, type ShelfBook, type ShelfId } from '../scripts/shelves';
 
     type Item = HistoryItem & { savedAt?: number };
@@ -96,6 +96,7 @@ import { SHELVES } from '../scripts/shelves';
       link.className = 'tap flex min-w-0 flex-1 items-center gap-3';
       if (book.cover) {
         const img = document.createElement('img');
+        healCover(img, book.url);
         img.src = book.cover;
         img.alt = '';
         img.loading = 'lazy';
@@ -147,6 +148,7 @@ import { SHELVES } from '../scripts/shelves';
       link.className = 'tap flex min-w-0 flex-1 items-center gap-3';
       if (item.novelCover) {
         const img = document.createElement('img');
+        healCover(img, item.url);
         img.src = item.novelCover;
         img.alt = '';
         img.loading = 'lazy';

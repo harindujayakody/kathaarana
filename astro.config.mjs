@@ -44,6 +44,8 @@ export default defineConfig({
   // The file names keep their content hash, so browsers can cache them for a year.
   // Old /_astro/ links are 301-redirected to /assets/ by the Worker (worker/src/legacy-assets.json).
   build: { assets: 'assets' },
+  // Astro's sharp image service, plus the logo watermark on book pictures (src/utils/image-service.mjs).
+  image: { service: { entrypoint: './src/utils/image-service.mjs' } },
   // /bookmarks/ is each reader's own localStorage page, not content for search.
   // /print/ pages are the sources for the PDFs and share cards; deleted once those are written.
   integrations: [

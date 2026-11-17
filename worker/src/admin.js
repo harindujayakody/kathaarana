@@ -9,7 +9,7 @@
 import page from '../../scripts/admin/index.html';
 import { bad, bookCoverFileName, coverFileName, genreNames, listBooks, listStories, planBook, planChapter, planStory, readBook, readChapter } from '../../scripts/admin/content.mjs';
 
-const MAX_BODY = 6 * 1024 * 1024; // a resized cover is well under this
+const MAX_BODY = 12 * 1024 * 1024; // a resized cover plus 8 resized book pictures fit under this
 const SECURITY_HEADERS = {
   'Cache-Control': 'no-store',
   'X-Robots-Tag': 'noindex, nofollow',
@@ -298,7 +298,11 @@ export async function handleAdmin(request, env) {
         return reply(await commit(env, snap, files, `${b.isNew ? 'Publish' : 'Update'} ${String(b.title).trim()}`));
       }
       if (url.pathname === '/admin/api/book') {
-        const { files } = planBook(snap, b, { cover: b.cover ? coverFromBrowser(b.cover) : null });
+        // Extra pictures: a string is a new image (resized in the browser), { keep } one already in the book.
+        const images = Array.isArray(b.images)
+          ? b.images.map((p) => (typeof p === 'string' ? coverFromBrowser(p) : { keep: String(p?.keep ?? '') }))
+          : undefined;
+        const { files } = planBook(snap, b, { cover: b.cover ? coverFromBrowser(b.cover) : null, images });
         return reply(await commit(env, snap, files, `${b.isNew ? 'Add' : 'Update'} book ${String(b.title).trim()}`));
       }
       const files = planChapter(snap, b);

@@ -8,7 +8,6 @@ import ShareButtons from '../../components/ShareButtons.astro';
 import ShelfButton from '../../components/ShelfButton.astro';
 import { getImage } from 'astro:assets';
 import RatingStars from '../../components/RatingStars.astro';
-import { coverShareUrl } from '../../utils/covers';
 import { buildStats } from '../../utils/buildStats';
 import { formatPrice } from '../../utils/price';
 import { listSlug } from '../../utils/slug';
@@ -31,7 +30,7 @@ export async function getStaticPaths() {
 
 const { book, related } = Astro.props;
 const { Content } = await render(book);
-const { title, author, publisher, isbn, pages, print, binding, coverImage, genres, price } = book.data;
+const { title, author, publisher, isbn, pages, print, binding, coverImage, images, genres, price } = book.data;
 // Ratings are stored under the same key the catalog gives this book.
 const ratingKey = `book-${book.id}`;
 const rated = (await buildStats())[ratingKey];
@@ -66,7 +65,15 @@ const details = shown.map(([label, parts, wide]) => ({
 
 const site = Astro.site ?? new URL('https://kathaarana.com');
 const url = new URL(`/books/${book.id}/`, site).toString();
-const shareCover = new URL(await coverShareUrl(coverImage), site).toString();
+// The cover search engines and link previews show, with the logo like every book picture on the site.
+const shareCover = new URL((await getImage({ src: coverImage, width: 800, format: 'jpeg', watermark: true })).src, site).toString();
+// The full-screen viewer: the cover first, then the extra pictures.
+const gallery = await Promise.all(
+  [coverImage, ...images].map(async (src, i) => ({
+    src: (await getImage({ src, width: 1000, format: 'webp', watermark: true })).src,
+    alt: i === 0 ? `${title} කවරය` : `${title}: පින්තූරය ${i + 1}`,
+  })),
+);
 // Small cover for the library list.
 const shelfCover = (await getImage({ src: coverImage, width: 96, format: 'webp' })).src;
 const jsonLd = [
@@ -135,15 +142,18 @@ const jsonLd = [
         <section class="surface order-1 p-4 sm:p-6" data-stats={ratingKey} data-book-view={ratingKey}>
           <!-- Phones: library and share buttons get a full-width row under the cover; wider: they sit under the title. -->
           <div class="grid grid-cols-[8rem_minmax(0,1fr)] gap-x-4 sm:grid-cols-[13rem_minmax(0,1fr)] sm:grid-rows-[auto_1fr] sm:gap-x-6">
-            <Image
-              src={coverImage}
-              alt={`${title} කවරය`}
-              widths={[128, 208, 256, 416]}
-              sizes="(min-width: 640px) 208px, 128px"
-              loading="eager"
-              fetchpriority="high"
-              class="aspect-[2/3] w-full self-start rounded-lg object-cover shadow-[var(--lift-shadow)] sm:row-span-2"
-            />
+            <button type="button" data-gallery-open="0" class="tap self-start cursor-zoom-in sm:row-span-2" aria-label={`${title} කවරය විශාලව බලන්න`}>
+              <Image
+                src={coverImage}
+                alt={`${title} කවරය`}
+                widths={[128, 208, 256, 416]}
+                sizes="(min-width: 640px) 208px, 128px"
+                loading="eager"
+                fetchpriority="high"
+                watermark
+                class="aspect-[2/3] w-full rounded-lg object-cover shadow-[var(--lift-shadow)]"
+              />
+            </button>
             <div class="min-w-0">
               <h1 class="text-2xl font-bold leading-snug sm:text-3xl">{title}</h1>
               <p class="mt-1 text-[0.9375rem] font-medium"><a href={`/books/author/${listSlug(author)}/`} class="hover:accent-text hover:underline">{author}</a></p>
@@ -162,9 +172,42 @@ const jsonLd = [
             <div class="col-span-2 mt-4 sm:col-span-1 sm:col-start-2">
               <ShelfButton id={book.id} title={title} author={author} cover={shelfCover} url={`/books/${book.id}/`} class="[&>[data-shelf-open]]:flex-1 sm:[&>[data-shelf-open]]:flex-none" />
               <ShareButtons url={url} title={`${title} - ${author}`} card={`/share/book-${book.id}.jpg`} class="mt-4" />
+              {images.length > 0 && (
+                <div class="mt-4">
+                  <p class="text-sm text-[var(--reader-muted)]">තවත් පින්තූර</p>
+                  <ul class="mt-2 flex gap-2 overflow-x-auto pb-1">
+                    {images.map((src, i) => (
+                      <li class="shrink-0">
+                        <button type="button" data-gallery-open={i + 1} class="tap block cursor-zoom-in overflow-hidden rounded-lg border border-[var(--reader-border)]" aria-label={`පින්තූරය ${i + 2} විශාලව බලන්න`}>
+                          <Image src={src} alt={gallery[i + 1].alt} widths={[64, 128]} sizes="64px" class="h-24 w-16 object-cover" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </section>
+
+        <!-- Full-screen viewer for the cover and the extra pictures. -->
+        <dialog id="book-gallery" class="gallery" aria-label="පින්තූර" data-gallery={JSON.stringify(gallery)}>
+          <div class="flex h-full flex-col">
+            <div class="flex items-center justify-between px-4 py-3 text-sm text-white/80">
+              <span data-gallery-count class="tabular-nums"></span>
+              <button type="button" data-gallery-close class="tap cursor-pointer rounded-lg p-2 text-white" aria-label="වසන්න"><Icon name="close" /></button>
+            </div>
+            <div class="relative flex min-h-0 flex-1 items-center justify-center px-4 pb-6 sm:px-16">
+              <img data-gallery-img alt="" class="max-h-full max-w-full rounded-lg object-contain" />
+              {gallery.length > 1 && (
+                <>
+                  <button type="button" data-gallery-step="-1" class="tap absolute left-2 top-1/2 grid h-11 w-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="පෙර පින්තූරය"><Icon name="left" /></button>
+                  <button type="button" data-gallery-step="1" class="tap absolute right-2 top-1/2 grid h-11 w-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="ඊළඟ පින්තූරය"><Icon name="right" /></button>
+                </>
+              )}
+            </div>
+          </div>
+        </dialog>
 
         {about && (
           <section class="surface order-3 p-4 sm:p-6" aria-labelledby="about-title">
@@ -232,3 +275,45 @@ const jsonLd = [
     </aside>
   </div>
 </BaseLayout>
+
+<script>
+  // The picture viewer: opened from the cover or a thumbnail; arrows, swipe and ← → keys move through them.
+  document.addEventListener('astro:page-load', () => {
+    const dialog = document.getElementById('book-gallery') as HTMLDialogElement | null;
+    if (!dialog) return;
+    const pictures: { src: string; alt: string }[] = JSON.parse(dialog.dataset.gallery || '[]');
+    const img = dialog.querySelector<HTMLImageElement>('[data-gallery-img]')!;
+    const count = dialog.querySelector<HTMLElement>('[data-gallery-count]')!;
+    let at = 0;
+    const show = (i: number) => {
+      at = (i + pictures.length) % pictures.length;
+      img.src = pictures[at].src;
+      img.alt = pictures[at].alt;
+      count.textContent = pictures.length > 1 ? `${at + 1} / ${pictures.length}` : '';
+    };
+    document.querySelectorAll<HTMLButtonElement>('[data-gallery-open]').forEach((b) => {
+      b.onclick = () => {
+        show(Number(b.dataset.galleryOpen));
+        dialog.showModal();
+      };
+    });
+    dialog.querySelector<HTMLButtonElement>('[data-gallery-close]')!.onclick = () => dialog.close();
+    dialog.querySelectorAll<HTMLButtonElement>('[data-gallery-step]').forEach((b) => {
+      b.onclick = () => show(at + Number(b.dataset.galleryStep));
+    });
+    dialog.onkeydown = (e) => {
+      if (e.key === 'ArrowRight') show(at + 1);
+      else if (e.key === 'ArrowLeft') show(at - 1);
+    };
+    // Tap the dark area around the picture to close.
+    dialog.onclick = (e) => {
+      if (e.target === dialog || (e.target as Element).matches('.gallery > div, .gallery > div > div')) dialog.close();
+    };
+    let startX = 0;
+    dialog.ontouchstart = (e) => (startX = e.touches[0].clientX);
+    dialog.ontouchend = (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 50 && pictures.length > 1) show(at + (dx < 0 ? 1 : -1));
+    };
+  });
+</script>
