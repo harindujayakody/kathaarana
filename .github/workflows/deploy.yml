@@ -33,6 +33,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run typecheck
+      - run: node scripts/admin/content.test.mjs
+      - run: node scripts/indexnow.test.mjs
 
   build:
     needs: check
@@ -42,6 +44,15 @@ jobs:
       - uses: withastro/action@v4
         with:
           node-version: 22
+      # IndexNow: the pages this build adds or changes, compared with the live sitemap (still the old site here).
+      # Sent to the search engines by the indexnow job, once the deploy is live.
+      - if: github.ref == 'refs/heads/main'
+        run: node scripts/indexnow.mjs plan https://kathaarana.com/sitemap-0.xml dist/sitemap-0.xml > indexnow-urls.txt
+      - if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: indexnow-urls
+          path: indexnow-urls.txt
 
   deploy:
     if: github.ref == 'refs/heads/main'
@@ -53,3 +64,16 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Tells Bing and the other IndexNow engines about new and changed pages (scripts/indexnow.mjs).
+  # A failure here shows in the run but doesn't undo the deploy.
+  indexnow:
+    if: github.ref == 'refs/heads/main'
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: indexnow-urls
+      - run: node scripts/indexnow.mjs send indexnow-urls.txt
