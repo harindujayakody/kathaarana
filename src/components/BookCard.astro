@@ -36,9 +36,9 @@ const { id, title, author, publisher, coverImage, price, eager = false } = Astro
     <h2 class="font-serif text-base font-semibold leading-snug sm:text-[1.0625rem]">
       <a href={`/books/${id}/`} class="line-clamp-2 hover:accent-text" title={title}>{title}</a>
     </h2>
-    <a href={`/books/author/${listSlug(author)}/`} class="mt-1.5 truncate text-sm text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:underline">{author}</a>
+    <a href={`/books/author/${listSlug(author)}/`} class="mt-1 truncate text-sm leading-6 text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:underline">{author}</a>
     {publisher && (
-      <a href={`/books/publisher/${listSlug(publisher)}/`} class="mt-0.5 truncate text-xs text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:underline">{publisher}</a>
+      <a href={`/books/publisher/${listSlug(publisher)}/`} class="truncate text-xs leading-6 text-[var(--reader-muted)] hover:text-[var(--reader-text)] hover:underline">{publisher}</a>
     )}
     {price !== undefined && <p class="mt-auto pt-3 font-semibold tabular-nums">{formatPrice(price)}</p>}
   </div>
