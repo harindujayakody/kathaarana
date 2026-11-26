@@ -125,6 +125,8 @@ const jsonForScript = (data: unknown) => JSON.stringify(data).replace(/</g, '\\u
 
 <title>{pageTitle}</title>
 <meta name="description" content={description} />
+<!-- Bing Webmaster Tools site verification -->
+<meta name="msvalidate.01" content="16FAFD324BD779732076F01BACF05DAA" />
 {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonicalUrl} />}
 {!noindex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
 <link rel="alternate" type="application/rss+xml" title="කතා අරණ - නවතම පරිච්ඡේද" href="/rss.xml" />
